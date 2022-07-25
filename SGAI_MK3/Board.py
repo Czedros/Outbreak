@@ -1,14 +1,13 @@
+from os import system
 from State import State
 import random as rd
 from Person import Person
 from typing import List, Tuple
 from constants import *
-
+from Resource import Resource
 
 class Board:
-    def __init__(
-        self,
-        dimensions: Tuple[int, int],
+    def __init__(self,  dimensions: Tuple[int, int],
         player_role: str,
     ):
         self.rows = dimensions[0]
@@ -18,6 +17,7 @@ class Board:
         self.population = 0
         self.States = []
         self.QTable = []
+        self.resources = []
         for s in range(dimensions[0] * dimensions[1]):
             self.States.append(State(None, s))
             self.QTable.append([0] * 6)
@@ -106,7 +106,8 @@ class Board:
                 if state.person is not None:
                     changed_states = False
                     if action == "heal" and (
-                        state.person.isZombie or not state.person.isVaccinated
+                        state.person.isZombie or not 
+                        state.person.isVaccinated 
                     ):
                         poss.append(B.toCoord(idx))
                         changed_states = True
@@ -165,6 +166,29 @@ class Board:
                 and self.States[self.toIndex(coord)].person is not None
                 and self.States[self.toIndex(coord)].person.isZombie == is_zombie
             ):
+                ret = True
+                break
+
+        return ret
+
+    def isNear(self, coord: Tuple[int, int]) -> bool:
+        ret = False
+        vals = [
+            (coord[0], coord[1] + 1),
+            (coord[0], coord[1] - 1),
+            (coord[0] + 1, coord[1]),
+            (coord[0] - 1, coord[1]),
+            (coord[0]+ 1, coord[1] + 1),
+            (coord[0]- 1, coord[1] - 1),
+            (coord[0] + 1, coord[1] - 1),
+            (coord[0] - 1, coord[1] + 1),
+            (coord[0], coord[1])
+        ]
+        for coord in vals:
+            print(coord)
+            if (self.isValidCoordinate(coord) 
+                and self.States[self.toIndex(coord)].person is not None 
+                and self.States[self.toIndex(coord)].person.isZombie == False):
                 ret = True
                 break
 
@@ -287,6 +311,9 @@ class Board:
         """
         i = self.toIndex(coords)
         if self.States[i].person is None:
+            return [False, None]
+        if self.isNear(coords) == False:
+            print("Out of Range!")
             return [False, None]
         p = self.States[i].person
 
