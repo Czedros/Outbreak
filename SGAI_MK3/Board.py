@@ -17,7 +17,14 @@ class Board:
         self.population = 0
         self.States = []
         self.QTable = []
-        self.resources = []
+        self.isDay = True;
+
+        self.resources = [
+            Resource("Human AP", 8, {"Move" : 1 , "Cure": 3, } ), 
+            Resource("Zombie AP", 3, {"Move" : 1 , "Bite": 2, } ),
+            Resource("Food", 100, {"Gather": 5 , "Consume" : 3 }), 
+            Resource("Survivors", 10000, {"Gain" : 1} )
+        ]
         for s in range(dimensions[0] * dimensions[1]):
             self.States.append(State(None, s))
             self.QTable.append([0] * 6)
@@ -76,6 +83,7 @@ class Board:
                         action == "bite"
                         and not state.person.isZombie
                         and self.isAdjacentTo(self.toCoord(idx), True)
+                        and self.resources[1].currentValue > 0
                     ):
                         # if the current space isn't a zombie and it is adjacent
                         # a space that is a zombie
@@ -85,6 +93,7 @@ class Board:
                         action != "bite"
                         and state.person.isZombie
                         and B.actionToFunction[action](B.toCoord(idx))[0]
+                        and self.resources[1].currentValue > 1
                     ):
                         poss.append(B.toCoord(idx))
                         changed_states = True
@@ -108,6 +117,7 @@ class Board:
                     if action == "heal" and (
                         state.person.isZombie or not 
                         state.person.isVaccinated 
+                        and self.resources[0].currentValue > 2
                     ):
                         poss.append(B.toCoord(idx))
                         changed_states = True
@@ -115,6 +125,7 @@ class Board:
                         action != "heal"
                         and not state.person.isZombie
                         and B.actionToFunction[action](B.toCoord(idx))[0]
+                        and self.resources[0].currentValue > 0
                     ):
                         poss.append(B.toCoord(idx))
                         changed_states = True
@@ -213,9 +224,20 @@ class Board:
 
         # Check if the destination is currently occupied
         if self.States[destination_idx].person is None:
-            self.States[destination_idx].person = self.States[start_idx].person
-            self.States[start_idx].person = None
-            return [True, destination_idx]
+            if (self.States[start_idx].person.isZombie == False):
+                if self.resources[1].checkCost("Move") != False:
+                    self.States[destination_idx].person = self.States[start_idx].person
+                    self.States[start_idx].person = None
+                    self.resources[1].alterByValue(-1)
+                    print("Success!")
+                    return [True, destination_idx]
+            else:
+                if self.resources[0].checkCost("Move") != False:
+                    self.States[start_idx].person = None
+                    self.resources[0].alterByValue(-1)
+                    print("Success!")
+                    return [True, destination_idx]
+        
         return [False, destination_idx]
 
     def moveUp(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
@@ -298,6 +320,9 @@ class Board:
             or not self.isAdjacentTo(coords, True)
         ):
             return [False, None]
+        if self.resources[0].currentValue < 3:
+            print("Not Enough AP")
+            return [False, None]
         self.States[i].person.calcInfect()
         return [True, i]
 
@@ -315,6 +340,10 @@ class Board:
         if self.isNear(coords) == False:
             print("Out of Range!")
             return [False, None]
+        if self.resources[0].currentValue < 3:
+            print("Not Enough AP")
+            return [False, None]
+        self.resources[0].alterByValue(-3)
         p = self.States[i].person
 
         if p.isZombie:

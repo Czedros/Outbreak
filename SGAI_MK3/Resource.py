@@ -2,10 +2,12 @@ class Resource:
     name = ""
     currentValue : int = 0
     maxValue : int = 0
+    actions = {        }
     
-    def __init__(self, name, maxval):
+    def __init__(self, name, maxval, action):
         self.name = name
         self.maxValue = maxval
+        self.actions = action
 
     def clone(self):
         ret = Resource(self.name, self.maxValue)
@@ -36,3 +38,7 @@ class Resource:
             self.currentValue = 0 
         else:
             self.currentValue = newVal
+    def checkCost(self, action):
+        if self.actions[action] > self.currentValue:
+            return False
+        return True
