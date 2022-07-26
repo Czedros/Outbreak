@@ -39,7 +39,7 @@ start = time.process_time()
 pygame.init()
 display_surface = pygame.display.set_mode((renderConstants.SIZE, renderConstants.SIZE))
 ctypes.windll.user32.SetProcessDPIAware()#If you're not using Windows, here's an L -> L :).
-pygame.display.set_caption("Sus")
+pygame.display.set_caption("Sussy Baka") #Nice name - Hannah
 #######
 day = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\Backgrounds\\SunBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
 noon = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\Backgrounds\\SunDownBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
