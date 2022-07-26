@@ -187,24 +187,6 @@ def run(GameBoard: Board):
     display_surface.blit(apText, apTextRect)
     #######
     display_surface.blit(healImage, healImagePos)
-    #######
-    #for event in pygame.event.get():
-    #    if event.type == pygame.QUIT:
-    #        mainLoop = False
-    #    elif event.type == pygame.MOUSEBUTTONUP:
-    #        clickPos = pygame.mouse.get_pos()
-    #        healClickPos = (clickPos[0] - healImagePos[0], clickPos[1] - healImagePos[1])
-    #        if(healClickPos[0] >= 0 and healClickPos[0] <= healImage.get_width() and healClickPos[1] >= 0 and healClickPos[1] <= healImage.get_height()):
-    #            print("Heal")
-    #            continue
-    #        if(clickPos[0] < renderConstants.GRIDRECT.left or clickPos[1] < renderConstants.GRIDRECT.top or clickPos[0] > renderConstants.GRIDRECT.right or clickPos[1] > renderConstants.GRIDRECT.bottom):
-    #            continue
-    #        clickOff = renderConstants.GRIDRECT.left + constants.LINE_WIDTH + renderConstants.CELLOFF
-    #        clickPos = [clickPos[0], clickPos[1]]
-    #        clickPos[0] -= clickOff
-    #        clickPos[1] -= clickOff
-    #        gridPos = (int(clickPos[0] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)), int(clickPos[1] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)))
-    #        print("Clicked: " + str(gridPos))
     pygame.display.update()
     return pygame.event.get()
 
