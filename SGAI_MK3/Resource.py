@@ -38,6 +38,8 @@ class Resource:
             self.currentValue = 0 
         else:
             self.currentValue = newVal
+    def setToMax(self):
+        self.currentValue = self.maxValue        
     def checkCost(self, action):
         if self.actions[action] > self.currentValue:
             return False
