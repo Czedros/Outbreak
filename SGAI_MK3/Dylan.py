@@ -24,7 +24,7 @@ dayProgressRectBounds = dayProgressBorderSize[0] * dayProgress.get_width()
 dayProgressRectBounds = (dayProgressPos[0] + dayProgressRectBounds + 1, dayProgressPos[0] + dayProgress.get_width() - dayProgressRectBounds - dayProgressRectWidth + 1)
 dayProgressRect = pygame.Rect(dayProgressRectBounds[1], dayProgressPos[1] + dayProgress.get_height() * dayProgressBorderSize[1] + 0.5, dayProgressRectWidth, dayProgress.get_height() * (1 - dayProgressBorderSize[1] * 2) + 0.5)
 #######
-resourceIcon = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\ResourceIcon.png'), (renderConstants.SIZE * 0.1, renderConstants.SIZE * 0.1))
+resourceIcon = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\ResourceIcon2.png'), (renderConstants.SIZE * 0.1, renderConstants.SIZE * 0.1))
 resourceBarHeight = resourceIcon.get_height() * 0.5
 resourceBar = pygame.image.load(r'Assets\\UI\\ResourceBar.png')
 resourceBar = pygame.transform.scale(resourceBar, (resourceBarHeight * resourceBar.get_width() / resourceBar.get_height(), resourceBarHeight))
