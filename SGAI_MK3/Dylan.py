@@ -77,7 +77,7 @@ resourceTextRect.left = resourceBarPos[0] + renderConstants.SIZE * 0.02
 resourceTextRect.top = resourceBarPos[1] - resourceTextRect.height
 #######
 apImageSize = 0.12
-apImage = pygame.image.load(r'Assets\\UI\\testap.png')
+apImage = pygame.image.load(r'Assets\\UI\\APBar.png')
 apImage = pygame.transform.scale(apImage, (renderConstants.SIZE * apImageSize * apImage.get_width() / apImage.get_height(), renderConstants.SIZE * apImageSize));
 apImagePos = (renderConstants.SIZE * 0.05, renderConstants.SIZE - apImage.get_height())
 apBorderSize = (0.35, 0.345)
