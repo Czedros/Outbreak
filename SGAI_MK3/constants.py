@@ -28,3 +28,4 @@ CUR_MOVE_COORDS = (800, 400)
 MARGIN = 150  # Number of pixels to offset grid to the top-left side
 
 MAX_RESOURCES = 100
+MAX_HUMAN_AP = 8
