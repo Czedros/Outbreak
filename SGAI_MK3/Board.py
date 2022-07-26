@@ -231,6 +231,8 @@ class Board:
                     self.resources[1].alterByValue(-1)
                     print("Success!")
                     return [True, destination_idx]
+                else:
+                    print("Not enough AP!")
             else:
                 if self.resources[0].checkCost("Move") != False:
                     self.States[start_idx].person = None
@@ -243,18 +245,22 @@ class Board:
     def moveUp(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0], coords[1] - 1)
         return self.move(coords, new_coords)
+        print("player moved up, action completed successfully in Board")
 
     def moveDown(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0], coords[1] + 1)
         return self.move(coords, new_coords)
+        print("player moved down, action completed successfully in Board")
 
     def moveLeft(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0] - 1, coords[1])
         return self.move(coords, new_coords)
+        print("player moved left, action completed successfully in Board")
 
     def moveRight(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0] + 1, coords[1])
         return self.move(coords, new_coords)
+        print("player moved right, action completed successfully in Board")
 
     def QGreedyat(self, state_id: int):
         biggest = self.QTable[state_id][0] * self.player_num
@@ -324,6 +330,7 @@ class Board:
             print("Not Enough AP")
             return [False, None]
         self.States[i].person.calcInfect()
+        print("Infection has either failed or succeeded, action completed successfully in Board")
         return [True, i]
 
     def heal(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
@@ -348,8 +355,10 @@ class Board:
 
         if p.isZombie:
             p.calcCureSuccess()
+            print("Cure/Vaccine has either failed or succeeded, action completed successfully in Board")
         else:
             p.get_vaccinated()
+            print("Person is now vaccinated, action completed successfully in Board")
         return [True, i]
 
     def get_possible_states(self, role_number: int):

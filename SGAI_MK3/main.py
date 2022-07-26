@@ -78,12 +78,14 @@ while running:
                         )
                         if result[0] is not False:
                             playerMoved = True
+                            print("Player has moved, action completed successfully in Main")
                         take_action = []
 
                 elif take_action[0] == "heal" or take_action[0] == "bite":
                     result = GameBoard.actionToFunction[take_action[0]](take_action[1])
                     if result[0] is not False:
                         playerMoved = True
+                        print("Cure, Vaccinate, or Infect either failed or succeeded, action completed successfully in Main")
                     take_action = []
 
         # Computer turn
