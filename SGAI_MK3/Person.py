@@ -7,8 +7,7 @@ class Person:
     isVaccinated : bool= False
     isZombie : bool = False
     wasCured : bool = False
-    HumanAP = Resource("Human AP", 8, {"Move" : 1 , "Cure": 3, } )
-    ZombieAP = Resource("Zombie AP", 3, {"Move" : 1 , "Bite": 2, } )
+    AP = Resource("AP", 3, {"Move" : 1 , "Bite": 2, } )
     def __init__(self, iz: bool):
         self.isZombie = iz
 
@@ -18,6 +17,7 @@ class Person:
         ret.turnsVaccinated = self.turnsVaccinated
         ret.isVaccinated = self.isVaccinated
         ret.wasCured = self.wasCured
+        ret.AP = self.AP
         return ret
 
     def calcInfect(self):
@@ -56,10 +56,7 @@ class Person:
         if self.turnsVaccinated > 4:
             self.isVaccinated = False
             self.turnsVaccinated = 0
-        if self.isZombie == False:
-            self.HumanAP.setToMax()
-        else:
-            self.ZombieAP.setToMax()
+        self.AP.setToMax()
 
     def __str__(self) -> str:
         return f"Person who is a zombie? {self.isZombie}"

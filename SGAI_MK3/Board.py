@@ -17,11 +17,11 @@ class Board:
         self.population = 0
         self.States = []
         self.QTable = []
-        self.isDay = True;
+        self.isDay = True
+        self.timeCounter = 0
 
         self.resources = [
             Resource("Human AP", 8, {"Move" : 1 , "Cure": 3, } ), 
-            Resource("Zombie AP", 3, {"Move" : 1 , "Bite": 2, } ),
             Resource("Food", 100, {"Gather": 5 , "Consume" : 3 }), 
             Resource("Survivors", 10000, {"Gain" : 1} )
         ]
@@ -83,7 +83,7 @@ class Board:
                         action == "bite"
                         and not state.person.isZombie
                         and self.isAdjacentTo(self.toCoord(idx), True)
-                        and self.resources[1].currentValue > 0
+                        and state.person.AP.currentValue > 1
                     ):
                         # if the current space isn't a zombie and it is adjacent
                         # a space that is a zombie
@@ -93,7 +93,7 @@ class Board:
                         action != "bite"
                         and state.person.isZombie
                         and B.actionToFunction[action](B.toCoord(idx))[0]
-                        and self.resources[1].currentValue > 1
+                        and state.person.AP.currentValue > 0
                     ):
                         poss.append(B.toCoord(idx))
                         changed_states = True
@@ -221,23 +221,23 @@ class Board:
         # Check if the new coordinates are valid
         if not self.isValidCoordinate(new_coords):
             return [False, destination_idx]
-
+        #Checks if you have enough AP
+            
         # Check if the destination is currently occupied
         if self.States[destination_idx].person is None:
-            if (self.States[start_idx].person.isZombie == False):
-                if self.resources[1].checkCost("Move") != False:
+            if self.States[start_idx].person.isZombie:
+                if self.States[start_idx].person.AP.checkCost("Move") <  self.States[start_idx].person.AP.currentValue:
                     self.States[destination_idx].person = self.States[start_idx].person
                     self.States[start_idx].person = None
-                    self.resources[1].alterByValue(-1)
-                    print("Success!")
+                    self.States[destination_idx].person.AP.alterByValue(-1)
                     return [True, destination_idx]
             else:
-                if self.resources[0].checkCost("Move") != False:
+                if  self.resources[0].currentValue > self.resources[0].checkCost("Move"):
+                    self.States[destination_idx].person = self.States[start_idx].person
                     self.States[start_idx].person = None
                     self.resources[0].alterByValue(-1)
-                    print("Success!")
                     return [True, destination_idx]
-        
+
         return [False, destination_idx]
 
     def moveUp(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
@@ -320,7 +320,7 @@ class Board:
             or not self.isAdjacentTo(coords, True)
         ):
             return [False, None]
-        if self.resources[0].currentValue < 3:
+        if  self.States[i].person.AP < 2:
             print("Not Enough AP")
             return [False, None]
         self.States[i].person.calcInfect()
@@ -340,7 +340,7 @@ class Board:
         if self.isNear(coords) == False:
             print("Out of Range!")
             return [False, None]
-        if self.resources[0].currentValue < 3:
+        if self.resources[0].currentValue < 2:
             print("Not Enough AP")
             return [False, None]
         self.resources[0].alterByValue(-3)
@@ -413,6 +413,12 @@ class Board:
         Update each of the states;
         This method should be called at the end of each round
         (after player and computer have each gone once)
-        """
+        """ 
+        self.timeCounter += 1
+        if self.timeCounter == 5:
+            self.isDay != self.isDay    
+            self.timeCounter = 0    
+        
         for state in self.States:
             state.update()
+        
