@@ -18,7 +18,6 @@ IMAGE_ASSETS = [
     "person_vax.png",
     "person_zombie.png",
 ]
-GAME_WINDOW_DIMENSIONS = (1200, 800)
 RESET_MOVE_COORDS = (800, 600)
 RESET_MOVE_DIMS = (200, 50)
 CURE_BITE_COORDS = (950, 200)

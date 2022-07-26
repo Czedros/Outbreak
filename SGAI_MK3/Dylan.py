@@ -37,72 +37,18 @@ def cellPosition(x, y):
     cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * x + renderConstants.CELLOFF)
     cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
     return (cellX, cellY)
-displayGrid = imageToGrid(r'Assets\\TestGrids\\TestGrid1.png')
+displayGrid = imageToGrid(r'Assets\\TestGrids\\TestGrid2.png')
 start = renderConstants.frame_time
 #######
 pygame.init()
 display_surface = pygame.display.set_mode((renderConstants.SIZE, renderConstants.SIZE))
 ctypes.windll.user32.SetProcessDPIAware()#If you're not using Windows, here's an L -> L :).
 pygame.display.set_caption("Sussy Baka") #Nice name - Hannah
-#######
-day = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\Backgrounds\\SunBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
-noon = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\Backgrounds\\SunDownBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
-night = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\Backgrounds\\MoonBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
-dayProgressBarHeight = renderConstants.SIZE * 0.06
-dayProgress = pygame.image.load(r'Assets\\UI\\DayProgressBar.png')
-dayProgress = pygame.transform.scale(dayProgress, (dayProgress.get_width() / dayProgress.get_height() * dayProgressBarHeight, dayProgressBarHeight))
-dayProgressPos = (renderConstants.SIZE * (1 - 0.13) - dayProgress.get_width(), renderConstants.SIZE * (1 - 0.005) - dayProgress.get_height())
-dayProgressBorderSize = 0.13
-dayProgressBorderSize = (dayProgressBorderSize * dayProgress.get_height() / dayProgress.get_width(), dayProgressBorderSize)
-dayProgressRectWidth = 3
-dayProgressRectBounds = dayProgressBorderSize[0] * dayProgress.get_width()
-dayProgressRectBounds = (dayProgressPos[0] + dayProgressRectBounds + 1, dayProgressPos[0] + dayProgress.get_width() - dayProgressRectBounds - dayProgressRectWidth + 1)
-dayProgressRect = pygame.Rect(dayProgressRectBounds[1], dayProgressPos[1] + dayProgress.get_height() * dayProgressBorderSize[1] + 0.5, dayProgressRectWidth, dayProgress.get_height() * (1 - dayProgressBorderSize[1] * 2) + 0.5)
-#######
-resourceIcon = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\ResourceIcon2.png'), (renderConstants.SIZE * 0.1, renderConstants.SIZE * 0.1))
-resourceBarHeight = resourceIcon.get_height() * 0.5
-resourceBar = pygame.image.load(r'Assets\\UI\\ResourceBar.png')
-resourceBar = pygame.transform.scale(resourceBar, (resourceBarHeight * resourceBar.get_width() / resourceBar.get_height(), resourceBarHeight))
-iconDist = renderConstants.SIZE * renderConstants.GRIDDIST - resourceIcon.get_height() * 0.75
-iconYOff = renderConstants.SIZE * 0.01
-resourceBarPos = (iconDist + resourceIcon.get_width() - renderConstants.SIZE * 0.015, iconDist + resourceIcon.get_height() * 0.75 - resourceBar.get_height() - iconYOff)
-resourceBorderSize = 0.23
-resourceRectBound = resourceBar.get_width() - resourceBar.get_height() * resourceBorderSize * 2 + 2
-resourceBarRect = pygame.Rect(resourceBarPos[0] + resourceBar.get_height() * resourceBorderSize, resourceBarPos[1] + resourceBar.get_height() * resourceBorderSize, resourceRectBound, resourceBar.get_height() * (1 - resourceBorderSize * 2) + 2)
-##
-resourceFont = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 40))
-resourceText = resourceFont.render('Resources: sus', True, (255, 255, 255))
-resourceTextRect = resourceText.get_rect()
-resourceTextRect.left = resourceBarPos[0] + renderConstants.SIZE * 0.02
-resourceTextRect.top = resourceBarPos[1] - resourceTextRect.height
-#######
-apImageSize = 0.12
-apImage = pygame.image.load(r'Assets\\UI\\testap.png')
-apImage = pygame.transform.scale(apImage, (renderConstants.SIZE * apImageSize * apImage.get_width() / apImage.get_height(), renderConstants.SIZE * apImageSize));
-apImagePos = (renderConstants.SIZE * 0.05, renderConstants.SIZE - apImage.get_height())
-apBorderSize = (0.35, 0.345)
-apBarPos = (apImagePos[0] + apImage.get_width() * apBorderSize[0] - 1, apImagePos[1] + apImage.get_height() * apBorderSize[1] + 1)
-apRectBound = apImage.get_width() * (1 - apBorderSize[0] - 0.033)
-apBarRect = pygame.Rect(apBarPos[0], apBarPos[1], apRectBound, apImage.get_height() * (1 - apBorderSize[1] * 2) + 2)
-apFont = pygame.font.Font('freesansbold.ttf', int(apImage.get_width() / 15))
-apText = apFont.render('Action Points: sus', True, (255, 255, 255))
-apTextRect = apText.get_rect()
-apTextRect.left = apBarRect.left + apImage.get_width() * 0.01
-apTextRect.top  = apBarRect.top + (apBarRect.height - apTextRect.height) / 2
-#######
-healImageSize = 0.1 * renderConstants.SIZE
-healImage = pygame.image.load(r'Assets\\cure2.png')
-healImage = pygame.transform.scale(healImage, (healImageSize, healImageSize * healImage.get_height() / healImage.get_width()))
-healImagePos = (renderConstants.SIZE * (1 - renderConstants.GRIDDIST) + (renderConstants.GRIDDIST * renderConstants.SIZE - healImage.get_width()) / 2, renderConstants.SIZE * 0.1)
-#######
-humanImage = pygame.transform.scale(pygame.image.load(r'Assets\\Human Assets (Hannah Added)\\HumanNormal1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
-zombieImage = pygame.transform.scale(pygame.image.load(r'Assets\\Zombie Assets (Hannah Added)\\ZombieRoam1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
-#######
 resources = 0
 ap = 0
 turn = 0
 human = [4, 2, Animation(Animations.human.value)]
-zombies = [[12, 3, Animation(Animations.zombie.value)], [7, 11, Animation(Animations.zombie.value)], [3, 6, Animation(Animations.zombie.value   )]]
+zombies = [[3, 4, Animation(Animations.zombie.value)]]
 mainLoop = True
 while mainLoop:
     renderConstants.frame_time = time.process_time()

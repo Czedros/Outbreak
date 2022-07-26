@@ -2,7 +2,6 @@ import pygame
 import constants
 import time
 #Don't want to make edit in main filec
-constants.ROWS = 13
 constants.LINE_WIDTH = 1
 ###
 CYCLELEN = 10

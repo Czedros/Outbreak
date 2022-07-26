@@ -1,8 +1,11 @@
+from asyncio import constants
 import pygame
 from Board import Board
 import PygameFunctions as PF
 import random as rd
 from constants import *
+import time
+import renderConstants
 
 SELF_PLAY = True  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
@@ -23,7 +26,6 @@ Original_Board = GameBoard.clone(GameBoard.States, GameBoard.player_role)
 running = True
 take_action = []
 playerMoved = False
-
 while running:
     P = PF.run(GameBoard)
 
@@ -124,7 +126,6 @@ while running:
 
         # Update the display
         pygame.display.update()
-        pygame.time.wait(75)
 
     else:
         if epochs_ran % 100 == 0:
