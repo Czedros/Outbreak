@@ -8,7 +8,9 @@ class CellType:
 
 class Cells(Enum):
     grass = CellType(True, r'Assets\\Tiles\\Grass.png')
-    sand = 1
-    wood = 2
+    sand = CellType(True, r'Assets\\Tiles\\Sand.png')
+    wood = CellType(False, r'Assets\\Tiles\\Wall.png')
+    water = CellType(False, r'Assets\\Tiles\\Water.png')
+    nan = CellType(True, r'Assets\\Tiles\\nan.png')
 
     
