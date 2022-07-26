@@ -90,6 +90,11 @@ apTextRect = apText.get_rect()
 apTextRect.left = apBarRect.left + apImage.get_width() * 0.01
 apTextRect.top  = apBarRect.top + (apBarRect.height - apTextRect.height) / 2
 #######
+healImageSize = 0.1 * renderConstants.SIZE
+healImage = pygame.image.load(r'Assets\\cure2.png')
+healImage = pygame.transform.scale(healImage, (healImageSize, healImageSize * healImage.get_height() / healImage.get_width()))
+healImagePos = (renderConstants.SIZE * (1 - renderConstants.GRIDDIST) + (renderConstants.GRIDDIST * renderConstants.SIZE - healImage.get_width()) / 2, renderConstants.SIZE * 0.1)
+#######
 humanImage = pygame.transform.scale(pygame.image.load(r'Assets\\Human Assets (Hannah Added)\\HumanNormal1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 zombieImage = pygame.transform.scale(pygame.image.load(r'Assets\\Zombie Assets (Hannah Added)\\ZombieRoam1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 #######
@@ -144,11 +149,17 @@ while mainLoop:
     apText = apFont.render('Action Points: ' + str(ap) + "/" + str(constants.MAX_HUMAN_AP), True, (255, 255, 255))
     display_surface.blit(apText, apTextRect)
     #######
+    display_surface.blit(healImage, healImagePos)
+    #######
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             mainLoop = False
         elif event.type == pygame.MOUSEBUTTONUP:
             clickPos = pygame.mouse.get_pos()
+            healClickPos = (clickPos[0] - healImagePos[0], clickPos[1] - healImagePos[1])
+            if(healClickPos[0] >= 0 and healClickPos[0] <= healImage.get_width() and healClickPos[1] >= 0 and healClickPos[1] <= healImage.get_height()):
+                print("Heal")
+                continue
             if(clickPos[0] < renderConstants.GRIDRECT.left or clickPos[1] < renderConstants.GRIDRECT.top or clickPos[0] > renderConstants.GRIDRECT.right or clickPos[1] > renderConstants.GRIDRECT.bottom):
                 continue
             clickOff = renderConstants.GRIDRECT.left + constants.LINE_WIDTH + renderConstants.CELLOFF
