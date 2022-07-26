@@ -1,12 +1,12 @@
 import pygame
 import ctypes
-from Int2 import Int2
 import time
 import constants
 import renderConstants
 from Cell import Cells
 from PIL import Image
-
+from Animation import Animations
+from Animation import Animation
 def imageToGrid(path):
     im = Image.open(path, 'r').convert('RGB')
     pix = list(im.getdata())
@@ -33,8 +33,12 @@ def imageToGrid(path):
                     grid[y][x] = Cells.nan
                     continue
     return grid
+def cellPosition(x, y):
+    cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * x + renderConstants.CELLOFF)
+    cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
+    return (cellX, cellY)
 displayGrid = imageToGrid(r'Assets\\TestGrids\\TestGrid1.png')
-start = time.process_time()
+start = renderConstants.frame_time
 #######
 pygame.init()
 display_surface = pygame.display.set_mode((renderConstants.SIZE, renderConstants.SIZE))
@@ -86,14 +90,20 @@ apTextRect = apText.get_rect()
 apTextRect.left = apBarRect.left + apImage.get_width() * 0.01
 apTextRect.top  = apBarRect.top + (apBarRect.height - apTextRect.height) / 2
 #######
+humanImage = pygame.transform.scale(pygame.image.load(r'Assets\\Human Assets (Hannah Added)\\HumanNormal1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
+zombieImage = pygame.transform.scale(pygame.image.load(r'Assets\\Zombie Assets (Hannah Added)\\ZombieRoam1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
+#######
 resources = 0
 ap = 0
 turn = 0
+human = [4, 2, Animation(Animations.human.value)]
+zombies = [[12, 3, Animation(Animations.zombie.value)], [7, 11, Animation(Animations.zombie.value)], [3, 6, Animation(Animations.zombie.value   )]]
 mainLoop = True
 while mainLoop:
-    turn = int((time. process_time() - start))
-    ap = int((time. process_time() - start) % (constants.MAX_HUMAN_AP + 1))
-    resources = min((time. process_time() - start) * 5, constants.MAX_RESOURCES)
+    renderConstants.frame_time = time.process_time()
+    turn = int((renderConstants.frame_time - start))
+    ap = int((renderConstants.frame_time - start) % (constants.MAX_HUMAN_AP + 1))
+    resources = min((renderConstants.frame_time - start) * 5, constants.MAX_RESOURCES)
     display_surface.fill((0, 0, 0))
     #######
     for x in range(constants.ROWS):
@@ -101,6 +111,12 @@ while mainLoop:
         for y in range(constants.ROWS):
             cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
             display_surface.blit(displayGrid[y][x].value.image, (cellX, cellY))
+    #######
+    human[2] = human[2].getNextAnimation()
+    display_surface.blit(human[2].getImage(), cellPosition(human[0], human[1]))
+    for i in zombies:
+        i[2] = i[2].getNextAnimation()
+        display_surface.blit(i[2].getImage(), cellPosition(i[0], i[1]))
     #######
     if(turn % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2):
         if(turn % renderConstants.CYCLELEN > renderConstants.CYCLELEN/2 - 1 - renderConstants.NOONLENGTH):
