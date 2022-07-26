@@ -232,7 +232,7 @@ class Board:
                     print("Success!")
                     return [True, destination_idx]
                 else:
-                    print("Not enough AP!")
+                    print("Not enough AP")
             else:
                 if self.resources[0].checkCost("Move") != False:
                     self.States[start_idx].person = None
@@ -244,23 +244,23 @@ class Board:
 
     def moveUp(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0], coords[1] - 1)
+        print("player moved up if there was enough AP, action completed successfully in Board")
         return self.move(coords, new_coords)
-        print("player moved up, action completed successfully in Board")
 
     def moveDown(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0], coords[1] + 1)
+        print("player moved down if there was enough AP, action completed successfully in Board")
         return self.move(coords, new_coords)
-        print("player moved down, action completed successfully in Board")
 
     def moveLeft(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0] - 1, coords[1])
+        print("player moved left if there was enough AP, action completed successfully in Board")
         return self.move(coords, new_coords)
-        print("player moved left, action completed successfully in Board")
 
     def moveRight(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0] + 1, coords[1])
+        print("player moved right if there was enough AP, action completed successfully in Board")
         return self.move(coords, new_coords)
-        print("player moved right, action completed successfully in Board")
 
     def QGreedyat(self, state_id: int):
         biggest = self.QTable[state_id][0] * self.player_num
