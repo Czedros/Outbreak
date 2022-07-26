@@ -28,7 +28,9 @@ class Person:
             chance -= self.vaccinationStatus()
         if rd.randint(0,100) < chance:
             self.isZombie = True
-
+            print("The zombie successfully infected you, action completed successfully in Person")
+        else:
+            print("The zombie failed to infect you, action completed successfully in Person")
     def calcCureSuccess(self):
         chance = 50
         if self.wasCured == True:
@@ -38,6 +40,7 @@ class Person:
         if rd.random() < chance:
             self.isZombie = False
             self.wasCured = True
+            print("Cure/Vaccine was successful, action completed successfully in Person")
  
     def vaccinationStatus(self):
         if(self.turnsVaccinated == 0 or self.turnsVaccinated == 1):
