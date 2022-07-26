@@ -231,6 +231,8 @@ class Board:
                     self.resources[1].alterByValue(-1)
                     print("Success!")
                     return [True, destination_idx]
+                else:
+                    print("Not enough AP!")
             else:
                 if self.resources[0].checkCost("Move") != False:
                     self.States[start_idx].person = None
