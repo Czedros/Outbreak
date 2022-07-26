@@ -1,5 +1,5 @@
 import random as rd
-import Resource
+from Resource import Resource
 
 class Person:
     wasVaccinated : bool = False
@@ -7,7 +7,7 @@ class Person:
     isVaccinated : bool= False
     isZombie : bool = False
     wasCured : bool = False
-    AP = Resource("AP", 3, {"Move" : 1 , "Bite": 2, } )
+    AP = Resource("AP", 3, {"Move" : 1 , "Bite": 2 } )
     def __init__(self, iz: bool):
         self.isZombie = iz
 
