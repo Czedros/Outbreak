@@ -5,6 +5,35 @@ import time
 import constants
 import renderConstants
 from Cell import Cells
+from PIL import Image
+
+def imageToGrid(path):
+    im = Image.open(path, 'r').convert('RGB')
+    pix = list(im.getdata())
+    if(im.size[0] != constants.ROWS or im.size[1] != constants.ROWS):
+        raise Exception("Image isn't correct size, must be a " + str(constants.ROWS) + " by " + str(constants.ROWS) + " pixel image")
+    grid = []
+    for i in range(constants.ROWS):
+        grid.append([None] * constants.ROWS)
+    for x in range(constants.ROWS):
+        for y in range(constants.ROWS):
+            print(str(x) + ", " + str(y))
+            pixel = pix[x + y * constants.ROWS]
+            match pixel:
+                case (0, 255, 0):
+                    grid[y][x] = Cells.grass
+                    continue
+                case (255, 255, 0):
+                    grid[y][x] = Cells.sand
+                    continue
+                case (0, 0, 255):
+                    grid[y][x] = Cells.water
+                    continue
+                case _:
+                    grid[y][x] = Cells.nan
+                    continue
+    return grid
+displayGrid = imageToGrid(r'Assets\\TestGrids\\TestGrid1.png')
 start = time.process_time()
 #######
 pygame.init()
@@ -71,7 +100,7 @@ while mainLoop:
         cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * x + renderConstants.CELLOFF)
         for y in range(constants.ROWS):
             cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
-            display_surface.blit(Cells.grass.value.image, (cellX, cellY))
+            display_surface.blit(displayGrid[y][x].value.image, (cellX, cellY))
     #######
     if(turn % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2):
         if(turn % renderConstants.CYCLELEN > renderConstants.CYCLELEN/2 - 1 - renderConstants.NOONLENGTH):
@@ -102,4 +131,14 @@ while mainLoop:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             mainLoop = False
+        elif event.type == pygame.MOUSEBUTTONUP:
+            clickPos = pygame.mouse.get_pos()
+            if(clickPos[0] < renderConstants.GRIDRECT.left or clickPos[1] < renderConstants.GRIDRECT.top or clickPos[0] > renderConstants.GRIDRECT.right or clickPos[1] > renderConstants.GRIDRECT.bottom):
+                continue
+            clickOff = renderConstants.GRIDRECT.left + constants.LINE_WIDTH + renderConstants.CELLOFF
+            clickPos = [clickPos[0], clickPos[1]]
+            clickPos[0] -= clickOff
+            clickPos[1] -= clickOff
+            gridPos = (int(clickPos[0] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)), int(clickPos[1] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)))
+            print("Clicked: " + str(gridPos))
     pygame.display.update()
