@@ -151,16 +151,17 @@ def run(GameBoard: Board):
             cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
             display_surface.blit(displayGrid[y][x].value.image, (cellX, cellY))
     #######
-    for i in range(constants.ROWS * constants.ROWS):
-        state = GameBoard.States[i]
-        if state.person != None:
-            coord = GameBoard.toCoord(i)
-            if state.person.isZombie:
-                zombieAnim = zombieAnim.getNextAnimation()
-                display_surface.blit(zombieAnim.getImage(), cellPosition(coord[0], coord[1]))
-            else:
-                humanAnim = humanAnim.getNextAnimation()
-                display_surface.blit(humanAnim.getImage(), cellPosition(coord[0], coord[1]))
+    for y in range(len(GameBoard.States)):
+        arr = GameBoard.States[y]
+        for x in range(len(arr)):
+            state = GameBoard.States[y][x]
+            if state.person != None:
+                if state.person.isZombie:
+                    zombieAnim = zombieAnim.getNextAnimation()
+                    display_surface.blit(zombieAnim.getImage(), cellPosition(x, y))
+                else:
+                    humanAnim = humanAnim.getNextAnimation()
+                    display_surface.blit(humanAnim.getImage(), cellPosition(x, y))
     #######
     if(GameBoard.isDay):
         if(turn % renderConstants.CYCLELEN > renderConstants.CYCLELEN/2 - 1 - renderConstants.NOONLENGTH):
@@ -293,19 +294,20 @@ def display_people(GameBoard: Board):
     """
     Draw the people (government, vaccinated, and zombies) on the grid.
     """
-    for x in range(len(GameBoard.States)):
-        if GameBoard.States[x].person != None:
-            p = GameBoard.States[x].person
-            char = "Assets/" + IMAGE_ASSETS[0]
-            if p.isVaccinated:
-                char = "Assets/" + IMAGE_ASSETS[1]
-            elif p.isZombie:
-                char = "Assets/" + IMAGE_ASSETS[2]
-            coords = (
-                int(x % GameBoard.rows) * CELL_DIMENSIONS[0] + MARGIN + 35,
-                int(x / GameBoard.columns) * CELL_DIMENSIONS[1] + MARGIN + 20,
-            )
-            display_image(screen, char, (35, 60), coords)
+    for arr in GameBoard.States:
+        for state in arr:
+            if state.person != None:
+                p = state.person
+                char = "Assets/" + IMAGE_ASSETS[0]
+                if p.isVaccinated:
+                    char = "Assets/" + IMAGE_ASSETS[1]
+                elif p.isZombie:
+                    char = "Assets/" + IMAGE_ASSETS[2]
+                coords = (
+                    int(x % GameBoard.rows) * CELL_DIMENSIONS[0] + MARGIN + 35,
+                    int(x / GameBoard.columns) * CELL_DIMENSIONS[1] + MARGIN + 20,
+                )
+                display_image(screen, char, (35, 60), coords)
 
 
 def display_cur_move(cur_move: List):
