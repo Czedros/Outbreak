@@ -60,6 +60,14 @@ class Board:
                 return True
         return False
 
+    def findPerson(self,  position: Tuple[int, int]):
+        x = 0
+        for state in self.States:
+            if state.person is not None and state.person.isZombie == False:
+                return True
+            x += 1
+        return False
+
     def get_possible_moves(self, action: str, role: str):
         """
         Get the coordinates of people (or zombies) that are able
@@ -234,7 +242,7 @@ class Board:
                 else:
                     print("Not enough AP")
             else:
-                if  self.resources[0].currentValue > self.resources[0].checkCost("Move"):
+                if  self.resources[0].currentValue >= self.resources[0].checkCost("Move"):
                     self.States[destination_idx].person = self.States[start_idx].person
                     self.States[start_idx].person = None
                     self.resources[0].alterByValue(-1)
@@ -326,7 +334,7 @@ class Board:
             or not self.isAdjacentTo(coords, True)
         ):
             return [False, None]
-        if  self.States[i].person.AP < 2:
+        if  self.States[i].person.AP.currentValue < 2:
             print("Not Enough AP")
             return [False, None]
         self.States[i].person.calcInfect()
@@ -424,10 +432,12 @@ class Board:
         (after player and computer have each gone once)
         """ 
         self.timeCounter += 1
-        self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        #if self.timeCounter == 5: #My bad
-        #    self.isDay != self.isDay    
-        #    self.timeCounter = 0
+        self.resources[0].alterByValue(3) 
+        if self.timeCounter == 5:
+            self.isDay != self.isDay    
+        if self.timeCounter == 10:
+            self.isDay != self.isDay
+            self.timeCounter = 0
         for state in self.States:
             state.update()
         
