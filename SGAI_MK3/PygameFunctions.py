@@ -108,6 +108,8 @@ zombieImage = pygame.transform.scale(pygame.image.load(r'Assets\\Zombie Assets (
 humanAnim = Animation(Animations.human.value)
 zombieAnim = Animation(Animations.zombie.value)
 #######
+resultFont = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 40))
+#######
 def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
     """
     Get the action that the click represents.
@@ -138,8 +140,8 @@ def run(GameBoard: Board):
     global zombieAnim
     global humanAnim
     renderConstants.frame_time = time.process_time()
-    turn = int((renderConstants.frame_time - start))
-    ap = int((renderConstants.frame_time - start) % (GameBoard.resources[0].maxValue + 1))
+    turn = GameBoard.timeCounter
+    ap = GameBoard.resources[0].currentValue
     resources = min(50, GameBoard.resources[2].maxValue)
     display_surface.fill((0, 0, 0))
     #######
@@ -160,7 +162,7 @@ def run(GameBoard: Board):
                 humanAnim = humanAnim.getNextAnimation()
                 display_surface.blit(humanAnim.getImage(), cellPosition(coord[0], coord[1]))
     #######
-    if(turn % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2):
+    if(GameBoard.isDay):
         if(turn % renderConstants.CYCLELEN > renderConstants.CYCLELEN/2 - 1 - renderConstants.NOONLENGTH):
             display_surface.blit(noon, (0, 0))
         else:
@@ -325,11 +327,11 @@ def display_cur_move(cur_move: List):
 def display_win_screen():
     display_surface.fill(BACKGROUND)
     display_surface.blit(
-        font.render("You win!", True, WHITE),
+        resultFont.render("You win!", True, WHITE),
         (500, 350),
     )
     display_surface.blit(
-        font.render("There were no possible moves for the computer.", True, WHITE),
+        resultFont.render("There were no possible moves for the computer.", True, WHITE),
         (500, 400),
     )
     pygame.display.update()
@@ -344,11 +346,11 @@ def display_win_screen():
 def display_lose_screen():
     display_surface.fill(BACKGROUND)
     display_surface.blit(
-        font.render("You lose!", True, WHITE),
+        resultFont.render("You lose!", True, WHITE),
         (500, 350),
     )
     display_surface.blit(
-        font.render("You had no possible moves...", True, WHITE),
+        resultFont.render("You had no possible moves...", True, WHITE),
         (500, 400),
     )
     pygame.display.update()

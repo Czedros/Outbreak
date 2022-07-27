@@ -5,7 +5,7 @@ from Person import Person
 from typing import List, Tuple
 from constants import *
 from Resource import Resource
-
+import renderConstants
 class Board:
     def __init__(self,  dimensions: Tuple[int, int],
         player_role: str,
@@ -424,10 +424,10 @@ class Board:
         (after player and computer have each gone once)
         """ 
         self.timeCounter += 1
-        if self.timeCounter == 5:
-            self.isDay != self.isDay    
-            self.timeCounter = 0    
-        
+        self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
+        #if self.timeCounter == 5: #My bad
+        #    self.isDay != self.isDay    
+        #    self.timeCounter = 0
         for state in self.States:
             state.update()
         
