@@ -8,8 +8,9 @@ import ctypes
 import time
 from Cell import Cells
 from PIL import Image
-from Animation import Animations
-from Animation import Animation
+from Animator import Animations
+from Animator import Animation
+import Animator
 
 
 def imageToGrid(path):
@@ -105,7 +106,6 @@ healImagePos = (renderConstants.SIZE * (1 - renderConstants.GRIDDIST) + (renderC
 humanImage = pygame.transform.scale(pygame.image.load(r'Assets/Human Assets (Hannah Added)/HumanNormal1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 zombieImage = pygame.transform.scale(pygame.image.load(r'Assets/Zombie Assets (Hannah Added)/ZombieRoam1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 #######
-humanAnim = Animation(Animations.human.value)
 zombieAnim = Animation(Animations.zombie.value)
 #######
 resultFont = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 40))
@@ -138,7 +138,6 @@ def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
 
 def run(GameBoard: Board):
     global zombieAnim
-    global humanAnim
     renderConstants.frame_time = time.process_time()
     turn = GameBoard.timeCounter
     ap = GameBoard.resources[0].currentValue
@@ -160,8 +159,8 @@ def run(GameBoard: Board):
                     zombieAnim = zombieAnim.getNextAnimation()
                     display_surface.blit(zombieAnim.getImage(), cellPosition(x, y))
                 else:
-                    humanAnim = humanAnim.getNextAnimation()
-                    display_surface.blit(humanAnim.getImage(), cellPosition(x, y))
+                    Animator.humanAnimation = Animator.humanAnimation.getNextAnimation()
+                    display_surface.blit(Animator.humanAnimation.getImage(), cellPosition(x, y))
     #######
     if(GameBoard.isDay):
         if(turn % renderConstants.CYCLELEN > renderConstants.CYCLELEN/2 - 1 - renderConstants.NOONLENGTH):

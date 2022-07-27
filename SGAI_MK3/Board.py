@@ -6,6 +6,10 @@ from typing import List, Tuple
 from constants import *
 from Resource import Resource
 import renderConstants
+from Animator import Animations
+from Animator import Animation
+import Animator
+
 class Board:
     def __init__(self,  dimensions: Tuple[int, int],
         player_role: str,
@@ -390,6 +394,7 @@ class Board:
         else:
             p.get_vaccinated()
             print("Person is now vaccinated, action completed successfully in Board")
+            Animator.humanAnimation = Animation(Animations.vaccinate.value)
         return [True, i]
 
     def get_possible_states(self, role_number: int):

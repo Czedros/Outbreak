@@ -4,8 +4,11 @@ import renderConstants
 from Int2 import Int2
 import time
 class AnimationType:
-    def __init__(self, folder, images, length):
-        self.nextAnimation = self
+    def __init__(self, folder, images, length, nextAnimation = 0):
+        if(nextAnimation == 0):
+            self.nextAnimation = self
+        else:
+            self.nextAnimation = nextAnimation
         self.images = [None] * len(images)
         self.length = length
         for i in range(len(images)):
@@ -19,7 +22,7 @@ class Animation:
         t = (renderConstants.frame_time - self.startTime) / self.animType.length
         return self.animType.images[int(t)]
     def getNextAnimation(self):
-        if(renderConstants.frame_time < self.endTime):
+        if(self.animType.nextAnimation != None and renderConstants.frame_time < self.endTime):
             return self
         else:
             return Animation(self.animType.nextAnimation)
@@ -30,3 +33,7 @@ zombieAnim = AnimationType(zombieFolder, ["ZombieRoam1.png", "ZombieRoam2.png"],
 class Animations(Enum):
     human = humanAnim
     zombie = zombieAnim
+    cure = AnimationType(humanFolder, ["HumanCure1.png", "HumanCure2.png"], 1, humanAnim)
+    lose = AnimationType(humanFolder, ["HumanLose1.png", "HumanLose2.png"], 1)
+    vaccinate = AnimationType(humanFolder, ["HumanVaccinate1.png", "HumanVaccinate2.png"], 1, humanAnim)
+humanAnimation = Animation(Animations.human.value)
