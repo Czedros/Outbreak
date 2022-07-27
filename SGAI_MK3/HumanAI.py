@@ -32,10 +32,10 @@ class Engine():
         self.rand = ra
         
         
-        self.QTable = [0] * BoardSize
+        self.QTable = [0] * BoardSize #change this  
         #Board size is totalrows*totalcolumns. Remove if not QTable
         pass
-    def think(self,GameBoard):
+    def think(self,GameBoard): #redefine for MonteCarlo Tree Search 
         '''
         This is where you put your ML Function
         Returns array with [action, coordinate, reward]
@@ -47,9 +47,9 @@ class Engine():
         if r < self.gamma or self.rand:
             while GameBoard.States[st].person is None:
                 st = rd.randint(0, len(GameBoard.States) - 1)
-            
+            #Random values onto Q Table - replace it with not just randominess 
         else:
-            biggest = None
+            biggest = None #Biggest Reward
             for x in range(len(GameBoard.States)):
                 arr = self.QTable[x]
                 exp = sum(arr) / len(arr)
@@ -79,7 +79,8 @@ class Engine():
                 old_state = i
             
             return [action_to_take, old_state, old_qval]
-                   
+
+    #Not needed              
     def update_q_table(self,NewBoard, action_info):
         # action_info: exactly what is returned in think function with reward and nextstate qvalue at the end * 
         idx = self.ACTION_SPACE.index(action_info[0])
@@ -87,49 +88,9 @@ class Engine():
         # GameBoard.QTable[i] = GameBoard.QTable[i] + alpha * (reward[0] + gamma * NS) - GameBoard.QTable[i]
 
 
-# Our tree is each movement our human AI will make
-# each node represents the human's position 
 
 
-# main function for the Monte Carlo Tree Search
-#the starting parameter is the human's first position? root = human first position
-def monte_carlo_tree_search(root):
-     
-    while resources_left(time, computational power):
-        #while it is your turn  
-        leaf = traverse(root)
-        simulation_result = rollout(leaf)
-        backpropagate(leaf, simulation_result)
-         
-    return best_child(root)
- 
-# function for node traversal
-def traverse(node):
-    while fully_expanded(node):
-        node = best_uct(node) #find the node that gives the best reward
-         
-    # in case no children are present (at the bottom) / node is terminal
-    return pick_unvisited(node.children) or node
- 
-# function for the result of the simulation
-def rollout(node):
-    while non_terminal(node):
-        node = rollout_policy(node)
-    return result(node)
- 
-# function for randomly selecting a child node
-def rollout_policy(node):
-    return pick_random(node.children)
- 
-# function for backpropagation
-def backpropagate(node, result):
-    if is_root(node) return
-    node.stats = update_stats(node, result)
-    backpropagate(node.parent)
- 
-# function for selecting the best child
-# node with highest number of visits
-def best_child(node):
-    pick child with highest number of visits
 
-#
+
+
+
