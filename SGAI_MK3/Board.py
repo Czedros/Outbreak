@@ -440,11 +440,10 @@ class Board:
         This method should be called at the end of each round
         (after player and computer have each gone once)
         """ 
+        self.resources[0].alterByValue(3)
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        #if self.timeCounter == 5: #My bad
-        #    self.isDay != self.isDay    
-        #    self.timeCounter = 0
+
         for arr in self.States:
             for state in arr:
                 state.update()
