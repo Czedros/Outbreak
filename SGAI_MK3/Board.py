@@ -357,7 +357,7 @@ class Board:
             or not self.isAdjacentTo(coords, True)
         ):
             return [False, None]
-        if  self.States[coords[1]][coords[0]].person.AP < 2:
+        if  self.States[coords[1]][coords[0]].person.AP.currentValue < 2:
             print("Not Enough AP")
             return [False, None]
         self.States[coords[1]][coords[0]].person.calcInfect()
