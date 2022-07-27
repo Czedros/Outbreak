@@ -8,8 +8,9 @@ import ctypes
 import time
 from Cell import Cells
 from PIL import Image
-from Animation import Animations
-from Animation import Animation
+from Animator import Animations
+from Animator import Animation
+import Animator
 
 
 def imageToGrid(path):
@@ -48,15 +49,15 @@ ctypes.windll.user32.SetProcessDPIAware()#If you're not using Windows, here's an
 pygame.display.set_caption("Sussy Baka") #Nice name - Hannah
 
 # Initialize variables
-displayGrid = imageToGrid(r'Assets\\TestGrids\\TestGrid2.png')
+displayGrid = imageToGrid(r'Assets/TestGrids/TestGrid2.png')
 start = renderConstants.frame_time
 
 #######
-day = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\Backgrounds\\SunBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
-noon = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\Backgrounds\\SunDownBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
-night = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\Backgrounds\\MoonBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
+day = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/SunBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
+noon = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/SunDownBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
+night = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/MoonBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
 dayProgressBarHeight = renderConstants.SIZE * 0.06
-dayProgress = pygame.image.load(r'Assets\\UI\\DayProgressBar.png')
+dayProgress = pygame.image.load(r'Assets/UI/DayProgressBar.png')
 dayProgress = pygame.transform.scale(dayProgress, (dayProgress.get_width() / dayProgress.get_height() * dayProgressBarHeight, dayProgressBarHeight))
 dayProgressPos = (renderConstants.SIZE * (1 - 0.13) - dayProgress.get_width(), renderConstants.SIZE * (1 - 0.005) - dayProgress.get_height())
 dayProgressBorderSize = 0.13
@@ -66,9 +67,9 @@ dayProgressRectBounds = dayProgressBorderSize[0] * dayProgress.get_width()
 dayProgressRectBounds = (dayProgressPos[0] + dayProgressRectBounds + 1, dayProgressPos[0] + dayProgress.get_width() - dayProgressRectBounds - dayProgressRectWidth + 1)
 dayProgressRect = pygame.Rect(dayProgressRectBounds[1], dayProgressPos[1] + dayProgress.get_height() * dayProgressBorderSize[1] + 0.5, dayProgressRectWidth, dayProgress.get_height() * (1 - dayProgressBorderSize[1] * 2) + 0.5)
 #######
-resourceIcon = pygame.transform.scale(pygame.image.load(r'Assets\\UI\\ResourceIcon2.png'), (renderConstants.SIZE * 0.1, renderConstants.SIZE * 0.1))
+resourceIcon = pygame.transform.scale(pygame.image.load(r'Assets/UI/ResourceIcon2.png'), (renderConstants.SIZE * 0.1, renderConstants.SIZE * 0.1))
 resourceBarHeight = resourceIcon.get_height() * 0.5
-resourceBar = pygame.image.load(r'Assets\\UI\\ResourceBar.png')
+resourceBar = pygame.image.load(r'Assets/UI/ResourceBar.png')
 resourceBar = pygame.transform.scale(resourceBar, (resourceBarHeight * resourceBar.get_width() / resourceBar.get_height(), resourceBarHeight))
 iconDist = renderConstants.SIZE * renderConstants.GRIDDIST - resourceIcon.get_height() * 0.75
 iconYOff = renderConstants.SIZE * 0.01
@@ -84,7 +85,7 @@ resourceTextRect.left = resourceBarPos[0] + renderConstants.SIZE * 0.02
 resourceTextRect.top = resourceBarPos[1] - resourceTextRect.height
 #######
 apImageSize = 0.12
-apImage = pygame.image.load(r'Assets\\UI\\APBar.png')
+apImage = pygame.image.load(r'Assets/UI/APBar.png')
 apImage = pygame.transform.scale(apImage, (renderConstants.SIZE * apImageSize * apImage.get_width() / apImage.get_height(), renderConstants.SIZE * apImageSize));
 apImagePos = (renderConstants.SIZE * 0.05, renderConstants.SIZE - apImage.get_height())
 apBorderSize = (0.35, 0.345)
@@ -98,17 +99,17 @@ apTextRect.left = apBarRect.left + apImage.get_width() * 0.01
 apTextRect.top  = apBarRect.top + (apBarRect.height - apTextRect.height) / 2
 #######
 healImageSize = 0.1 * renderConstants.SIZE
-healImage = pygame.image.load(r'Assets\\cure2.png')
+healImage = pygame.image.load(r'Assets/cure2.png')
 healImage = pygame.transform.scale(healImage, (healImageSize, healImageSize * healImage.get_height() / healImage.get_width()))
 healImagePos = (renderConstants.SIZE * (1 - renderConstants.GRIDDIST) + (renderConstants.GRIDDIST * renderConstants.SIZE - healImage.get_width()) / 2, renderConstants.SIZE * 0.1)
 #######
-humanImage = pygame.transform.scale(pygame.image.load(r'Assets\\Human Assets (Hannah Added)\\HumanNormal1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
-zombieImage = pygame.transform.scale(pygame.image.load(r'Assets\\Zombie Assets (Hannah Added)\\ZombieRoam1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
+humanImage = pygame.transform.scale(pygame.image.load(r'Assets/Human Assets (Hannah Added)/HumanNormal1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
+zombieImage = pygame.transform.scale(pygame.image.load(r'Assets/Zombie Assets (Hannah Added)/ZombieRoam1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 #######
-humanAnim = Animation(Animations.human.value)
 zombieAnim = Animation(Animations.zombie.value)
 #######
 resultFont = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 40))
+resultFont2 = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 45))
 #######
 def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
     """
@@ -138,7 +139,6 @@ def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
 
 def run(GameBoard: Board):
     global zombieAnim
-    global humanAnim
     renderConstants.frame_time = time.process_time()
     turn = GameBoard.timeCounter
     ap = GameBoard.resources[0].currentValue
@@ -160,8 +160,8 @@ def run(GameBoard: Board):
                     zombieAnim = zombieAnim.getNextAnimation()
                     display_surface.blit(zombieAnim.getImage(), cellPosition(x, y))
                 else:
-                    humanAnim = humanAnim.getNextAnimation()
-                    display_surface.blit(humanAnim.getImage(), cellPosition(x, y))
+                    Animator.humanAnimation = Animator.humanAnimation.getNextAnimation()
+                    display_surface.blit(Animator.humanAnimation.getImage(), cellPosition(x, y))
     #######
     if(GameBoard.isDay):
         if(turn % renderConstants.CYCLELEN > renderConstants.CYCLELEN/2 - 1 - renderConstants.NOONLENGTH):
@@ -325,40 +325,45 @@ def display_cur_move(cur_move: List):
     #)
     a=1
 
-
-def display_win_screen():
-    display_surface.fill(BACKGROUND)
-    display_surface.blit(
-        resultFont.render("You win!", True, WHITE),
-        (500, 350),
-    )
-    display_surface.blit(
-        resultFont.render("There were no possible moves for the computer.", True, WHITE),
-        (500, 400),
-    )
-    pygame.display.update()
-
-    # catch quit event
+resultImageSize = renderConstants.SIZE * 0.4
+winImages = [None] * 2
+loseImages = [None] * 2
+for i in range(1, 3):
+    strW = r'Assets/Human Assets (Hannah Added)/HumanWin' + str(i) + ".png"
+    strL = r'Assets/Human Assets (Hannah Added)/HumanLose' + str(i) + ".png"
+    imgW = pygame.image.load(strW)
+    imgL = pygame.image.load(strL)
+    winImages[i - 1] = pygame.transform.scale(imgW, (resultImageSize * imgW.get_width() / imgW.get_height(), resultImageSize))
+    loseImages[i - 1] = pygame.transform.scale(imgL, (resultImageSize * imgL.get_width() / imgL.get_height(), resultImageSize))
+#######
+textW = resultFont.render("You win!", True, WHITE)
+textW2 = resultFont2.render("You understood the assignment", True, WHITE)
+textL = resultFont.render("You lose... Noob", True, WHITE)
+textL2 = resultFont2.render("You know you're supposed to keep the human alive?", True, WHITE)
+#######
+def displayResultScreen(won):
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
+        display_surface.fill(BACKGROUND)
+        #######
+        text = textW
+        text2 = textW2
+        images = winImages
+        if(not won):
+            text = textL
+            text2 = textL2
+            images = loseImages
+        img = images[int(time.process_time()) % 2]
+        #######
+        textPos = (renderConstants.SIZE * 0.5, renderConstants.SIZE * 0.1)
+        textPos2 = (textPos[0], textPos[1] + renderConstants.SIZE * 0)
+        imgPos = renderConstants.SIZE * 0.01
+        #######
+        display_surface.blit(text, (textPos[0] - text.get_width() / 2, textPos[1]))
+        display_surface.blit(img, (textPos[0] - img.get_width() / 2, textPos2[1] + text2.get_height() / 2 + text.get_height() + imgPos))
+        display_surface.blit(text2, (textPos2[0] - text2.get_width() / 2, textPos2[1] + text2.get_height() / 2 + text.get_height() + img.get_height() + imgPos))
+        pygame.display.update()
 
-
-def display_lose_screen():
-    display_surface.fill(BACKGROUND)
-    display_surface.blit(
-        resultFont.render("You lose!", True, WHITE),
-        (500, 350),
-    )
-    display_surface.blit(
-        resultFont.render("You had no possible moves...", True, WHITE),
-        (500, 400),
-    )
-    pygame.display.update()
-
-    # catch quit event
-    while True:
+        # catch quit event
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
