@@ -34,6 +34,5 @@ class Animations(Enum):
     human = humanAnim
     zombie = zombieAnim
     cure = AnimationType(humanFolder, ["HumanCure1.png", "HumanCure2.png"], 1, humanAnim)
-    lose = AnimationType(humanFolder, ["HumanLose1.png", "HumanLose2.png"], 1)
     vaccinate = AnimationType(humanFolder, ["HumanVaccinate1.png", "HumanVaccinate2.png"], 1, humanAnim)
 humanAnimation = Animation(Animations.human.value)

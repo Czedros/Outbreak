@@ -32,7 +32,7 @@ while running:
     if SELF_PLAY:
         if not playerMoved:
             if not GameBoard.containsPerson(False):
-                PF.display_lose_screen()
+                PF.displayResultScreen(False)
                 running = False
                 continue
             # Event Handling
@@ -111,7 +111,7 @@ while running:
 
             # no valid moves, player wins
             if len(possible_actions) == 0 and len(possible_move_coords) == 0:
-                PF.display_win_screen()
+                PF.displayResultScreen(True)
                 running = False
                 continue
 
