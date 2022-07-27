@@ -3,7 +3,7 @@ import pygame
 import renderConstants
 class CellType:
     def __init__(self, passable, imgPath):
-        self.passable = passable
+        self.passable : bool = passable
         self.image = pygame.transform.scale(pygame.image.load(imgPath), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 
 class Cells(Enum):

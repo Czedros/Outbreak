@@ -7,9 +7,11 @@ class Person:
     isVaccinated : bool= False
     isZombie : bool = False
     wasCured : bool = False
+    ID = 0
     AP = Resource("AP", 3, {"Move" : 1 , "Bite": 2 } )
     def __init__(self, iz: bool):
         self.isZombie = iz
+        self.ID = rd.randint(0, 30)
 
     def clone(self):
         ret = Person(self.isZombie)
