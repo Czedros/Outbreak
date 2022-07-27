@@ -8,7 +8,6 @@ class Resource:
         self.name = name
         self.maxValue = maxval
         self.actions = action
-        self.currentValue = maxval
 
     def clone(self):
         ret = Resource(self.name, self.maxValue)
