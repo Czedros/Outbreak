@@ -20,12 +20,13 @@ class State:
 
     def nearest_zombie(self, GameBoard):
         smallest_dist = 100
-        for state in GameBoard.States:
-            if state.person != None:
-                if state.person.isZombie:
-                    d = self.distance(GameBoard, state.location)
-                    if d < smallest_dist:
-                        smallest_dist = d
+        for arr in GameBoard.States:
+            for state in arr:
+                if state.person != None:
+                    if state.person.isZombie:
+                        d = self.distance(GameBoard, state.location)
+                        if d < smallest_dist:
+                            smallest_dist = d
         return smallest_dist
 
     def evaluate(self, action: str, GameBoard):
