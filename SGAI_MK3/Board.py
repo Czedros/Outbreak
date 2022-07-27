@@ -107,12 +107,20 @@ class Board:
 
                         if changed_states:
                             # reset the states
-                            B.States = [
-                                self.States[int(i / self.columns)][i % self.columns].clone()
-                                if self.States[int(i / self.columns)][i % self.columns] != B.States[int(i / self.columns)][i % self.columns]
-                                else B.States[int(i / self.columns)][i % self.columns]
-                                for i in range(self.columns * self.rows)
-                            ]
+                            #B.States = [
+                            #    self.States[int(i / self.columns)][i % self.columns].clone()
+                            #    if self.States[int(i / self.columns)][i % self.columns] != B.States[int(i / self.columns)][i % self.columns]
+                            #    else B.States[int(i / self.columns)][i % self.columns]
+                            #    for i in range(self.columns * self.rows)
+                            #]
+                            B.States = []
+                            for y in range(len(self.States)):
+                                arr = self.States[y]
+                                arrB = [None] * self.columns
+                                for x in range(len(arr)):
+                                    arrB[x] = self.States[y][x].clone()
+                                    #if(arr[x] == arrB[x]):
+                                B.States.append(arrB)
 
         elif role == "Human":
             if not self.containsPerson(False):
@@ -141,12 +149,20 @@ class Board:
 
                         if changed_states:
                             # reset the states
-                            B.States = [
-                                self.States[int(i / self.columns)][i % self.columns].clone()
-                                if self.States[int(i / self.columns)][i % self.columns] != B.States[int(i / self.columns)][i % self.columns]
-                                else B.States[int(i / self.columns)][i % self.columns]
-                                for i in range(self.columns * self.rows)
-                            ]
+                            #B.States = [
+                            #    self.States[int(i / self.columns)][i % self.columns].clone()
+                            #    if self.States[int(i / self.columns)][i % self.columns] != B.States[int(i / self.columns)][i % self.columns]
+                            #    else B.States[int(i / self.columns)][i % self.columns]
+                            #    for i in range(self.columns * self.rows)
+                            #]
+                            B.States = []
+                            for y in range(len(B.States)):
+                                arr = self.States.States[y]
+                                arrB = [None] * self.columns
+                                for x in range(len(arr)):
+                                    arrB[x] = self.States[y][x].clone()
+                                    #if(arr[x] == arrB[x]):
+                                B.States.append(arrB)
         return poss
 
     def toCoord(self, i: int):
@@ -236,6 +252,7 @@ class Board:
         #Checks if you have enough AP
             
         # Check if the destination is currently occupied
+        print(self.States[new_coords[1]])
         if self.States[new_coords[1]][new_coords[0]].person is None:
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
                 if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") <  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
