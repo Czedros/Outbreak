@@ -9,7 +9,7 @@ class AnimationType:
         self.images = [None] * len(images)
         self.length = length
         for i in range(len(images)):
-            self.images[i] = pygame.transform.scale(pygame.image.load(folder + "\\" + images[i]), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
+            self.images[i] = pygame.transform.scale(pygame.image.load(folder + "/" + images[i]), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 class Animation:
     def __init__(self, animType):
         self.animType = animType
@@ -23,8 +23,8 @@ class Animation:
             return self
         else:
             return Animation(self.animType.nextAnimation)
-humanFolder = r'Assets\\Human Assets (Hannah Added)'
-zombieFolder = r'Assets\\Zombie Assets (Hannah Added)'
+humanFolder = r'Assets/Human Assets (Hannah Added)'
+zombieFolder = r'Assets/Zombie Assets (Hannah Added)'
 humanAnim = AnimationType(humanFolder, ["HumanNormal1.png", "HumanNormal2.png"], 1)
 zombieAnim = AnimationType(zombieFolder, ["ZombieRoam1.png", "ZombieRoam2.png"], 1)
 class Animations(Enum):
