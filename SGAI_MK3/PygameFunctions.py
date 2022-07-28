@@ -3,7 +3,6 @@ from typing import List, Tuple
 import pygame
 from constants import *
 import constants
-from Board import Board
 import renderConstants
 import ctypes
 import time
@@ -15,31 +14,33 @@ from Animator import Animation
 import Animator
 
 
-def imageToGrid(path):
+def imageToGrid(path, States):
     im = Image.open(path, 'r').convert('RGB')
     pix = list(im.getdata())
     if(im.size[0] != constants.ROWS or im.size[1] != constants.ROWS):
         raise Exception("Image isn't correct size, must be a " + str(constants.ROWS) + " by " + str(constants.ROWS) + " pixel image")
-    grid = []
-    for i in range(constants.ROWS):
-        grid.append([None] * constants.ROWS)
     for x in range(constants.ROWS):
         for y in range(constants.ROWS):
             pixel = pix[x + y * constants.ROWS]
             match pixel:
                 case (0, 255, 0):
-                    grid[y][x] = Cells.grass
+                    States[y][x].cellType = Cells.grass.value
                     continue
                 case (255, 255, 0):
-                    grid[y][x] = Cells.sand
+                    States[y][x].cellType = Cells.sand.value
                     continue
                 case (0, 0, 255):
-                    grid[y][x] = Cells.water
+                    States[y][x].cellType = Cells.water.value
+                    continue
+                case (123, 60, 0):
+                    States[y][x].cellType = Cells.woodWall.value
+                    continue
+                case (211, 103, 0):
+                    States[y][x].cellType = Cells.woodFloor.value
                     continue
                 case _:
-                    grid[y][x] = Cells.nan
+                    States[y][x].cellType = Cells.nan.value
                     continue
-    return grid
 def cellPosition(x, y):
     cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * x + renderConstants.CELLOFF)
     cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
@@ -51,7 +52,6 @@ ctypes.windll.user32.SetProcessDPIAware()#If you're not using Windows, here's an
 pygame.display.set_caption("Sussy Baka") #Nice name - Hannah
 
 # Initialize variables
-displayGrid = imageToGrid(r'Assets/TestGrids/TestGrid2.png')
 start = renderConstants.frame_time
 
 #######
@@ -114,7 +114,7 @@ resultFont2 = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 45
 #######
 healing = False
 #######
-def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
+def get_action(GameBoard, pixel_x: int, pixel_y: int):
     global healing
     """
     Get the action that the click represents.
@@ -143,7 +143,7 @@ def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
     #)
     #return "reset move"
 
-def run(GameBoard: Board):
+def run(GameBoard):
     renderConstants.frame_time = time.process_time()
     turn = GameBoard.timeCounter
     ap = GameBoard.resources[0].currentValue
@@ -154,7 +154,7 @@ def run(GameBoard: Board):
         cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * x + renderConstants.CELLOFF)
         for y in range(constants.ROWS):
             cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
-            display_surface.blit(displayGrid[y][x].value.image, (cellX, cellY))
+            display_surface.blit(GameBoard.States[y][x].cellType.image, (cellX, cellY))
     #######
     for y in range(len(GameBoard.States)):
         arr = GameBoard.States[y]
@@ -225,7 +225,7 @@ def display_image(
     a=1
 
 
-def build_grid(GameBoard: Board):
+def build_grid(GameBoard):
     """
     Draw the grid on the screen.
     """
@@ -294,7 +294,7 @@ def build_grid(GameBoard: Board):
         i += CELL_DIMENSIONS[1]
 
 
-def display_people(GameBoard: Board):
+def display_people(GameBoard):
     """
     Draw the people (government, vaccinated, and zombies) on the grid.
     """

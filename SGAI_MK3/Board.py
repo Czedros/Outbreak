@@ -1,4 +1,5 @@
 from os import system
+from Cell import Cells
 from State import State
 import random as rd
 from Person import Person
@@ -9,6 +10,7 @@ import renderConstants
 from Animator import Animations
 from Animator import Animation
 import Animator
+import PygameFunctions
 
 class Board:
     def __init__(self,  dimensions: Tuple[int, int],
@@ -32,10 +34,10 @@ class Board:
         for y in range(dimensions[1]):
             a = []
             for x in range(dimensions[0]):
-                a.append(State(None, (x, y)))
+                a.append(State(None, Cells.nan.value, (x, y)))
                 self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
             self.States.append(a)
-
+        PygameFunctions.imageToGrid(r'Assets/TestGrids/TestGrid2.png', self.States)
         self.actionToFunction = {
             "moveUp": self.moveUp,
             "moveDown": self.moveDown,
@@ -257,7 +259,7 @@ class Board:
             
         # Check if the destination is currently occupied
         print(self.States[new_coords[1]])
-        if self.States[new_coords[1]][new_coords[0]].person is None:
+        if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable:
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
                 if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") <  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
@@ -440,6 +442,8 @@ class Board:
         for y in range(len(self.States)):
             arr = self.States[y]
             for x in range(len(arr)):
+                if(not self.States[y][x].cellType.passable):
+                    continue
                 r = rd.randint(0, 100)
                 if r < 60 and self.population < total:
                     p = Person(False)
