@@ -3,6 +3,7 @@ from Resource import Resource
 from Animator import Animations
 from Animator import Animation
 import Animator
+from ZombieAI import ZombieAI
 
 class Person:
     wasVaccinated : bool = False
@@ -20,6 +21,7 @@ class Person:
         else:
             self.animation = Animation(Animations.human.value)
         self.AP.setToMax()
+        self.ai = ZombieAI()
 
     def clone(self):
         ret = Person(self.isZombie)

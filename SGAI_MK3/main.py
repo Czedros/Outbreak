@@ -83,6 +83,7 @@ while running:
                 #        playerMoved = True
                 #        print("Cure, Vaccinate, or Infect either failed or succeeded, action completed successfully in Main")
                 #    take_action = []
+                GameBoard.update()
                 PF.reset_actions()
 
         # Computer turn
