@@ -182,9 +182,9 @@ def run(GameBoard):
     #######
     display_surface.blit(resourceBar, resourceBarPos)
     display_surface.blit(resourceIcon, (iconDist, iconDist - iconYOff))
-    resourceBarRect.width = resourceRectBound * resources / GameBoard.resources[2].maxValue
+    resourceBarRect.width = resourceRectBound * resources / GameBoard.resources[1].maxValue
     pygame.draw.rect(display_surface, (202, 0, 69), resourceBarRect)
-    resourceText = resourceFont.render('Resources: ' + str(int(resources)) + "/" + str(GameBoard.resources[2].maxValue), True, (255, 255, 255))
+    resourceText = resourceFont.render('Resources: ' + str(int(resources)) + "/" + str(GameBoard.resources[1].maxValue), True, (255, 255, 255))
     display_surface.blit(resourceText, resourceTextRect)
     #######
     display_surface.blit(apImage, apImagePos)
