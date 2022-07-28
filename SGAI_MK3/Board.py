@@ -31,6 +31,7 @@ class Board:
             Resource("Food", 100, {"Gather": 5 , "Consume" : 3 }), 
             Resource("Survivors", 10000, {"Gain" : 1} )
         ]
+        self.resources[0].alterByValue(8)
         for y in range(dimensions[1]):
             a = []
             for x in range(dimensions[0]):
@@ -471,7 +472,7 @@ class Board:
         self.resources[0].alterByValue(3)
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-
+        self.resources[1].alterByPercent()
         for arr in self.States:
             for state in arr:
                 state.update()
