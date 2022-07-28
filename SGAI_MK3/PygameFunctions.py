@@ -9,6 +9,7 @@ import time
 from Cell import Cells
 from PIL import Image
 from sys import platform
+from enum import Enum
 if(platform != "darwin"):
     from pyvidplayer import Video
 from Animator import Animations
@@ -64,7 +65,7 @@ night = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/MoonBac
 dayProgressBarHeight = renderConstants.SIZE * 0.06
 dayProgress = pygame.image.load(r'Assets/UI/DayProgressBar.png')
 dayProgress = pygame.transform.scale(dayProgress, (dayProgress.get_width() / dayProgress.get_height() * dayProgressBarHeight, dayProgressBarHeight))
-dayProgressPos = (renderConstants.SIZE * (1 - 0.13) - dayProgress.get_width(), renderConstants.SIZE * (1 - 0.005) - dayProgress.get_height())
+dayProgressPos = (renderConstants.SIZE * (1 - 0.13) - dayProgress.get_width(), renderConstants.SIZE * (1 - 0.03) - dayProgress.get_height())
 dayProgressBorderSize = 0.13
 dayProgressBorderSize = (dayProgressBorderSize * dayProgress.get_height() / dayProgress.get_width(), dayProgressBorderSize)
 dayProgressRectWidth = 3
@@ -97,7 +98,7 @@ savedCounterPos = (renderConstants.SIZE - resourceBarPos[0], resourceBarPos[1])
 apImageSize = 0.12
 apImage = pygame.image.load(r'Assets/UI/APBar.png')
 apImage = pygame.transform.scale(apImage, (renderConstants.SIZE * apImageSize * apImage.get_width() / apImage.get_height(), renderConstants.SIZE * apImageSize));
-apImagePos = (renderConstants.SIZE * 0.05, renderConstants.SIZE - apImage.get_height())
+apImagePos = (renderConstants.SIZE * 0.01, renderConstants.SIZE - apImage.get_height())
 apBorderSize = (0.35, 0.345)
 apBarPos = (apImagePos[0] + apImage.get_width() * apBorderSize[0] - 1, apImagePos[1] + apImage.get_height() * apBorderSize[1] + 1)
 apRectBound = apImage.get_width() * (1 - apBorderSize[0] - 0.033)
@@ -120,28 +121,125 @@ zombieImage = pygame.transform.scale(pygame.image.load(r'Assets/Zombie Assets (H
 resultFont = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 40))
 resultFont2 = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 45))
 #######
+arrowImageSize = 0.04 * renderConstants.SIZE
+arrowImageOff = (0.01 * renderConstants.SIZE, 0.09 * renderConstants.SIZE)
+arrowImageForward = pygame.image.load(r'Assets/UI/arrowForward.png')
+arrowImageForward = pygame.transform.scale(arrowImageForward, (arrowImageSize * arrowImageForward.get_width() / arrowImageForward.get_height(), arrowImageSize))
+arrowImageBackward = pygame.transform.scale(pygame.image.load(r'Assets/UI/arrowBackward.png'), (arrowImageForward.get_width(), arrowImageForward.get_height()))
+arrowImagePosY = renderConstants.SIZE - int(arrowImageForward.get_height()/2 + arrowImageOff[1])
+##
+finishImage = pygame.image.load(r'Assets/UI/FinishTurn.png')
+finishSpace = arrowImageOff[1] - arrowImageForward.get_height()/2
+finishImageOff = (0.1 * finishSpace)
+finishImageHeight = finishSpace - 2 * finishImageOff
+finishImage = pygame.transform.scale(finishImage, (finishImageHeight * finishImage.get_width() / finishImage.get_height(), finishImageHeight))
+finishImagePos = (int(renderConstants.SIZE/2 - finishImage.get_width()/2), int(renderConstants.SIZE - finishImageOff - finishImage.get_height()))
+#######
 healing = False
 #######
+#GameBoard.isValidCoordinate(new_coords)
+#self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable
+class ActionType:
+    def __init__(self, ap):
+        self.ap = ap
+class Action:
+    def __init__(self, actionType, coord, coord2 = None):
+        self.actionType = actionType
+        self.coord = coord
+        self.coord2 = coord2
+class ActionTypes(Enum):
+    move = ActionType(1)
+    heal = ActionType(2)
+
+actions = []
+actionSlot = -1
+actionsAPCost = 0
+firstActor = None
+selectedActor = None
+def reset_actions():
+    global actions
+    global actionsAPCost
+    global actionSlot
+    global selectedActor
+    global firstActor
+    actions = []
+    actionsAPCost = 0
+    actionSlot = -1
+    selectedActor = None
+    firstActor = None
+def init_selectedActor(GameBoard):
+    global selectedActor
+    global firstActor
+    if(selectedActor == None):
+        for arr in GameBoard.States:
+            finished = False
+            for state in arr:
+                if(state.person != None and state.person.isZombie == False):
+                    selectedActor = state.location
+                    firstActor = selectedActor
+                    return
+def add_action(GameBoard, action):
+    global actionSlot
+    global actionsAPCost
+    global selectedActor
+    if(GameBoard.resources[0].currentValue - actionsAPCost < action.actionType.ap):
+        return False
+    for i in range(actionSlot + 1):
+        act = actions[i]
+        if(act.actionType == action.actionType and act.coord == action.coord):
+            return False
+    while(len(actions) < actionSlot + 1):
+        act = action.pop()
+        actionsAPCost -= act.actionType.ap
+    actions.append(action)
+    actionSlot += 1
+    actionsAPCost += action.actionType.ap
+    return True
 def get_action(GameBoard, pixel_x: int, pixel_y: int):
     global healing
+    global selectedActor
+    global firstActor
     """
     Get the action that the click represents.
     If the click was on the heal button, returns "heal"
     Else, returns the board coordinates of the click (board_x, board_y) if valid
     Return None otherwise
     """
+    init_selectedActor(GameBoard)
     clickPos = [pixel_x, pixel_y]
     healClickPos = (clickPos[0] - healImagePos[0], clickPos[1] - healImagePos[1])
+    finishClickPos = (clickPos[0] - finishImagePos[0], clickPos[1] - finishImagePos[1])
+    arrowClickPos = (clickPos[0] - (int(renderConstants.SIZE/2) - arrowImageForward.get_width() - arrowImageOff[0]), clickPos[1] - arrowImagePosY)
+    arrowClickSize = (int((arrowImageForward.get_width() + arrowImageOff[0]) * 2), int(arrowImageSize))
     if(healClickPos[0] >= 0 and healClickPos[0] <= healImage.get_width() and healClickPos[1] >= 0 and healClickPos[1] <= healImage.get_height()):
         healing = not healing
         return "heal"
-    healing = False
+    if(finishClickPos[0] >= 0 and finishClickPos[0] <= finishImage.get_width() and finishClickPos[1] >= 0 and finishClickPos[1] <= finishImage.get_height()):
+        return "finish"
+    if(arrowClickPos[0] >= 0 and arrowClickPos[0] <= arrowClickSize[0] and arrowClickPos[1] >= 0 and arrowClickPos[1] <= arrowClickSize[1]):
+        if(arrowClickPos[0] <= arrowClickSize[0]/2):
+            print("Back")
+        else:
+            print("Foward")
+        return None
     if(clickPos[0] < renderConstants.GRIDRECT.left or clickPos[1] < renderConstants.GRIDRECT.top or clickPos[0] > renderConstants.GRIDRECT.right or clickPos[1] > renderConstants.GRIDRECT.bottom):
         return None
     clickOff = renderConstants.GRIDRECT.left + constants.LINE_WIDTH + renderConstants.CELLOFF
     clickPos[0] -= clickOff
     clickPos[1] -= clickOff
     gridPos = (int(clickPos[0] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)), int(clickPos[1] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)))
+    if(healing and GameBoard.States[gridPos[1]][gridPos[0]].person is not None):
+        if(abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1):
+            add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))
+    elif(GameBoard.States[gridPos[1]][gridPos[0]].person == None):
+        if(GameBoard.States[gridPos[1]][gridPos[0]].cellType.passable and selectedActor != None):
+            if(add_action(GameBoard, Action(ActionTypes.move.value, selectedActor, gridPos))):
+                selectedActor = gridPos
+    elif(GameBoard.States[gridPos[1]][gridPos[0]].person.isZombie == False):
+        reset_actions()
+        selectedActor = gridPos
+        firstActor = gridPos
+    healing = False
     return gridPos[0], gridPos[1]
     #reset_move_check = (
     #    pixel_x >= RESET_MOVE_COORDS[0]
@@ -199,8 +297,16 @@ def run(GameBoard):
     display_surface.blit(apImage, apImagePos)
     apBarRect.width = apRectBound * ap / GameBoard.resources[0].maxValue
     pygame.draw.rect(display_surface, (239, 73, 52), apBarRect)
-    apText = apFont.render('Action Points: ' + str(ap) + "/" + str(GameBoard.resources[0].maxValue), True, (255, 255, 255))
+    apUsedWidth = apRectBound * actionsAPCost / GameBoard.resources[0].maxValue
+    apBarRectUsed = pygame.Rect(apBarRect.left + apBarRect.width - apUsedWidth, apBarRect.top, apUsedWidth, apBarRect.height)
+    pygame.draw.rect(display_surface, (244, 144, 83), apBarRectUsed)
+    apText = apFont.render('Action Points: ' + str(ap - actionsAPCost) + "/" + str(GameBoard.resources[0].maxValue), True, (255, 255, 255))
     display_surface.blit(apText, apTextRect)
+    #######
+    display_surface.blit(arrowImageForward, (int(renderConstants.SIZE/2) + arrowImageOff[0], arrowImagePosY))
+    display_surface.blit(arrowImageBackward, (int(renderConstants.SIZE/2) - arrowImageForward.get_width() - arrowImageOff[0], arrowImagePosY))
+    ##
+    display_surface.blit(finishImage, finishImagePos)
     #######
     if(healing):
         display_surface.blit(healImageOpen, healImagePos)
@@ -221,125 +327,6 @@ def display_reset_move_button():
     #screen.blit(font.render("Reset move?", True, WHITE), RESET_MOVE_COORDS)
     a=1
 
-
-def display_image(
-    screen: pygame.Surface,
-    itemStr: str,
-    dimensions: Tuple[int, int],
-    position: Tuple[int, int],
-):
-    """
-    Draw an image on the screen at the indicated position.
-    """
-    #v = pygame.image.load(itemStr).convert_alpha()
-    #v = pygame.transform.scale(v, dimensions)
-    #screen.blit(v, position)
-    a=1
-
-
-def build_grid(GameBoard):
-    """
-    Draw the grid on the screen.
-    """
-    grid_width = GameBoard.columns * CELL_DIMENSIONS[0]
-    grid_height = GameBoard.rows * CELL_DIMENSIONS[1]
-    # left
-    pygame.draw.rect(
-        screen,
-        BLACK,
-        [
-            MARGIN - LINE_WIDTH,
-            MARGIN - LINE_WIDTH,
-            LINE_WIDTH,
-            grid_height + (2 * LINE_WIDTH),
-        ],
-    )
-    # right
-    pygame.draw.rect(
-        screen,
-        BLACK,
-        [
-            MARGIN + grid_width,
-            MARGIN - LINE_WIDTH,
-            LINE_WIDTH,
-            grid_height + (2 * LINE_WIDTH),
-        ],
-    )
-    # bottom
-    pygame.draw.rect(
-        screen,
-        BLACK,
-        [
-            MARGIN - LINE_WIDTH,
-            MARGIN + grid_height,
-            grid_width + (2 * LINE_WIDTH),
-            LINE_WIDTH,
-        ],
-    )
-    # top
-    pygame.draw.rect(
-        screen,
-        BLACK,
-        [
-            MARGIN - LINE_WIDTH,
-            MARGIN - LINE_WIDTH,
-            grid_width + (2 * LINE_WIDTH),
-            LINE_WIDTH,
-        ],
-    )
-    # Fill the inside wioth the cell color
-    pygame.draw.rect(
-        screen,
-        CELL_COLOR,
-        [MARGIN, MARGIN, grid_width, grid_height],
-    )
-
-    # Draw the vertical lines
-    i = MARGIN + CELL_DIMENSIONS[0]
-    while i < MARGIN + grid_width:
-        pygame.draw.rect(screen, BLACK, [i, MARGIN, LINE_WIDTH, grid_height])
-        i += CELL_DIMENSIONS[0]
-    # Draw the horizontal lines
-    i = MARGIN + CELL_DIMENSIONS[1]
-    while i < MARGIN + grid_height:
-        pygame.draw.rect(screen, BLACK, [MARGIN, i, grid_width, LINE_WIDTH])
-        i += CELL_DIMENSIONS[1]
-
-
-def display_people(GameBoard):
-    """
-    Draw the people (government, vaccinated, and zombies) on the grid.
-    """
-    for arr in GameBoard.States:
-        for state in arr:
-            if state.person != None:
-                p = state.person
-                char = "Assets/" + IMAGE_ASSETS[0]
-                if p.isVaccinated:
-                    char = "Assets/" + IMAGE_ASSETS[1]
-                elif p.isZombie:
-                    char = "Assets/" + IMAGE_ASSETS[2]
-                coords = (
-                    int(x % GameBoard.rows) * CELL_DIMENSIONS[0] + MARGIN + 35,
-                    int(x / GameBoard.columns) * CELL_DIMENSIONS[1] + MARGIN + 20,
-                )
-                display_image(screen, char, (35, 60), coords)
-
-
-def display_cur_move(cur_move: List):
-    # Display the current action
-    #screen.blit(
-    #    font.render("Your move is currently:", True, WHITE),
-    #    CUR_MOVE_COORDS,
-    #)
-    #screen.blit(
-    #    font.render(f"{cur_move}", True, WHITE),
-    #    (
-    #        CUR_MOVE_COORDS[0],
-    #        CUR_MOVE_COORDS[1] + font.size("Your move is currently:")[1] * 2,
-    #    ),
-    #)
-    a=1
 
 resultImageSize = renderConstants.SIZE * 0.4
 winImages = [None] * 2

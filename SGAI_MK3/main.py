@@ -34,10 +34,14 @@ while running:
                 running = False
                 continue
             # Event Handling
+            finished = False
             for event in P:
                 if event.type == pygame.MOUSEBUTTONUP:
                     x, y = pygame.mouse.get_pos()
                     action = PF.get_action(GameBoard, x, y)
+                    if(action == "finish"):
+                        finished = True
+                        break
                     if action == "heal" or action == "bite":
                         # only allow healing by itself (prevents things like ['move', (4, 1), 'heal'])
                         if len(take_action) == 0:
@@ -66,27 +70,17 @@ while running:
                 if event.type == pygame.QUIT:
                     running = False
 
-            PF.display_cur_move(take_action)
 
             # Action handling
-            if len(take_action) > 1:
-                if take_action[0] == "move":
-                    if len(take_action) > 2:
-                        directionToMove = PF.direction(take_action[1], take_action[2])
-                        result = GameBoard.actionToFunction[directionToMove](
-                            take_action[1]
-                        )
-                        if result[0] is not False:
-                            playerMoved = True
-                            print("Player has moved, action completed successfully in Main")
-                        take_action = []
-
-                elif take_action[0] == "heal" or take_action[0] == "bite":
-                    result = GameBoard.actionToFunction[take_action[0]](take_action[1])
-                    if result[0] is not False:
-                        playerMoved = True
-                        print("Cure, Vaccinate, or Infect either failed or succeeded, action completed successfully in Main")
-                    take_action = []
+            if finished:
+                GameBoard.move(PF.firstActor, PF.selectedActor)
+                #elif take_action[0] == "heal" or take_action[0] == "bite":
+                #    result = GameBoard.actionToFunction[take_action[0]](take_action[1])
+                #    if result[0] is not False:
+                #        playerMoved = True
+                #        print("Cure, Vaccinate, or Infect either failed or succeeded, action completed successfully in Main")
+                #    take_action = []
+                PF.reset_actions()
 
         # Computer turn
         else:
