@@ -150,7 +150,7 @@ def run(GameBoard):
     renderConstants.frame_time = time.process_time()
     turn = GameBoard.timeCounter
     ap = GameBoard.resources[0].currentValue
-    resources = min(GameBoard.resources[1].maxValue, GameBoard.resources[1].maxValue)
+    resources = min(GameBoard.resources[1].currentValue, GameBoard.resources[1].maxValue)
     display_surface.fill((0, 0, 0))
     #######
     for x in range(constants.ROWS):
