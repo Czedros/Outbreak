@@ -7,7 +7,9 @@ class ZombieAI :
     currentState = ""
     active = False
     seekPosition = [1, 1]
-    currentBoard = Board
+    currentBoard = [[0,0,0],
+                    [0,0,0],
+                    [0,0,0]]
     def __init__(self, gameboard):
         self.active = True
         self.states = {
@@ -26,9 +28,9 @@ class ZombieAI :
         Board.move()
         if(self.seekPosition = Board.currentPosition()):
             return False
-    def stateAttack():
+    def stateAttack(self, board):
         return False
-    def playerFind():
+    def playerFind(self, board):
         return False
-    def stateRoam():
+    def stateRoam(self, board):
         if(Board.)

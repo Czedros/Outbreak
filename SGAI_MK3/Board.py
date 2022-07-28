@@ -72,6 +72,9 @@ class Board:
                 if state.person is not None and state.person.isZombie == isZombie:
                     return True
         return False
+    def findPerson(self, int):
+        for arr in self.States
+            f
 
     def get_possible_moves(self, action: str, role: str):
         """
@@ -394,7 +397,8 @@ class Board:
 
         if p.isZombie:
             if p.calcCureSuccess():
-                self.States[coords[1]][coords[0]].person == None
+                self.States[coords[1]][coords[0]].person = None
+                self.resources[2].alterByValue(1)
             
         else:
             p.get_vaccinated()
@@ -440,7 +444,7 @@ class Board:
         # QTable[state][acti] = new_value
 
     def populate(self):
-        total = rd.randint(7, int((self.rows * self.columns) / 3))
+        total = 7
         poss = []
         for y in range(len(self.States)):
             arr = self.States[y]
@@ -474,7 +478,7 @@ class Board:
         self.resources[0].alterByValue(2)
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        self.resources[1].alterByValue(-1)
+        self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
         print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
