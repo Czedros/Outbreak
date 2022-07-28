@@ -32,6 +32,7 @@ class Board:
             Resource("Survivors", 10000, {"Gain" : 1} )
         ]
         self.resources[0].alterByValue(8)
+        self.resources[1].setToMax()
         for y in range(dimensions[1]):
             a = []
             for x in range(dimensions[0]):
@@ -469,10 +470,11 @@ class Board:
         This method should be called at the end of each round
         (after player and computer have each gone once)
         """ 
-        self.resources[0].alterByValue(3)
+        self.resources[0].alterByValue(2)
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        self.resources[1].alterByPercent(1+2*self.resources[2].currentValue, max)
+        self.resources[1].alterByValue(-1)
+        print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
                 state.update()
