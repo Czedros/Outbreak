@@ -8,6 +8,7 @@ class Node:
         #Human location (needs to access Board.py)
         #1 Block Radius (needs to accesss Board.py)
         self.state, action, children, parent
+        #TODO: figure out children type 
     
     def find_children(self):
         pass

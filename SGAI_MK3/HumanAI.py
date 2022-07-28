@@ -89,6 +89,17 @@ class Engine():
 
 """
 Pseudo Code for MCTS 
+node can be = [up, down, left, right, pick_resource, cure, and vaccinate ]
+
+#Human Starts:
+def do_rollout(self, node):
+    "Make the tree one layer better" #This one only trains for 1 iteration 
+    #TODO: while loop to run multiple iterations 
+    path = self._select(node)
+    leaf = path[-1]
+    self._expand(leaf)
+    reward = self._simulate(leaf)
+    self._backpropagate(path, reward)
 
 def _select(self, node):
         "Find an unexplored descendent of `node`"
@@ -106,17 +117,58 @@ def _select(self, node):
                 return path
             node = self._uct_select(node)  # descend a layer deeper
 
+
+TODO: Understand UCT Equation and tweak it 
+def _uct_select(self, node):
+        "Select a child of node, balancing exploration & exploitation"
+
+        # All children of node should already be expanded:
+        assert all(n in self.children for n in self.children[node])
+
+        log_N_vertex = math.log(self.N[node])
+
+        def uct(n):
+            "Upper confidence bound for trees"
+            return self.Q[n] / self.N[n] + self.exploration_weight * math.sqrt(
+                log_N_vertex / self.N[n]
+            )
+
+        return max(self.children[node], key=uct)
+def _expand(self, node):
+    "Update the `children` dict with the children of `node`"
+    if node in self.children:
+        return  # already expanded
+    self.children[node] = node.find_children()
+
 #run this many times 
 def simulate (self, node):
     while(turns not ended):
         reward = node.reward() #calculate rewarad based on how long it survived and people saved
         return node.find_random_child() or node 
 
-TODO: Understand UCT Equation and tweak it 
-def _uct_select(self, node):
-    #all children are expanded
-    assert all(n in self.children for n in self.children[node])
-    
+def _backpropagate(self, path, reward):
+        "Send the reward back up to the ancestors of the leaf"
+        for node in reversed(path):
+            self.N[node] += 1
+            self.Q[node] += reward
+            reward = 1 - reward  # 1 for me is 0 for my enemy, and vice versa
+
+def choose(self, node):
+    "Choose the best successor of node. (Choose a move in the game)"
+    if node.is_terminal():
+        raise RuntimeError(f"choose called on terminal node {node}")
+
+    if node not in self.children:
+        return node.find_random_child()
+
+    def score(n):
+        if self.N[n] == 0:
+            return float("-inf")  # avoid unseen moves
+        return self.Q[n] / self.N[n]  # average reward
+
+    return max(self.children[node], key=score)
+
+
 """
 
 
