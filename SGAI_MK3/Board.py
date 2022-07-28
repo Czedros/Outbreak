@@ -72,6 +72,11 @@ class Board:
                 if state.person is not None and state.person.isZombie == isZombie:
                     return True
         return False
+    def findPerson(self, ID):
+        for arr in self.States:
+            for state in arr:
+                if state.person is not None and state.person.ai.ID == ID:
+                    return state.location
 
     def get_possible_moves(self, action: str, role: str):
         """
@@ -232,6 +237,7 @@ class Board:
             (coord[0], coord[1])
         ]
         for coord in vals:
+            print(coord)
             if (self.isValidCoordinate(coord) 
                 and self.States[coord[1]][coord[0]].person is not None 
                 and self.States[coord[1]][coord[0]].person.isZombie == False):
@@ -259,6 +265,7 @@ class Board:
         #Checks if you have enough AP
             
         # Check if the destination is currently occupied
+        print(self.States[new_coords[1]])
         if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable:
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
                 if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") <  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
@@ -370,7 +377,7 @@ class Board:
         print("Infection has either failed or succeeded, action completed successfully in Board")
         return [True, i]
 
-    def heal(self, coords: Tuple[int, int], infRange = False) -> Tuple[bool, int]:
+    def heal(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         """
         Cures or vaccinates the person at the stated coordinates.
         If there is a zombie there, the person will be cured.
@@ -381,18 +388,20 @@ class Board:
         i = self.toIndex(coords)
         if self.States[coords[1]][coords[0]].person is None:
             return [False, None]
-        if self.isNear(coords) == False and not infRange:
+        if self.isNear(coords) == False:
             print("Out of Range!")
             return [False, None]
-        if self.resources[0].currentValue < 2: #ew, hard coded numbers
+        if self.resources[0].currentValue < 2:
             print("Not Enough AP")
             return [False, None]
-        self.resources[0].alterByValue(-2)
+        self.resources[0].alterByValue(-3)
         p = self.States[coords[1]][coords[0]].person
 
         if p.isZombie:
-            p.calcCureSuccess()
-            print("Cure/Vaccine has either failed or succeeded, action completed successfully in Board")
+            if p.calcCureSuccess():
+                self.States[coords[1]][coords[0]].person = None
+                self.resources[2].alterByValue(1)
+            
         else:
             p.get_vaccinated()
             print("Person is now vaccinated, action completed successfully in Board")
@@ -437,7 +446,7 @@ class Board:
         # QTable[state][acti] = new_value
 
     def populate(self):
-        total = rd.randint(7, int((self.rows * self.columns) / 3))
+        total = 7
         poss = []
         for y in range(len(self.States)):
             arr = self.States[y]
@@ -471,7 +480,8 @@ class Board:
         self.resources[0].alterByValue(2)
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        self.resources[1].alterByValue(-1)
+        self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
+        print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
                 state.update()
