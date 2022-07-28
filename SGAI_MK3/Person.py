@@ -19,6 +19,7 @@ class Person:
             self.animation = Animation(Animations.zombie.value)
         else:
             self.animation = Animation(Animations.human.value)
+        self.AP.setToMax()
 
     def clone(self):
         ret = Person(self.isZombie)

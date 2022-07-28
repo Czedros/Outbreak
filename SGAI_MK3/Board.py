@@ -454,7 +454,7 @@ class Board:
                 else:
                     arr[x].person = None
         used = []
-        for x in range(4):
+        for x in range(total-1):
             s = rd.randint(0, len(poss) - 1)
             while s in used:
                 s = rd.randint(0, len(poss) - 1)
@@ -472,7 +472,7 @@ class Board:
         self.resources[0].alterByValue(3)
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        self.resources[1].alterByPercent()
+        self.resources[1].alterByPercent(1+2*self.resources[2].currentValue, max)
         for arr in self.States:
             for state in arr:
                 state.update()
