@@ -8,7 +8,9 @@ import ctypes
 import time
 from Cell import Cells
 from PIL import Image
-from pyvidplayer import Video
+from sys import platform
+if(platform != "darwin"):
+    from pyvidplayer import Video
 from Animator import Animations
 from Animator import Animation
 import Animator
@@ -48,7 +50,8 @@ def cellPosition(x, y):
 # Initialize pygame
 pygame.init()
 display_surface = pygame.display.set_mode((renderConstants.SIZE, renderConstants.SIZE))
-ctypes.windll.user32.SetProcessDPIAware()#If you're not using Windows, here's an L -> L :).
+if(platform != "darwin"):
+    ctypes.windll.user32.SetProcessDPIAware()#If you're not using Windows, here's an L -> L :).
 pygame.display.set_caption("Sussy Baka") #Nice name - Hannah
 
 # Initialize variables
@@ -355,30 +358,32 @@ def displayResultScreen(won):
             res = Video(r'Assets/UI/Sadge.mp4')
             res.set_volume(0.9)
         return res
-    resMovie = movie()
-    videoDuration = resMovie.video.get_metadata()["duration"]
-    ogSize = resMovie.get_file_data()["original size"]
-    resMovieSize = (renderConstants.SIZE * 0.25 * ogSize[0] / ogSize[1], renderConstants.SIZE * 0.25)
-    resMovie.set_size(resMovieSize) 
-    resMovieSpeed = [100, 130]
-    resMoviePos = [0, 0]
+    if(platform != "darwin"):
+        resMovie = movie()
+        videoDuration = resMovie.video.get_metadata()["duration"]
+        ogSize = resMovie.get_file_data()["original size"]
+        resMovieSize = (renderConstants.SIZE * 0.25 * ogSize[0] / ogSize[1], renderConstants.SIZE * 0.25)
+        resMovie.set_size(resMovieSize) 
+        resMovieSpeed = [100, 130]
+        resMoviePos = [0, 0]
     deltaTime = 0
     startTime1 = time.process_time()
     while True:
         startTime = time.process_time()
         display_surface.fill(BACKGROUND)
         #######
-        if(resMovieSize[1] + int(resMoviePos[1]) >= renderConstants.SIZE):
-            resMovieSpeed[1] = -abs(resMovieSpeed[1])
-        elif(int(resMoviePos[1]) <= 0):
-            resMovieSpeed[1] = abs(resMovieSpeed[1])
-        if(resMovieSize[0] + int(resMoviePos[0]) >= renderConstants.SIZE):
-            resMovieSpeed[0] = -abs(resMovieSpeed[0])
-        elif(int(resMoviePos[0]) <= 0):
-            resMovieSpeed[0] = abs(resMovieSpeed[0])
-        resMoviePos[0] += resMovieSpeed[0] * deltaTime
-        resMoviePos[1] += resMovieSpeed[1] * deltaTime
-        resMovie.draw(display_surface, (int(resMoviePos[0]), resMoviePos[1]))
+        if(platform != "darwin"):
+            if(resMovieSize[1] + int(resMoviePos[1]) >= renderConstants.SIZE):
+                resMovieSpeed[1] = -abs(resMovieSpeed[1])
+            elif(int(resMoviePos[1]) <= 0):
+                resMovieSpeed[1] = abs(resMovieSpeed[1])
+            if(resMovieSize[0] + int(resMoviePos[0]) >= renderConstants.SIZE):
+                resMovieSpeed[0] = -abs(resMovieSpeed[0])
+            elif(int(resMoviePos[0]) <= 0):
+                resMovieSpeed[0] = abs(resMovieSpeed[0])
+            resMoviePos[0] += resMovieSpeed[0] * deltaTime
+            resMoviePos[1] += resMovieSpeed[1] * deltaTime
+            resMovie.draw(display_surface, (int(resMoviePos[0]), resMoviePos[1]))
         #######
         text = textW
         text2 = textW2
@@ -401,7 +406,7 @@ def displayResultScreen(won):
         pygame.display.update()
         endTime = time.process_time()
         deltaTime = endTime - startTime
-        if(endTime - startTime1 >= videoDuration - 1):
+        if(platform != "darwin" and endTime - startTime1 >= videoDuration - 1):
             resMovie.close()
             startTime1 = time.process_time()
             resMovie = movie()
