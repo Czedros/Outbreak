@@ -78,7 +78,8 @@ resourceBar = pygame.image.load(r'Assets/UI/ResourceBar.png')
 resourceBar = pygame.transform.scale(resourceBar, (resourceBarHeight * resourceBar.get_width() / resourceBar.get_height(), resourceBarHeight))
 iconDist = renderConstants.SIZE * renderConstants.GRIDDIST - resourceIcon.get_height() * 0.75
 iconYOff = renderConstants.SIZE * 0.01
-resourceBarPos = (iconDist + resourceIcon.get_width() - renderConstants.SIZE * 0.015, iconDist + resourceIcon.get_height() * 0.75 - resourceBar.get_height() - iconYOff)
+resourceBarOff = renderConstants.SIZE * 0.015
+resourceBarPos = (iconDist + resourceIcon.get_width() - resourceBarOff, iconDist + resourceIcon.get_height() * 0.75 - resourceBar.get_height() - iconYOff)
 resourceBorderSize = 0.23
 resourceRectBound = resourceBar.get_width() - resourceBar.get_height() * resourceBorderSize * 2 + 2
 resourceBarRect = pygame.Rect(resourceBarPos[0] + resourceBar.get_height() * resourceBorderSize, resourceBarPos[1] + resourceBar.get_height() * resourceBorderSize, resourceRectBound, resourceBar.get_height() * (1 - resourceBorderSize * 2) + 2)
@@ -88,6 +89,10 @@ resourceText = resourceFont.render('Resources: sus', True, (255, 255, 255))
 resourceTextRect = resourceText.get_rect()
 resourceTextRect.left = resourceBarPos[0] + renderConstants.SIZE * 0.02
 resourceTextRect.top = resourceBarPos[1] - resourceTextRect.height
+#######
+savedFont = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 40))
+savedIcon = pygame.transform.scale(pygame.image.load(r'Assets/UI/SavedIcon.png'), (resourceIcon.get_width(), resourceIcon.get_height()))
+savedCounterPos = (renderConstants.SIZE - resourceBarPos[0], resourceBarPos[1])
 #######
 apImageSize = 0.12
 apImage = pygame.image.load(r'Assets/UI/APBar.png')
@@ -186,6 +191,10 @@ def run(GameBoard):
     pygame.draw.rect(display_surface, (202, 0, 69), resourceBarRect)
     resourceText = resourceFont.render('Resources: ' + str(int(resources)) + "/" + str(GameBoard.resources[1].maxValue), True, (255, 255, 255))
     display_surface.blit(resourceText, resourceTextRect)
+    #######
+    savedCounter = savedFont.render('People Saved: ' + str(GameBoard.resources[2].currentValue), True, (255, 255, 255))#placeholder
+    display_surface.blit(savedIcon, (renderConstants.SIZE - iconDist - savedIcon.get_width(), iconDist - iconYOff))
+    display_surface.blit(savedCounter, (renderConstants.SIZE - resourceTextRect[0] - savedCounter.get_width(), resourceBarPos[1]))#(resourceTextRect[0], resourceTextRect[1] - savedCounter.get_width())
     #######
     display_surface.blit(apImage, apImagePos)
     apBarRect.width = apRectBound * ap / GameBoard.resources[0].maxValue
