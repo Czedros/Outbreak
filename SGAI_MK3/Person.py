@@ -53,6 +53,8 @@ class Person:
             self.animation = Animation(Animations.human.value)
             self.wasCured = True
             print("Cure/Vaccine was successful, action completed successfully in Person")
+            return True
+        return False
  
     def vaccinationStatus(self):
         if(self.turnsVaccinated == 0 or self.turnsVaccinated == 1):

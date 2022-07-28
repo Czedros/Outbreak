@@ -393,8 +393,9 @@ class Board:
         p = self.States[coords[1]][coords[0]].person
 
         if p.isZombie:
-            p.calcCureSuccess()
-            print("Cure/Vaccine has either failed or succeeded, action completed successfully in Board")
+            if p.calcCureSuccess():
+                self.States[coords[1]][coords[0]].person == None
+            
         else:
             p.get_vaccinated()
             print("Person is now vaccinated, action completed successfully in Board")
