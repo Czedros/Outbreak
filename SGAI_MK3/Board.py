@@ -72,9 +72,11 @@ class Board:
                 if state.person is not None and state.person.isZombie == isZombie:
                     return True
         return False
-    def findPerson(self, int):
-        for arr in self.States
-            f
+    def findPerson(self, ID):
+        for arr in self.States:
+            for state in arr:
+                if state.person is not None and state.person.ai.ID == ID:
+                    return state.location
 
     def get_possible_moves(self, action: str, role: str):
         """

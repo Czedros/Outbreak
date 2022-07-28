@@ -7,24 +7,26 @@ class ZombieAI :
     currentState = ""
     active = False
     seekPosition = [1, 1]
-    currentBoard = [[0,0,0],
-                    [0,0,0],
-                    [0,0,0]]
-    def __init__(self, gameboard):
+    currentBoard = [[0,0,0,0,0],
+                    [0,0,0,0,0],
+                    [0,0,0,0,0],
+                    [0,0,0,0,0],
+                    [0,0,0,0,0]]
+    def __init__(self):
         self.active = True
         self.states = {
             "Roam" : self.stateRoam(),
             "Seek" : self.stateSeek(),
             "Attack" : self.stateAttack()
         }
-        self.createmap(gameboard)
-    def act(self):
-        self.states[self.currentState]
+        self.ID = ZombieID + 1
+    def createmap(self, gameboard):
+        position = gameboard.find(self.ID)
 
     def setState(self, state):
         self.currentState = self.states[state]
 
-    def stateSeek(self ):
+    def stateSeek(self, ):
         Board.move()
         if(self.seekPosition = Board.currentPosition()):
             return False
@@ -32,5 +34,7 @@ class ZombieAI :
         return False
     def playerFind(self, board):
         return False
+
+
     def stateRoam(self, board):
         if(Board.)

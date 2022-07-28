@@ -14,7 +14,7 @@ class Person:
     AP = Resource("AP", 3, {"Move" : 1 , "Bite": 2 } )
     def __init__(self, iz: bool):
         self.isZombie = iz
-        self.ID = rd.randint(0, 30)
+        self.ID = Person.ID + 1
         if(self.isZombie):
             self.animation = Animation(Animations.zombie.value)
         else:
@@ -53,6 +53,7 @@ class Person:
             self.animation = Animation(Animations.human.value)
             self.wasCured = True
             print("Cure/Vaccine was successful, action completed successfully in Person")
+            Person.ID -= 1
             return True
         return False
  
