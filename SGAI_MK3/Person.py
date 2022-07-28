@@ -1,5 +1,8 @@
 import random as rd
 from Resource import Resource
+from Animator import Animations
+from Animator import Animation
+import Animator
 
 class Person:
     wasVaccinated : bool = False
@@ -12,6 +15,10 @@ class Person:
     def __init__(self, iz: bool):
         self.isZombie = iz
         self.ID = rd.randint(0, 30)
+        if(self.isZombie):
+            self.animation = Animation(Animations.zombie.value)
+        else:
+            self.animation = Animation(Animations.human.value)
 
     def clone(self):
         ret = Person(self.isZombie)
@@ -30,6 +37,7 @@ class Person:
             chance -= self.vaccinationStatus()
         if rd.randint(0,100) < chance:
             self.isZombie = True
+            self.animation = Animation(Animations.zombie.value)
             print("The zombie successfully infected you, action completed successfully in Person")
         else:
             print("The zombie failed to infect you, action completed successfully in Person")
@@ -41,6 +49,7 @@ class Person:
             chance -= self.vaccinationStatus()
         if rd.random() < chance:
             self.isZombie = False
+            self.animation = Animation(Animations.human.value)
             self.wasCured = True
             print("Cure/Vaccine was successful, action completed successfully in Person")
  

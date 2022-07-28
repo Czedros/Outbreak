@@ -103,17 +103,19 @@ apTextRect.top  = apBarRect.top + (apBarRect.height - apTextRect.height) / 2
 healImageSize = 0.1 * renderConstants.SIZE
 healImage = pygame.image.load(r'Assets/cure2.png')
 healImage = pygame.transform.scale(healImage, (healImageSize, healImageSize * healImage.get_height() / healImage.get_width()))
+healImageOpen = pygame.transform.scale(pygame.image.load(r'Assets/cure2Open.png'), (healImageSize, healImageSize * healImage.get_height() / healImage.get_width()))
 healImagePos = (renderConstants.SIZE * (1 - renderConstants.GRIDDIST) + (renderConstants.GRIDDIST * renderConstants.SIZE - healImage.get_width()) / 2, renderConstants.SIZE * 0.1)
 #######
 humanImage = pygame.transform.scale(pygame.image.load(r'Assets/Human Assets (Hannah Added)/HumanNormal1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 zombieImage = pygame.transform.scale(pygame.image.load(r'Assets/Zombie Assets (Hannah Added)/ZombieRoam1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 #######
-zombieAnim = Animation(Animations.zombie.value)
-#######
 resultFont = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 40))
 resultFont2 = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 45))
 #######
+healing = False
+#######
 def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
+    global healing
     """
     Get the action that the click represents.
     If the click was on the heal button, returns "heal"
@@ -123,7 +125,9 @@ def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
     clickPos = [pixel_x, pixel_y]
     healClickPos = (clickPos[0] - healImagePos[0], clickPos[1] - healImagePos[1])
     if(healClickPos[0] >= 0 and healClickPos[0] <= healImage.get_width() and healClickPos[1] >= 0 and healClickPos[1] <= healImage.get_height()):
+        healing = not healing
         return "heal"
+    healing = False
     if(clickPos[0] < renderConstants.GRIDRECT.left or clickPos[1] < renderConstants.GRIDRECT.top or clickPos[0] > renderConstants.GRIDRECT.right or clickPos[1] > renderConstants.GRIDRECT.bottom):
         return None
     clickOff = renderConstants.GRIDRECT.left + constants.LINE_WIDTH + renderConstants.CELLOFF
@@ -140,7 +144,6 @@ def get_action(GameBoard: Board, pixel_x: int, pixel_y: int):
     #return "reset move"
 
 def run(GameBoard: Board):
-    global zombieAnim
     renderConstants.frame_time = time.process_time()
     turn = GameBoard.timeCounter
     ap = GameBoard.resources[0].currentValue
@@ -158,12 +161,8 @@ def run(GameBoard: Board):
         for x in range(len(arr)):
             state = GameBoard.States[y][x]
             if state.person != None:
-                if state.person.isZombie:
-                    zombieAnim = zombieAnim.getNextAnimation()
-                    display_surface.blit(zombieAnim.getImage(), cellPosition(x, y))
-                else:
-                    Animator.humanAnimation = Animator.humanAnimation.getNextAnimation()
-                    display_surface.blit(Animator.humanAnimation.getImage(), cellPosition(x, y))
+                state.person.animation = state.person.animation.getNextAnimation()
+                display_surface.blit(state.person.animation.getImage(), cellPosition(x, y))
     #######
     if(GameBoard.isDay):
         if(turn % renderConstants.CYCLELEN > renderConstants.CYCLELEN/2 - 1 - renderConstants.NOONLENGTH):
@@ -191,7 +190,10 @@ def run(GameBoard: Board):
     apText = apFont.render('Action Points: ' + str(ap) + "/" + str(GameBoard.resources[0].maxValue), True, (255, 255, 255))
     display_surface.blit(apText, apTextRect)
     #######
-    display_surface.blit(healImage, healImagePos)
+    if(healing):
+        display_surface.blit(healImageOpen, healImagePos)
+    else:
+        display_surface.blit(healImage, healImagePos)
     pygame.display.update()
     return pygame.event.get()
 

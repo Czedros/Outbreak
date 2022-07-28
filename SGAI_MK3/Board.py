@@ -394,7 +394,7 @@ class Board:
         else:
             p.get_vaccinated()
             print("Person is now vaccinated, action completed successfully in Board")
-            Animator.humanAnimation = Animation(Animations.vaccinate.value)
+            p.animation= Animation(Animations.vaccinate.value)
         return [True, i]
 
     def get_possible_states(self, role_number: int):
@@ -453,7 +453,9 @@ class Board:
             s = rd.randint(0, len(poss) - 1)
             while s in used:
                 s = rd.randint(0, len(poss) - 1)
-            self.States[poss[s][1]][poss[s][0]].person.isZombie = True
+            p = self.States[poss[s][1]][poss[s][0]].person
+            p.isZombie = True
+            p.animation = Animation(Animations.zombie.value)
             used.append(s)
 
     def update(self):
