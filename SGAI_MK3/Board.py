@@ -38,7 +38,7 @@ class Board:
                 a.append(State(None, Cells.nan.value, (x, y)))
                 self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
             self.States.append(a)
-        PygameFunctions.imageToGrid(r'Assets/TestGrids/TestGrid2.png', self.States)
+        PygameFunctions.imageToGrid(r'Assets/TestGrids/TestGrid3.png', self.States)
         self.actionToFunction = {
             "moveUp": self.moveUp,
             "moveDown": self.moveDown,
@@ -438,7 +438,7 @@ class Board:
         # QTable[state][acti] = new_value
 
     def populate(self):
-        total = rd.randint(7, ((self.rows * self.columns) / 3))
+        total = rd.randint(7, int((self.rows * self.columns) / 3))
         poss = []
         for y in range(len(self.States)):
             arr = self.States[y]
