@@ -135,6 +135,15 @@ finishImageHeight = finishSpace - 2 * finishImageOff
 finishImage = pygame.transform.scale(finishImage, (finishImageHeight * finishImage.get_width() / finishImage.get_height(), finishImageHeight))
 finishImagePos = (int(renderConstants.SIZE/2 - finishImage.get_width()/2), int(renderConstants.SIZE - finishImageOff - finishImage.get_height()))
 #######
+moveImageLeft = pygame.image.load(r'Assets/UI/MoveArrow.png')
+moveImageMult = 7/5
+moveImageLeft = pygame.transform.scale(moveImageLeft, (renderConstants.CELLSIZE * moveImageMult, (renderConstants.CELLSIZE * moveImageMult) * moveImageLeft.get_height() / moveImageLeft.get_width()))
+moveImageRight = pygame.transform.flip(moveImageLeft, True, False)
+moveImageUp = pygame.transform.rotate(moveImageRight, 90)
+moveImageDown = pygame.transform.flip(moveImageUp, False, True)
+##
+healTurnImage = pygame.image.load(r'Assets/UI/cure2Transparent.png')
+#######
 healing = False
 #######
 #GameBoard.isValidCoordinate(new_coords)
@@ -233,8 +242,11 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
             add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))
     elif(GameBoard.States[gridPos[1]][gridPos[0]].person == None):
         if(GameBoard.States[gridPos[1]][gridPos[0]].cellType.passable and selectedActor != None):
-            if(add_action(GameBoard, Action(ActionTypes.move.value, selectedActor, gridPos))):
-                selectedActor = gridPos
+            xDiff = abs(gridPos[0] - selectedActor[0])
+            yDiff = abs(gridPos[1] - selectedActor[1])
+            if((xDiff == 1 and yDiff == 0) or (xDiff == 0 and yDiff == 1)):
+                if(add_action(GameBoard, Action(ActionTypes.move.value, selectedActor, gridPos))):
+                    selectedActor = gridPos
     elif(GameBoard.States[gridPos[1]][gridPos[0]].person.isZombie == False):
         reset_actions()
         selectedActor = gridPos
@@ -248,7 +260,10 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     #    and pixel_y <= RESET_MOVE_COORDS[1] + RESET_MOVE_DIMS[1]
     #)
     #return "reset move"
-
+def cellCoord(coord):
+        cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * coord[0] + renderConstants.CELLOFF)
+        cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * coord[1] + renderConstants.CELLOFF)
+        return (cellX, cellY)
 def run(GameBoard):
     renderConstants.frame_time = time.process_time()
     turn = GameBoard.timeCounter
@@ -262,6 +277,24 @@ def run(GameBoard):
             cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
             display_surface.blit(GameBoard.States[y][x].cellType.image, (cellX, cellY))
     #######
+    for i in range(len(actions) - 1, -1, -1):
+        act = actions[i]
+        if(act.actionType == ActionTypes.move.value):
+            pos1 = cellCoord(act.coord)
+            pos2 = cellCoord(act.coord2)
+            posT = [(pos1[0] + pos2[0] + renderConstants.CELLSIZE) / 2, (pos1[1] + pos2[1] + renderConstants.CELLSIZE) / 2]
+            img = None
+            off = (moveImageLeft.get_width() - renderConstants.CELLSIZE) / 2
+            if(pos2[0] > pos1[0]):
+                img = moveImageRight
+            elif(pos2[0] < pos1[0]):
+                img = moveImageLeft
+            elif(pos2[1] < pos1[1]):
+                img = moveImageUp
+            elif(pos2[1] > pos1[1]):
+                img = moveImageDown
+            display_surface.blit(img, (posT[0] - img.get_width()/2, posT[1] - img.get_height()/2))
+    #######
     for y in range(len(GameBoard.States)):
         arr = GameBoard.States[y]
         for x in range(len(arr)):
@@ -269,6 +302,11 @@ def run(GameBoard):
             if state.person != None:
                 state.person.animation = state.person.animation.getNextAnimation()
                 display_surface.blit(state.person.animation.getImage(), cellPosition(x, y))
+    #######
+    for act in actions:
+        if(act.actionType == ActionTypes.heal.value):
+            #display_surface.blit(healTurnImage, (posT[0] - img.get_width()/2, posT[1] - img.get_height()/2))
+            a=1
     #######
     if(GameBoard.isDay):
         if(turn % renderConstants.CYCLELEN > renderConstants.CYCLELEN/2 - 1 - renderConstants.NOONLENGTH):

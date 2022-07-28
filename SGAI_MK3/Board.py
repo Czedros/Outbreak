@@ -268,7 +268,7 @@ class Board:
         print(self.States[new_coords[1]])
         if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable:
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
-                if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") <  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
+                if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
                     self.States[from_coords[1]][from_coords[0]].person = None
                     self.States[new_coords[1]][new_coords[0]].person.AP.alterByValue(-1)
@@ -276,7 +276,7 @@ class Board:
                 else:
                     print("Not enough AP")
             else:
-                if  self.resources[0].currentValue > self.resources[0].checkCost("Move"):
+                if  self.resources[0].currentValue >= self.resources[0].checkCost("Move"):
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
                     self.States[from_coords[1]][from_coords[0]].person = None
                     self.resources[0].alterByValue(-1)
@@ -377,7 +377,7 @@ class Board:
         print("Infection has either failed or succeeded, action completed successfully in Board")
         return [True, i]
 
-    def heal(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
+    def heal(self, coords: Tuple[int, int], infRange = False) -> Tuple[bool, int]:
         """
         Cures or vaccinates the person at the stated coordinates.
         If there is a zombie there, the person will be cured.
@@ -388,7 +388,7 @@ class Board:
         i = self.toIndex(coords)
         if self.States[coords[1]][coords[0]].person is None:
             return [False, None]
-        if self.isNear(coords) == False:
+        if self.isNear(coords) == False and not infRange:
             print("Out of Range!")
             return [False, None]
         if self.resources[0].currentValue < 2:

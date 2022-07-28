@@ -74,6 +74,9 @@ while running:
             # Action handling
             if finished:
                 GameBoard.move(PF.firstActor, PF.selectedActor)
+                for i in PF.actions:
+                    if(i.actionType == PF.ActionTypes.heal.value):
+                        GameBoard.heal(i.coord, infRange=True)
                 #elif take_action[0] == "heal" or take_action[0] == "bite":
                 #    result = GameBoard.actionToFunction[take_action[0]](take_action[1])
                 #    if result[0] is not False:
