@@ -1,6 +1,6 @@
 # Constants
-ROWS = 6
-COLUMNS = 6
+ROWS = 13
+COLUMNS = 13
 ACTION_SPACE = ["moveUp", "moveDown", "moveLeft", "moveRight", "heal", "bite"]
 
 # Player role variables
