@@ -29,7 +29,7 @@ while running:
 
     if SELF_PLAY:
         if not playerMoved:
-            if (not GameBoard.containsPerson(False)):
+            if (not GameBoard.containsPerson(False)) or GameBoard.resources[1].currentValue < 1:
                 PF.displayResultScreen(False)
                 running = False
                 continue
