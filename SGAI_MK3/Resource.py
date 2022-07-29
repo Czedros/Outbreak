@@ -1,6 +1,6 @@
 class Resource:
     name = ""
-    currentValue : int = 0
+    currentValue : int = 1
     maxValue : int = 0
     actions = {        }
     
