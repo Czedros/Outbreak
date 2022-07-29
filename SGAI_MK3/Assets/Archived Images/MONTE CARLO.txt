@@ -1,0 +1,21 @@
+SIX mode for resources for MCTS:
+
+1. A lot of resources:
+    a. a lot of food/water
+    b. a lot of AP 
+2. Mid amount of resources:
+    a. mid of food/water
+    b. mid of AP 
+3. Low amount of resources:
+    a. low of food/water
+    b. low of AP 
+
+Can merge into THREE mode for resources:
+1. A lot of resources:
+
+2. Mid amount of resources:
+
+3. Low amount of resources:
+
+
+- Day & Night Cycle Constant 

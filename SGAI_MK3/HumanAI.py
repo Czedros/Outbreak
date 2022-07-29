@@ -32,10 +32,10 @@ class Engine():
         self.rand = ra
         
         
-        self.QTable = [0] * BoardSize
+        self.QTable = [0] * BoardSize #change this  
         #Board size is totalrows*totalcolumns. Remove if not QTable
         pass
-    def think(self,GameBoard):
+    def think(self,GameBoard): #redefine for MonteCarlo Tree Search 
         '''
         This is where you put your ML Function
         Returns array with [action, coordinate, reward]
@@ -47,9 +47,9 @@ class Engine():
         if r < self.gamma or self.rand:
             while GameBoard.States[st].person is None:
                 st = rd.randint(0, len(GameBoard.States) - 1)
-            
+            #Random values onto Q Table - replace it with not just randominess 
         else:
-            biggest = None
+            biggest = None #Biggest Reward
             for x in range(len(GameBoard.States)):
                 arr = self.QTable[x]
                 exp = sum(arr) / len(arr)
@@ -79,57 +79,102 @@ class Engine():
                 old_state = i
             
             return [action_to_take, old_state, old_qval]
-                   
+
+    #Not needed              
     def update_q_table(self,NewBoard, action_info):
         # action_info: exactly what is returned in think function with reward and nextstate qvalue at the end * 
         idx = self.ACTION_SPACE.index(action_info[0])
         self.QTable[action_info[1]][idx] = self.QTable[action_info[1]][idx] + self.alpha * (action_info[3] + self.gamma * action_info[4]) -  self.QTable[action_info[1]][idx]
         # GameBoard.QTable[i] = GameBoard.QTable[i] + alpha * (reward[0] + gamma * NS) - GameBoard.QTable[i]
 
+"""
+Pseudo Code for MCTS 
 
-# Our tree is each movement our human AI will make
-# each node represents the human's position 
+def _select(self, node):
+        "Find an unexplored descendent of `node`"
+        path = []
+        while True:
+            path.append(node)
+            TODO: rework variable children in Node class
+            if node not in self.children or not self.children[node]: 
+                # node is either unexplored or terminal
+                return path
+            unexplored = self.children[node] - self.children.keys() #the number children of that node - all of the nodes recorded
+            if unexplored:
+                n = unexplored.pop() #pick the latest node
+                path.append(n) #add it to our path 
+                return path
+            node = self._uct_select(node)  # descend a layer deeper
+
+#run this many times 
+def simulate (self, node):
+    while(turns not ended):
+        reward = node.reward() #calculate rewarad based on how long it survived and people saved
+        return node.find_random_child() or node 
+
+TODO: Understand UCT Equation and tweak it 
+def _uct_select(self, node):
+    #all children are expanded
+    assert all(n in self.children for n in self.children[node])
+    
+"""
 
 
+
+
+
+
+
+"""
+def _backpropagate(self, path, reward):
+        "Send the reward back up to the ancestors of the leaf"
+        for node in reversed(path):
+            self.N[node] += 1
+            self.Q[node] += reward
+            reward = 1 - reward  # 1 for me is 0 for my enemy, and vice versa
+"""
+
+"""
+MCTS: 
 # main function for the Monte Carlo Tree Search
 #the starting parameter is the human's first position? root = human first position
-def monte_carlo_tree_search(root):
+  def monte_carlo_tree_search(root):
      
     while resources_left(time, computational power):
-        #while it is your turn  
-        leaf = traverse(root)
-        simulation_result = rollout(leaf)
-        backpropagate(leaf, simulation_result)
+        
+        leaf = traverse(root) #SELECTION: returns a node with the most promise to explore
+        simulation_result = rollout(leaf) #EXPANSION and SIMULATION  
+        backpropagate(leaf, simulation_result)#BACKPROPAGATION it 
          
     return best_child(root)
  
 # function for node traversal
 def traverse(node):
-    while fully_expanded(node):
-        node = best_uct(node) #find the node that gives the best reward
+    while fully_expanded(node): #until reach a leaf node
+        node = best_uct(node) # UCT chose best node
          
-    # in case no children are present (at the bottom) / node is terminal
-    return pick_unvisited(node.children) or node
+    # in case no children are present  / node is terminal just pick another unvisited node and try again
+    return pick_unvisited(node.children) or node  
  
 # function for the result of the simulation
+#multiple simulations are 'rolled out'
 def rollout(node):
-    while non_terminal(node):
-        node = rollout_policy(node)
-    return result(node)
+    while non_terminal(node): #while not terminal
+        node = rollout_policy(node) #pick a random child from that node
+    return result(node) #return terminal node
  
 # function for randomly selecting a child node
 def rollout_policy(node):
     return pick_random(node.children)
  
-# function for backpropagation
+# function for backpropagation; easiest to understand 
 def backpropagate(node, result):
-    if is_root(node) return
-    node.stats = update_stats(node, result)
-    backpropagate(node.parent)
+    if is_root(node) return #base case 
+    node.stats = update_stats(node, result) #at this node, update it based on our results
+    backpropagate(node.parent) #go backwards to its parent thats all
  
 # function for selecting the best child
-# node with highest number of visits
+# node with highest number of visits 
 def best_child(node):
     pick child with highest number of visits
-
-#
+"""
