@@ -127,6 +127,9 @@ healImage = pygame.transform.scale(healImage, (healImageSize, healImageSize * he
 healImageOpen = pygame.transform.scale(pygame.image.load(r'Assets/cure2Open.png'), (healImageSize, healImageSize * healImage.get_height() / healImage.get_width()))
 healImagePos = (renderConstants.SIZE * (1 - renderConstants.GRIDDIST) + (renderConstants.GRIDDIST * renderConstants.SIZE - healImage.get_width()) / 2, renderConstants.SIZE * 0.1)
 #######
+healAreaImageSize = renderConstants.CELLSIZE * 3 + constants.LINE_WIDTH * 2
+healAreaImage = pygame.transform.scale(pygame.image.load(r'Assets/HealArea.png'), (healAreaImageSize, healAreaImageSize))
+#######
 humanImage = pygame.transform.scale(pygame.image.load(r'Assets/Human Assets (Hannah Added)/HumanNormal1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 zombieImage = pygame.transform.scale(pygame.image.load(r'Assets/Zombie Assets (Hannah Added)/ZombieRoam1.png'), (renderConstants.CELLSIZE, renderConstants.CELLSIZE))
 #######
@@ -338,6 +341,10 @@ def run(GameBoard):
             if state.person != None:
                 state.person.animation = state.person.animation.getNextAnimation()
                 display_surface.blit(state.person.animation.getImage(), cellPosition(x, y))
+    #######
+    if(selectedActor != None and healing):
+        cellPos = cellPosition(selectedActor[0], selectedActor[1])
+        display_surface.blit(healAreaImage, (cellPos[0] - renderConstants.CELLSIZE - constants.LINE_WIDTH, cellPos[1] - renderConstants.CELLSIZE - constants.LINE_WIDTH))
     #######
     for i in range(actionSlot + 1):
         act = actions[i]
