@@ -9,19 +9,18 @@
 
 import random as rd
 class Engine():
-    role = ""
+    role = "Human"
     gamma = 0
     alpha = 0
     epsilon = 0
     budget = 0
-    QTable = []
+    #QTable = []
     rand = False
     ACTION_SPACE = ["moveUp","moveDown","moveLeft","moveRight","heal","bite"]
     '''
     Role is either Government or Zombie
     Budget = how far your ML model thinks ahead- mainly used for Monte Carlo Tree Search but can be applied
     to other areas
-    QTable = given your model- remove if not q-learning
     '''
     def __init__(self,r,b,learning,BoardSize, ra) -> None:
         self.role = r
@@ -30,11 +29,7 @@ class Engine():
         self.alpha = learning[1]
         self.epsilon = learning[2]
         self.rand = ra
-        
-        
-        self.QTable = [0] * BoardSize #change this  
-        #Board size is totalrows*totalcolumns. Remove if not QTable
-        pass
+
     def think(self,GameBoard): #redefine for MonteCarlo Tree Search 
         '''
         This is where you put your ML Function
@@ -80,12 +75,6 @@ class Engine():
             
             return [action_to_take, old_state, old_qval]
 
-    #Not needed              
-    def update_q_table(self,NewBoard, action_info):
-        # action_info: exactly what is returned in think function with reward and nextstate qvalue at the end * 
-        idx = self.ACTION_SPACE.index(action_info[0])
-        self.QTable[action_info[1]][idx] = self.QTable[action_info[1]][idx] + self.alpha * (action_info[3] + self.gamma * action_info[4]) -  self.QTable[action_info[1]][idx]
-        # GameBoard.QTable[i] = GameBoard.QTable[i] + alpha * (reward[0] + gamma * NS) - GameBoard.QTable[i]
 
 """
 Pseudo Code for MCTS 
