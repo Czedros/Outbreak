@@ -19,19 +19,20 @@ from Obstacle import Obstacles
 import Animator
 
 
-def imageToGrid(path, pathObstacles, States):
+def imageToGrid(path, pathObstacles, States, mapOff = (0, 0)):
     im = Image.open(path, 'r').convert('RGB')
     imObstacle = Image.open(pathObstacles, 'r').convert('RGB')
     pix = list(im.getdata())
     pixObstacle = list(imObstacle.getdata())
-    if(im.size[0] != constants.ROWS or im.size[1] != constants.ROWS):
+    if(im.size[0] % constants.ROWS != 0 or im.size[1] % constants.ROWS != 0):
         raise Exception("Image isn't correct size, must be a " + str(constants.ROWS) + " by " + str(constants.ROWS) + " pixel image")
-    if(imObstacle.size[0] != constants.ROWS or imObstacle.size[1] != constants.ROWS):
+    if(imObstacle.size[0] % constants.ROWS != 0 or imObstacle.size[1] % constants.ROWS != 0):
         raise Exception("Obstacle image isn't correct size, must be a " + str(constants.ROWS) + " by " + str(constants.ROWS) + " pixel image")
     for x in range(constants.ROWS):
         for y in range(constants.ROWS):
-            pixel = pix[x + y * constants.ROWS]
-            pixelObstacle = pixObstacle[x + y * constants.ROWS]
+            ind = x + mapOff[0] * constants.ROWS + (y + mapOff[1] * constants.ROWS) * im.size[0]
+            pixel = pix[ind]
+            pixelObstacle = pixObstacle[ind]
             match pixel:
                 case (0, 255, 0):
                     States[y][x].cellType = Cells.grass.value
