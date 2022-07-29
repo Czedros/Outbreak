@@ -458,31 +458,29 @@ class Board:
 
     def populate(self):
         total = 7
-        poss = []
         for arr in self.States:
             for state in arr:
                 state.person = None
+        humanPos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+        while(not self.States[humanPos[1]][humanPos[0]].cellType.passable or self.States[humanPos[1]][humanPos[0]].obstacle != None):
+            humanPos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+        self.States[humanPos[1]][humanPos[0]].person = Person(False)
+        poss = []
         for i in range(total):
             pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
-            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None):
+            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) <= 3):
                 pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
-            poss.append(pos)
-            self.States[pos[1]][pos[0]].person = Person(False)
-        self.population = total
-        used = []
-        for x in range(total-1):
-            s = rd.randint(0, len(poss) - 1)
-            while s in used:
-                s = rd.randint(0, len(poss) - 1)
-            p = self.States[poss[s][1]][poss[s][0]].person
+            p = Person(False)
             p.isZombie = True
             p.animation = Animation(Animations.zombie.value)
-            used.append(s)
+            self.States[pos[1]][pos[0]].person = p
+        self.population = total + 1
     def zombieWave(self):
         total = 7
+        humanPos = self.findPlayer()
         for i in range(total):
             pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
-            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None):
+            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) <= 2 or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) > 6):
                 pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
             p = Person(False)
             p.isZombie = True
@@ -536,6 +534,8 @@ class Board:
             self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
             if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
                 self.zombieWave()
+            #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):
+            #    self.populate()
         #print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
