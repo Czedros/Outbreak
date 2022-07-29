@@ -275,11 +275,13 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     if(gridPos[0] < 0 or gridPos[1] < 0 or gridPos[0] >= constants.COLUMNS or gridPos[1] >= constants.ROWS):
         return None
     state = GameBoard.States[gridPos[1]][gridPos[0]]
+    canAct = (actionSlot == -1 or actions[actionSlot].actionType != ActionTypes.heal.value)
+    print(canAct)
     if(healing and state.person is not None):
-        if((abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1) or (gridPos[0] == firstActor[0] and gridPos[1] == firstActor[1])):
+        if(canAct and ((abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1) or (gridPos[0] == firstActor[0] and gridPos[1] == firstActor[1]))):
             add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))
     elif(state.person == None):
-        if(state.cellType.passable and selectedActor != None and (state.obstacle == None or state.obstacle.passable)):
+        if(canAct and state.cellType.passable and selectedActor != None and (state.obstacle == None or state.obstacle.passable)):
             xDiff = abs(gridPos[0] - selectedActor[0])
             yDiff = abs(gridPos[1] - selectedActor[1])
             if((xDiff == 1 and yDiff == 0) or (xDiff == 0 and yDiff == 1)):
