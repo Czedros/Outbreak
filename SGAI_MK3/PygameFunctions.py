@@ -264,12 +264,12 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
                     selectedActor = actions[actionSlot].coord2
 
         return None
-    if(clickPos[0] < renderConstants.GRIDRECT.left or clickPos[1] < renderConstants.GRIDRECT.top or clickPos[0] > renderConstants.GRIDRECT.right or clickPos[1] > renderConstants.GRIDRECT.bottom):
-        return None
     clickOff = renderConstants.GRIDRECT.left + constants.LINE_WIDTH + renderConstants.CELLOFF
     clickPos[0] -= clickOff
     clickPos[1] -= clickOff
     gridPos = (int(clickPos[0] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)), int(clickPos[1] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)))
+    if(gridPos[0] < 0 or gridPos[1] < 0 or gridPos[0] >= constants.COLUMNS or gridPos[1] >= constants.ROWS):
+        return None
     state = GameBoard.States[gridPos[1]][gridPos[0]]
     if(healing and state.person is not None):
         if((abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1) or (gridPos[0] == firstActor[0] and gridPos[1] == firstActor[1])):
