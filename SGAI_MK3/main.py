@@ -54,8 +54,8 @@ while running:
                                 # make sure that the space is not an empty space or a space of the opposite team
                                 # since cannot start a move from those invalid spaces
                                 if (
-                                    GameBoard.States[idx].person is not None
-                                    and GameBoard.States[idx].person.isZombie
+                                    GameBoard.States[action[1]][action[0]].person is not None
+                                    and GameBoard.States[action[1]][action[0]].person.isZombie
                                     == ROLE_TO_ROLE_BOOLEAN[player_role]
                                 ):
                                     take_action.append("move")
@@ -134,15 +134,15 @@ while running:
         for event in P:
             i = 0
             r = rd.uniform(0.0, 1.0)
-            st = rd.randint(0, len(GameBoard.States) - 1)
-            state = GameBoard.QTable[st]
+            st = (rd.randint(0, GameBoard.columns - 1), rd.randint(0, GameBoard.rows - 1))
+            state = GameBoard.QTable[st[1] * GameBoard.rows + st[0]]
 
             if r < gamma:
-                while GameBoard.States[st].person is None:
-                    st = rd.randint(0, len(GameBoard.States) - 1)
+                while GameBoard.States[st[1]][st[0]].person is None:
+                    st = (rd.randint(0, GameBoard.columns - 1), rd.randint(0, GameBoard.rows - 1))
             else:
                 biggest = None
-                for x in range(len(GameBoard.States)):
+                for x in range(len(GameBoard.columns * GameBoard.rows)):
                     arr = GameBoard.QTable[x]
                     exp = sum(arr) / len(arr)
                     if biggest is None:

@@ -25,9 +25,12 @@ class Board:
             Resource("Food", 100, {"Gather": 5 , "Consume" : 3 }), 
             Resource("Survivors", 10000, {"Gain" : 1} )
         ]
-        for s in range(dimensions[0] * dimensions[1]):
-            self.States.append(State(None, s))
-            self.QTable.append([0] * 6)
+        for y in range(dimensions[1]):
+            a = []
+            for x in range(dimensions[0]):
+                a.append(State(None, (x, y)))
+                self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
+            self.States.append(a)
 
         self.actionToFunction = {
             "moveUp": self.moveUp,
@@ -40,24 +43,26 @@ class Board:
 
     def num_zombies(self) -> int:
         r = 0
-        for state in self.States:
-            if state.person != None:
-                if state.person.isZombie:
-                    r += 1
+        for arr in self.States:
+            for state in arr:
+                if state.person != None:
+                    if state.person.isZombie:
+                        r += 1
         return r
 
     def act(self, oldstate: Tuple[int, int], givenAction: str):
         cell = self.toCoord(oldstate)
         f = self.actionToFunction[givenAction](cell)
-        reward = self.States[oldstate].evaluate(givenAction, self)
+        reward = self.States[cell[1]][cell[0]].evaluate(givenAction, self)
         if f[0] == False:
             reward = 0
         return [reward, f[1]]
 
     def containsPerson(self, isZombie: bool):
-        for state in self.States:
-            if state.person is not None and state.person.isZombie == isZombie:
-                return True
+        for arr in self.States:
+            for state in arr:
+                if state.person is not None and state.person.isZombie == isZombie:
+                    return True
         return False
 
     def get_possible_moves(self, action: str, role: str):
@@ -74,70 +79,90 @@ class Board:
         if role == "Zombie":
             if not self.containsPerson(True):
                 return poss
-            for idx in range(len(self.States)):
-                state = self.States[idx]
-                if state.person is not None:
-                    changed_states = False
+            for y in range(len(self.States)):
+                arr = self.States[y]
+                for x in range(len(arr)):
+                    state = arr[x]
+                    if state.person is not None:
+                        changed_states = False
 
-                    if (
-                        action == "bite"
-                        and not state.person.isZombie
-                        and self.isAdjacentTo(self.toCoord(idx), True)
-                        and state.person.AP.currentValue > 1
-                    ):
-                        # if the current space isn't a zombie and it is adjacent
-                        # a space that is a zombie
-                        poss.append(B.toCoord(idx))
-                        changed_states = True
-                    elif (
-                        action != "bite"
-                        and state.person.isZombie
-                        and B.actionToFunction[action](B.toCoord(idx))[0]
-                        and state.person.AP.currentValue > 0
-                    ):
-                        poss.append(B.toCoord(idx))
-                        changed_states = True
+                        if (
+                            action == "bite"
+                            and not state.person.isZombie
+                            and self.isAdjacentTo((x, y), True)
+                            and state.person.AP.currentValue > 1
+                        ):
+                            # if the current space isn't a zombie and it is adjacent
+                            # a space that is a zombie
+                            poss.append((x, y))
+                            changed_states = True
+                        elif (
+                            action != "bite"
+                            and state.person.isZombie
+                            and B.actionToFunction[action]((x, y))[0]
+                            and state.person.AP.currentValue > 0
+                        ):
+                            poss.append((x, y))
+                            changed_states = True
 
-                    if changed_states:
-                        # reset the states
-                        B.States = [
-                            self.States[i].clone()
-                            if self.States[i] != B.States[i]
-                            else B.States[i]
-                            for i in range(len(self.States))
-                        ]
+                        if changed_states:
+                            # reset the states
+                            #B.States = [
+                            #    self.States[int(i / self.columns)][i % self.columns].clone()
+                            #    if self.States[int(i / self.columns)][i % self.columns] != B.States[int(i / self.columns)][i % self.columns]
+                            #    else B.States[int(i / self.columns)][i % self.columns]
+                            #    for i in range(self.columns * self.rows)
+                            #]
+                            B.States = []
+                            for y in range(len(self.States)):
+                                arr = self.States[y]
+                                arrB = [None] * self.columns
+                                for x in range(len(arr)):
+                                    arrB[x] = self.States[y][x].clone()
+                                    #if(arr[x] == arrB[x]):
+                                B.States.append(arrB)
 
         elif role == "Human":
             if not self.containsPerson(False):
                 return poss
-            for idx in range(len(self.States)):
-                state = self.States[idx]
-                if state.person is not None:
-                    changed_states = False
-                    if action == "heal" and (
-                        state.person.isZombie or not 
-                        state.person.isVaccinated 
-                        and self.resources[0].currentValue > 2
-                    ):
-                        poss.append(B.toCoord(idx))
-                        changed_states = True
-                    elif (
-                        action != "heal"
-                        and not state.person.isZombie
-                        and B.actionToFunction[action](B.toCoord(idx))[0]
-                        and self.resources[0].currentValue > 0
-                    ):
-                        poss.append(B.toCoord(idx))
-                        changed_states = True
+            for y in range(len(self.States)):
+                arr = self.States[y]
+                for x in range(len(arr)):
+                    state = arr[x]
+                    if state.person is not None:
+                        changed_states = False
+                        if action == "heal" and (
+                            state.person.isZombie or not 
+                            state.person.isVaccinated 
+                            and self.resources[0].currentValue > 2
+                        ):
+                            poss.append((x, y))
+                            changed_states = True
+                        elif (
+                            action != "heal"
+                            and not state.person.isZombie
+                            and B.actionToFunction[action]((x, y))[0]
+                            and self.resources[0].currentValue > 0
+                        ):
+                            poss.append((x, y))
+                            changed_states = True
 
-                    if changed_states:
-                        # reset the states
-                        B.States = [
-                            self.States[i].clone()
-                            if self.States[i] != B.States[i]
-                            else B.States[i]
-                            for i in range(len(self.States))
-                        ]
+                        if changed_states:
+                            # reset the states
+                            #B.States = [
+                            #    self.States[int(i / self.columns)][i % self.columns].clone()
+                            #    if self.States[int(i / self.columns)][i % self.columns] != B.States[int(i / self.columns)][i % self.columns]
+                            #    else B.States[int(i / self.columns)][i % self.columns]
+                            #    for i in range(self.columns * self.rows)
+                            #]
+                            B.States = []
+                            for y in range(len(B.States)):
+                                arr = self.States.States[y]
+                                arrB = [None] * self.columns
+                                for x in range(len(arr)):
+                                    arrB[x] = self.States[y][x].clone()
+                                    #if(arr[x] == arrB[x]):
+                                B.States.append(arrB)
         return poss
 
     def toCoord(self, i: int):
@@ -154,12 +179,15 @@ class Board:
             and coordinates[0] >= 0
         )
 
-    def clone(self, L: List[State], role: str):
+    def clone(self, L: List[List[State]], role: str):
         NB = Board(
             (self.rows, self.columns),
             self.player_role,
         )
-        NB.States = [state.clone() for state in L]
+        #NB.States = [state.clone() for state in L]#No idea what this means :/
+        for y in range(len(L)):
+            NB.States[y] = [state.clone() for state in L[y]]
+            
         NB.player_role = role
         return NB
 
@@ -174,8 +202,8 @@ class Board:
         for coord in vals:
             if (
                 self.isValidCoordinate(coord)
-                and self.States[self.toIndex(coord)].person is not None
-                and self.States[self.toIndex(coord)].person.isZombie == is_zombie
+                and self.States[coord[1]][coord[0]].person is not None
+                and self.States[coord[1]][coord[0]].person.isZombie == is_zombie
             ):
                 ret = True
                 break
@@ -198,8 +226,8 @@ class Board:
         for coord in vals:
             print(coord)
             if (self.isValidCoordinate(coord) 
-                and self.States[self.toIndex(coord)].person is not None 
-                and self.States[self.toIndex(coord)].person.isZombie == False):
+                and self.States[coord[1]][coord[0]].person is not None 
+                and self.States[coord[1]][coord[0]].person.isZombie == False):
                 ret = True
                 break
 
@@ -224,19 +252,20 @@ class Board:
         #Checks if you have enough AP
             
         # Check if the destination is currently occupied
-        if self.States[destination_idx].person is None:
-            if self.States[start_idx].person.isZombie:
-                if self.States[start_idx].person.AP.checkCost("Move") <  self.States[start_idx].person.AP.currentValue:
-                    self.States[destination_idx].person = self.States[start_idx].person
-                    self.States[start_idx].person = None
-                    self.States[destination_idx].person.AP.alterByValue(-1)
+        print(self.States[new_coords[1]])
+        if self.States[new_coords[1]][new_coords[0]].person is None:
+            if self.States[from_coords[1]][from_coords[0]].person.isZombie:
+                if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") <  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
+                    self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
+                    self.States[from_coords[1]][from_coords[0]].person = None
+                    self.States[new_coords[1]][new_coords[0]].person.AP.alterByValue(-1)
                     return [True, destination_idx]
                 else:
                     print("Not enough AP")
             else:
                 if  self.resources[0].currentValue > self.resources[0].checkCost("Move"):
-                    self.States[destination_idx].person = self.States[start_idx].person
-                    self.States[start_idx].person = None
+                    self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
+                    self.States[from_coords[1]][from_coords[0]].person = None
                     self.resources[0].alterByValue(-1)
                     return [True, destination_idx]
 
@@ -294,42 +323,44 @@ class Board:
         if r < L:
             biggest = None
             sid = None
-            for x in range(len(self.States)):
-                if self.States[x].person != None:
-                    q = self.QGreedyat(x)
-                    if biggest is None:
-                        biggest = q[1]
-                        sid = x
-                    elif q[1] > biggest:
-                        biggest = q[1]
-                        sid = x
+            for y in range(len(self.States)):
+                arr = self.States[y]
+                for x in range(len(arr)):
+                    if arr[x].person != None:
+                        q = self.QGreedyat(x + y * self.columns)
+                        if biggest is None:
+                            biggest = q[1]
+                            sid = x + y * self.columns
+                        elif q[1] > biggest:
+                            biggest = q[1]
+                            sid = x + y * self.columns
             return self.QGreedyat(sid)
         else:
             if self.player_num == -1:  # Player is Govt
-                d = rd.randint(0, len(self.States))
-                while self.States[d].person is None or self.States[d].person.isZombie:
-                    d = rd.randint(0, len(self.States))
+                d = (rd.randint(0, self.columns), rd.randint(0, self.rows))
+                while self.States[d[1]][d[0]].person is None or self.States[d[1]][d[0]].person.isZombie:
+                    d = (rd.randint(0, self.columns), rd.randint(0, self.rows))
             else:
-                d = rd.randint(0, len(self.States))
+                d = (rd.randint(0, self.columns), rd.randint(0, self.rows))
                 while (
-                    self.States[d].person is None
-                    or self.States[d].person.isZombie == False
+                    self.States[d[1]][d[0]].person is None
+                    or self.States[d[1]][d[0]].person.isZombie == False
                 ):
-                    d = rd.randint(0, len(self.States))
+                    d = (rd.randint(0, self.columns), rd.randint(0, self.rows))
             return d
 
     def bite(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         i = self.toIndex(coords)
         if (
-            self.States[i].person is None
-            or self.States[i].person.isZombie
+            self.States[coords[1]][coords[0]].person is None
+            or self.States[coords[1]][coords[0]].person.isZombie
             or not self.isAdjacentTo(coords, True)
         ):
             return [False, None]
-        if  self.States[i].person.AP < 2:
+        if  self.States[coords[1]][coords[0]].person.AP < 2:
             print("Not Enough AP")
             return [False, None]
-        self.States[i].person.calcInfect()
+        self.States[coords[1]][coords[0]].person.calcInfect()
         print("Infection has either failed or succeeded, action completed successfully in Board")
         return [True, i]
 
@@ -342,7 +373,7 @@ class Board:
         if a person is vaccined, then return [True, index]
         """
         i = self.toIndex(coords)
-        if self.States[i].person is None:
+        if self.States[coords[1]][coords[0]].person is None:
             return [False, None]
         if self.isNear(coords) == False:
             print("Out of Range!")
@@ -351,7 +382,7 @@ class Board:
             print("Not Enough AP")
             return [False, None]
         self.resources[0].alterByValue(-3)
-        p = self.States[i].person
+        p = self.States[coords[1]][coords[0]].person
 
         if p.isZombie:
             p.calcCureSuccess()
@@ -364,32 +395,33 @@ class Board:
     def get_possible_states(self, role_number: int):
         indexes = []
         i = 0
-        for state in self.States:
-            if state.person != None:
-                if role_number == 1 and state.person.isZombie == False:
-                    indexes.append(i)
-                elif role_number == -1 and state.person.isZombie:
-                    indexes.append(i)
-            i += 1
+        for arr in self.States:
+            for state in arr:
+                if state.person != None:
+                    if role_number == 1 and state.person.isZombie == False:
+                        indexes.append(i)
+                    elif role_number == -1 and state.person.isZombie:
+                        indexes.append(i)
+                i += 1
         return indexes
 
     def step(self, role_number: int, learningRate: float):
         P = self.get_possible_states(role_number)
         r = rd.uniform(0, 1)
         if r < learningRate:
-            rs = rd.randrange(0, len(self.States) - 1)
+            rs = (rd.randrange(0, self.columns - 1), rd.randrange(0, self.rows - 1))
             if role_number == 1:
                 while (
-                    self.States[rs].person is not None
-                    and self.States[rs].person.isZombie
+                    self.States[rs[1]][rs[0]].person is not None
+                    and self.States[rs[1]][rs[0]].person.isZombie
                 ):
-                    rs = rd.randrange(0, len(self.States) - 1)
+                    rs = (rd.randrange(0, self.columns - 1), rd.randrange(0, self.rows - 1))
             else:
                 while (
-                    self.States[rs].person is not None
-                    and self.States[rs].person.isZombie == False
+                    self.States[rs[1]][rs[0]].person is not None
+                    and self.States[rs[1]][rs[0]].person.isZombie == False
                 ):
-                    rs = rd.randrange(0, len(self.States) - 1)
+                    rs = (rd.randrange(0, self.columns - 1), rd.randrange(0, self.rows - 1))
 
             # random state and value
         # old_value = QTable[state][acti]
@@ -400,21 +432,23 @@ class Board:
     def populate(self):
         total = rd.randint(7, ((self.rows * self.columns) / 3))
         poss = []
-        for x in range(len(self.States)):
-            r = rd.randint(0, 100)
-            if r < 60 and self.population < total:
-                p = Person(False)
-                self.States[x].person = p
-                self.population = self.population + 1
-                poss.append(x)
-            else:
-                self.States[x].person = None
+        for y in range(len(self.States)):
+            arr = self.States[y]
+            for x in range(len(arr)):
+                r = rd.randint(0, 100)
+                if r < 60 and self.population < total:
+                    p = Person(False)
+                    arr[x].person = p
+                    self.population = self.population + 1
+                    poss.append((x, y))
+                else:
+                    arr[x].person = None
         used = []
         for x in range(4):
             s = rd.randint(0, len(poss) - 1)
             while s in used:
                 s = rd.randint(0, len(poss) - 1)
-            self.States[poss[s]].person.isZombie = True
+            self.States[poss[s][1]][poss[s][0]].person.isZombie = True
             used.append(s)
 
     def update(self):
@@ -423,11 +457,11 @@ class Board:
         This method should be called at the end of each round
         (after player and computer have each gone once)
         """ 
+        self.resources[0].alterByValue(3)
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        #if self.timeCounter == 5: #My bad
-        #    self.isDay != self.isDay    
-        #    self.timeCounter = 0
-        for state in self.States:
-            state.update()
+
+        for arr in self.States:
+            for state in arr:
+                state.update()
         
