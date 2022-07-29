@@ -39,7 +39,7 @@ class Board:
                 a.append(State(None, Cells.nan.value, (x, y)))
                 self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
             self.States.append(a)
-        PygameFunctions.imageToGrid(r'Assets/TestGrids/TestGrid3.png', self.States)
+        PygameFunctions.imageToGrid(r'Assets/TestGrids/TestGrid3.png', r'Assets/TestGrids/TestGrid3Obstacles.png', self.States)
         self.actionToFunction = {
             "moveUp": self.moveUp,
             "moveDown": self.moveDown,
@@ -266,7 +266,7 @@ class Board:
             
         # Check if the destination is currently occupied
         print(self.States[new_coords[1]])
-        if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable:
+        if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable and (self.States[new_coords[1]][new_coords[0]].obstacle == None or self.States[new_coords[1]][new_coords[0]].obstacle.passable):
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
                 if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") * mult <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
@@ -281,6 +281,9 @@ class Board:
                     self.States[from_coords[1]][from_coords[0]].person = None
                     self.resources[0].alterByValue(-mult)
                     return [True, destination_idx]
+                print("REEE")
+                print(self.resources[0].currentValue)
+                print(self.resources[0].checkCost("Move") * mult)
 
         return [False, destination_idx]
 
@@ -394,7 +397,7 @@ class Board:
         if self.resources[0].currentValue < 2:
             print("Not Enough AP")
             return [False, None]
-        self.resources[0].alterByValue(-3)
+        self.resources[0].alterByValue(-2)
         p = self.States[coords[1]][coords[0]].person
 
         if p.isZombie:
@@ -448,19 +451,16 @@ class Board:
     def populate(self):
         total = 7
         poss = []
-        for y in range(len(self.States)):
-            arr = self.States[y]
-            for x in range(len(arr)):
-                if(not self.States[y][x].cellType.passable):
-                    continue
-                r = rd.randint(0, 100)
-                if r < 60 and self.population < total:
-                    p = Person(False)
-                    arr[x].person = p
-                    self.population = self.population + 1
-                    poss.append((x, y))
-                else:
-                    arr[x].person = None
+        for arr in self.States:
+            for state in arr:
+                state.person = None
+        for i in range(total):
+            pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None):
+                pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+            poss.append(pos)
+            self.States[pos[1]][pos[0]].person = Person(False)
+        self.population = total
         used = []
         for x in range(total-1):
             s = rd.randint(0, len(poss) - 1)

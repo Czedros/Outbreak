@@ -42,31 +42,6 @@ while running:
                     if(action == "finish"):
                         finished = True
                         break
-                    if action == "heal" or action == "bite":
-                        # only allow healing by itself (prevents things like ['move', (4, 1), 'heal'])
-                        if len(take_action) == 0:
-                            take_action.append(action)
-                    elif action == "reset move":
-                        take_action = []
-                    elif action is not None:
-                        idx = GameBoard.toIndex(action)
-                        # action is a coordinate
-                        if idx < (GameBoard.rows * GameBoard.columns) and idx > -1:
-                            if "move" not in take_action and len(take_action) == 0:
-                                # make sure that the space is not an empty space or a space of the opposite team
-                                # since cannot start a move from those invalid spaces
-                                if (
-                                    GameBoard.States[action[1]][action[0]].person is not None
-                                    and GameBoard.States[action[1]][action[0]].person.isZombie
-                                    == ROLE_TO_ROLE_BOOLEAN[player_role]
-                                ):
-                                    take_action.append("move")
-                                else:
-                                    continue
-
-                            # don't allow duplicate cells
-                            if action not in take_action:
-                                take_action.append(action)
                 if event.type == pygame.QUIT:
                     running = False
 
@@ -111,7 +86,7 @@ while running:
                 possible_move_coords = GameBoard.get_possible_moves(
                     action, "Government" if player_role == "Zombie" else "Zombie"
                 )
-            print(possible_actions)
+            #print(possible_actions)
             # no valid moves, player wins
             if len(possible_actions) == 0 and len(possible_move_coords) == 0:
                 PF.displayResultScreen(True)

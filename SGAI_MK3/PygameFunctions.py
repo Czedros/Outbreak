@@ -15,36 +15,47 @@ if(platform != "darwin"):
     from pyvidplayer import Video
 from Animator import Animations
 from Animator import Animation
+from Obstacle import Obstacles
 import Animator
 
 
-def imageToGrid(path, States):
+def imageToGrid(path, pathObstacles, States):
     im = Image.open(path, 'r').convert('RGB')
+    imObstacle = Image.open(pathObstacles, 'r').convert('RGB')
     pix = list(im.getdata())
+    pixObstacle = list(imObstacle.getdata())
     if(im.size[0] != constants.ROWS or im.size[1] != constants.ROWS):
         raise Exception("Image isn't correct size, must be a " + str(constants.ROWS) + " by " + str(constants.ROWS) + " pixel image")
+    if(imObstacle.size[0] != constants.ROWS or imObstacle.size[1] != constants.ROWS):
+        raise Exception("Obstacle image isn't correct size, must be a " + str(constants.ROWS) + " by " + str(constants.ROWS) + " pixel image")
     for x in range(constants.ROWS):
         for y in range(constants.ROWS):
             pixel = pix[x + y * constants.ROWS]
+            pixelObstacle = pixObstacle[x + y * constants.ROWS]
             match pixel:
                 case (0, 255, 0):
                     States[y][x].cellType = Cells.grass.value
-                    continue
                 case (255, 255, 0):
                     States[y][x].cellType = Cells.sand.value
-                    continue
                 case (0, 0, 255):
                     States[y][x].cellType = Cells.water.value
-                    continue
                 case (123, 60, 0):
                     States[y][x].cellType = Cells.woodWall.value
-                    continue
                 case (211, 103, 0):
                     States[y][x].cellType = Cells.woodFloor.value
-                    continue
                 case _:
                     States[y][x].cellType = Cells.nan.value
-                    continue
+            if(pixelObstacle != pixel):
+                match pixelObstacle:
+                    case (157, 157, 157):
+                        States[y][x].obstacle = Obstacles.rock.value
+                    case (0, 135, 28):
+                        States[y][x].obstacle = Obstacles.tree.value
+                    case (255, 0, 0):
+                        States[y][x].obstacle = Obstacles.resource.value
+                    case _:
+                        States[y][x].obstacle = Obstacles.nan.value
+
 def cellPosition(x, y):
     cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * x + renderConstants.CELLOFF)
     cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
@@ -241,14 +252,12 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     if(arrowClickPos[0] >= 0 and arrowClickPos[0] <= arrowClickSize[0] and arrowClickPos[1] >= 0 and arrowClickPos[1] <= arrowClickSize[1]):
         if(arrowClickPos[0] <= arrowClickSize[0]/2):
             if(actionSlot != -1):
-                print("Back")
                 actionSlot -= 1
                 actionsAPCostShow -= actions[actionSlot + 1].actionType.ap
                 if(actions[actionSlot + 1].actionType == ActionTypes.move.value):
                     selectedActor = actions[actionSlot + 1].coord
         else:
             if(actionSlot != len(actions) - 1):
-                print("Foward")
                 actionSlot += 1
                 actionsAPCostShow += actions[actionSlot].actionType.ap
                 if(actions[actionSlot].actionType == ActionTypes.move.value):
@@ -261,17 +270,18 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     clickPos[0] -= clickOff
     clickPos[1] -= clickOff
     gridPos = (int(clickPos[0] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)), int(clickPos[1] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)))
-    if(healing and GameBoard.States[gridPos[1]][gridPos[0]].person is not None):
+    state = GameBoard.States[gridPos[1]][gridPos[0]]
+    if(healing and state.person is not None):
         if((abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1) or (gridPos[0] == firstActor[0] and gridPos[1] == firstActor[1])):
             add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))
-    elif(GameBoard.States[gridPos[1]][gridPos[0]].person == None):
-        if(GameBoard.States[gridPos[1]][gridPos[0]].cellType.passable and selectedActor != None):
+    elif(state.person == None):
+        if(state.cellType.passable and selectedActor != None and (state.obstacle == None or state.obstacle.passable)):
             xDiff = abs(gridPos[0] - selectedActor[0])
             yDiff = abs(gridPos[1] - selectedActor[1])
             if((xDiff == 1 and yDiff == 0) or (xDiff == 0 and yDiff == 1)):
                 if(add_action(GameBoard, Action(ActionTypes.move.value, selectedActor, gridPos))):
                     selectedActor = gridPos
-    elif(GameBoard.States[gridPos[1]][gridPos[0]].person.isZombie == False):
+    elif(state.person.isZombie == False):
         reset_actions()
         selectedActor = gridPos
         firstActor = gridPos
@@ -300,6 +310,8 @@ def run(GameBoard):
         for y in range(constants.ROWS):
             cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
             display_surface.blit(GameBoard.States[y][x].cellType.image, (cellX, cellY))
+            if(GameBoard.States[y][x].obstacle != None):
+                display_surface.blit(GameBoard.States[y][x].obstacle.image, (cellX, cellY))   
     #######
     for i in range(actionSlot, -1, -1):
         act = actions[i]
