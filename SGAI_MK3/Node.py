@@ -1,5 +1,6 @@
 from Board import Board
 import PygameFunctions as PF 
+import numpy as np
 
 actions = ['moveUp', 'moveDown','moveLeft', 'moveRight', 'heal']
 #don't need pick_resource 
@@ -9,25 +10,39 @@ class Node:
     #MCTS works by constructing a tree of these Nodes.
     #Could be e.g. a chess or checkers board state.
 
-    def __init__(self, parent = None, state = None, board = None): 
-        #Human location (needs to access Board.py)
-        #1 Block Radius (needs to accesss Board.py)
-        self.board = board #the current Gameboard
-        self.p_actions = [] #all the possible actions it can make
+    def __init__(self, parent = None, state = None): 
+        #Not sure about board
+        self.p_actions = self.get_actions() #all the possible actions it can make
         self.parent = parent #for the starter node its None
         self.children = [] #none at first
-        self.state = state
-
-        #get_possible_moves returns a list of set(x,y)
-        for i in actions:
-            a_move = [i,Board.get_possible_moves(action = i, role = 'Human')]
-            #the action, and a list of possible coordinates for that action
-            self.p_actions.append(a_move)
-            print(self.p_actions)
+        self.state = state #GameBoard
+        self.wins = 0
+        self.visits = 0
+     
     
-    def find_children(self):
-        pass
-
+    def uct_select_child(self):
+        """Use the UCB1 formula to select a child node
+            lamba c is the expression that uses the formula
+           return one child node 
+        """
+        s = sorted(self.children, key=lambda c: c.wins / c.visits + np.sqrt(2 * np.log(self.visits) / c.visits))[-1]
+        return s
+    
+    def get_actions(self):
+        """
+            For this node, a list of possible actions is created and returned 
+            [name of action, [coord(x,y...)] ]
+        """
+        a_move = []
+        #get_possible_moves returns a list of set(x,y)
+        for i in actions: 
+            a_move.append([i,Board.get_possible_moves(action = i, role = 'Human')]) 
+            return a_move
+    
+    def find_children(self): 
+        #TODO: think about AP system later
+        
+        
     def randon_children(self):
         #random successor of this board state 
         pass

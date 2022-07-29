@@ -8,6 +8,30 @@
 #selection, expansion, simulation, back propogation 
 
 import random as rd
+import Node 
+import copy
+import Board
+import PygameFunctions as PF
+
+def uct(rootstate, itermax, board, verbose = False):
+    #itermax = budget
+    'UCT Search starting from roostate for a itermax # of iterations'
+    rootnode = Node(board, state = rootstate ) #first node
+    for i in range(itermax):
+        node = rootnode
+        state = copy.deepcopy(rootstate)
+
+        #the game is played
+
+        #select
+        while node.p_actions == [] and node.children != []:
+            #the node is fully expanded and non-terminal
+            node = node.uct_select_child() #returns the best child
+            
+
+
+
+"""
 class Engine():
     role = "Human"
     gamma = 0
@@ -74,7 +98,7 @@ class Engine():
                 old_state = i
             
             return [action_to_take, old_state, old_qval]
-
+"""
 
 """
 Pseudo Code for MCTS 

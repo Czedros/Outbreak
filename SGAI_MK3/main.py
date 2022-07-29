@@ -31,6 +31,8 @@ while running:
 
     if SELF_PLAY:
         if not playerMoved:
+            #Here we should implement the HumanAi
+            
             if not GameBoard.containsPerson(False):
                 PF.display_lose_screen()
                 running = False
