@@ -101,7 +101,7 @@ while running:
             GameBoard.actionToFunction[action](move_coord)
 
             # update the board's states
-            GameBoard.update()
+            GameBoard.update(False)
 
         # Update the display
         pygame.display.update()
