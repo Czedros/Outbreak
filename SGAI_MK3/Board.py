@@ -267,7 +267,7 @@ class Board:
             
         # Check if the destination is currently occupied
         #print(self.States[new_coords[1]])
-        if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable and (self.States[new_coords[1]][new_coords[0]].obstacle == None or self.States[new_coords[1]][new_coords[0]].obstacle.passable):
+        if self.States[new_coords[1]][new_coords[0]].passable():
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
                 if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") * mult <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
@@ -472,6 +472,36 @@ class Board:
         if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
             self.States[coord[1]][coord[0]].obstacle = None
             self.resources[1].alterByValue(5)
+    def findPath(self, from_coord, to_coord):#Tiankuo, you can replace this with you're path finding algorithm, but I need to call a path finding algorithm for my UI
+        oldCoords = [{from_coord: None}]
+        while True:
+            newCoords = {}
+            curCoordsOld = oldCoords[len(oldCoords) - 2]
+            curCoords = oldCoords[len(oldCoords) - 1]
+            for i in curCoords:
+                if i == to_coord:
+                    cur = i
+                    res = [cur]
+                    for i2 in range(len(oldCoords) - 1, 1, -1):
+                        cur = oldCoords[i2][cur]
+                        res.append(cur)
+                    res.reverse()
+                    return res
+                news = []
+                if (i[0] != 0 and self.States[i[1]][i[0] - 1].passable()):
+                    news.append((i[0] - 1, i[1]))
+                if (i[1] != 0 and self.States[i[1] - 1][i[0]].passable()):
+                    news.append((i[0], i[1] - 1))
+                if (i[1] != COLUMNS - 1 and self.States[i[1] + 1][i[0]].passable()):
+                    news.append((i[0], i[1] + 1))
+                if (i[0] != ROWS - 1 and self.States[i[1]][i[0] + 1].passable()):
+                    news.append((i[0] + 1, i[1]))
+                for i2 in news:
+                    if (i2 not in newCoords.keys() and i2 not in curCoordsOld.keys()):
+                        newCoords[i2] = i
+            if(len(newCoords) == 0):
+                return None
+            oldCoords.append(newCoords)
     def update(self):
         """
         Update each of the states;
