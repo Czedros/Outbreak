@@ -1,4 +1,5 @@
 from os import system
+from Cell import Cells
 from State import State
 import random as rd
 from Person import Person
@@ -6,6 +7,12 @@ from typing import List, Tuple
 from constants import *
 from Resource import Resource
 import renderConstants
+from Animator import Animations
+from Animator import Animation
+from Obstacle import Obstacles
+import Animator
+import PygameFunctions
+
 class Board:
     def __init__(self,  dimensions: Tuple[int, int],
         player_role: str,
@@ -25,13 +32,15 @@ class Board:
             Resource("Food", 100, {"Gather": 5 , "Consume" : 3 }), 
             Resource("Survivors", 10000, {"Gain" : 1} )
         ]
+        self.resources[0].alterByValue(8)
+        self.resources[1].setToMax()
         for y in range(dimensions[1]):
             a = []
             for x in range(dimensions[0]):
-                a.append(State(None, (x, y)))
+                a.append(State(None, Cells.nan.value, (x, y)))
                 self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
             self.States.append(a)
-
+        PygameFunctions.imageToGrid(r'Assets/TestGrids/TrueGrid.png', r'Assets/TestGrids/TrueGridObstacles.png', self.States, (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1)))
         self.actionToFunction = {
             "moveUp": self.moveUp,
             "moveDown": self.moveDown,
@@ -64,6 +73,11 @@ class Board:
                 if state.person is not None and state.person.isZombie == isZombie:
                     return True
         return False
+    def findPerson(self, ID):
+        for arr in self.States:
+            for state in arr:
+                if state.person is not None and state.person.ai.ID == ID:
+                    return state.location
 
     def get_possible_moves(self, action: str, role: str):
         """
@@ -224,7 +238,7 @@ class Board:
             (coord[0], coord[1])
         ]
         for coord in vals:
-            print(coord)
+            #print(coord)
             if (self.isValidCoordinate(coord) 
                 and self.States[coord[1]][coord[0]].person is not None 
                 and self.States[coord[1]][coord[0]].person.isZombie == False):
@@ -234,7 +248,7 @@ class Board:
         return ret
 
     def move(
-        self, from_coords: Tuple[int, int], new_coords: Tuple[int, int]
+        self, from_coords: Tuple[int, int], new_coords: Tuple[int, int], mult = 1
     ) -> Tuple[bool, int]:
         """
         Check if the move is valid.
@@ -252,21 +266,21 @@ class Board:
         #Checks if you have enough AP
             
         # Check if the destination is currently occupied
-        print(self.States[new_coords[1]])
-        if self.States[new_coords[1]][new_coords[0]].person is None:
+        #print(self.States[new_coords[1]])
+        if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable and (self.States[new_coords[1]][new_coords[0]].obstacle == None or self.States[new_coords[1]][new_coords[0]].obstacle.passable):
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
-                if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") <  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
+                if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") * mult <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
                     self.States[from_coords[1]][from_coords[0]].person = None
-                    self.States[new_coords[1]][new_coords[0]].person.AP.alterByValue(-1)
+                    self.States[new_coords[1]][new_coords[0]].person.AP.alterByValue(-mult)
                     return [True, destination_idx]
                 else:
                     print("Not enough AP")
             else:
-                if  self.resources[0].currentValue > self.resources[0].checkCost("Move"):
+                if  self.resources[0].currentValue >= self.resources[0].checkCost("Move") * mult:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
                     self.States[from_coords[1]][from_coords[0]].person = None
-                    self.resources[0].alterByValue(-1)
+                    self.resources[0].alterByValue(-mult)
                     return [True, destination_idx]
 
         return [False, destination_idx]
@@ -357,14 +371,14 @@ class Board:
             or not self.isAdjacentTo(coords, True)
         ):
             return [False, None]
-        if  self.States[coords[1]][coords[0]].person.AP < 2:
+        if  self.States[coords[1]][coords[0]].person.AP.currentValue < 2:
             print("Not Enough AP")
             return [False, None]
         self.States[coords[1]][coords[0]].person.calcInfect()
         print("Infection has either failed or succeeded, action completed successfully in Board")
         return [True, i]
 
-    def heal(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
+    def heal(self, coords: Tuple[int, int], infRange = False) -> Tuple[bool, int]:
         """
         Cures or vaccinates the person at the stated coordinates.
         If there is a zombie there, the person will be cured.
@@ -375,21 +389,24 @@ class Board:
         i = self.toIndex(coords)
         if self.States[coords[1]][coords[0]].person is None:
             return [False, None]
-        if self.isNear(coords) == False:
+        if self.isNear(coords) == False and not infRange:
             print("Out of Range!")
             return [False, None]
         if self.resources[0].currentValue < 2:
             print("Not Enough AP")
             return [False, None]
-        self.resources[0].alterByValue(-3)
+        self.resources[0].alterByValue(-2)
         p = self.States[coords[1]][coords[0]].person
 
         if p.isZombie:
-            p.calcCureSuccess()
-            print("Cure/Vaccine has either failed or succeeded, action completed successfully in Board")
+            if p.calcCureSuccess():
+                self.States[coords[1]][coords[0]].person = None
+                self.resources[2].alterByValue(1)
+            
         else:
             p.get_vaccinated()
             print("Person is now vaccinated, action completed successfully in Board")
+            p.animation= Animation(Animations.vaccinate.value)
         return [True, i]
 
     def get_possible_states(self, role_number: int):
@@ -430,37 +447,42 @@ class Board:
         # QTable[state][acti] = new_value
 
     def populate(self):
-        total = rd.randint(7, ((self.rows * self.columns) / 3))
+        total = 7
         poss = []
-        for y in range(len(self.States)):
-            arr = self.States[y]
-            for x in range(len(arr)):
-                r = rd.randint(0, 100)
-                if r < 60 and self.population < total:
-                    p = Person(False)
-                    arr[x].person = p
-                    self.population = self.population + 1
-                    poss.append((x, y))
-                else:
-                    arr[x].person = None
+        for arr in self.States:
+            for state in arr:
+                state.person = None
+        for i in range(total):
+            pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None):
+                pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+            poss.append(pos)
+            self.States[pos[1]][pos[0]].person = Person(False)
+        self.population = total
         used = []
-        for x in range(4):
+        for x in range(total-1):
             s = rd.randint(0, len(poss) - 1)
             while s in used:
                 s = rd.randint(0, len(poss) - 1)
-            self.States[poss[s][1]][poss[s][0]].person.isZombie = True
+            p = self.States[poss[s][1]][poss[s][0]].person
+            p.isZombie = True
+            p.animation = Animation(Animations.zombie.value)
             used.append(s)
-
+    def pickup(self, coord):
+        if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
+            self.States[coord[1]][coord[0]].obstacle = None
+            self.resources[1].alterByValue(5)
     def update(self):
         """
         Update each of the states;
         This method should be called at the end of each round
         (after player and computer have each gone once)
         """ 
-        self.resources[0].alterByValue(3)
+        self.resources[0].alterByValue(2)
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-
+        self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
+        #print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
                 state.update()

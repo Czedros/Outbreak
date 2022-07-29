@@ -1,5 +1,9 @@
 import random as rd
 from Resource import Resource
+from Animator import Animations
+from Animator import Animation
+import Animator
+from ZombieAI import ZombieAI
 
 class Person:
     wasVaccinated : bool = False
@@ -11,7 +15,13 @@ class Person:
     AP = Resource("AP", 3, {"Move" : 1 , "Bite": 2 } )
     def __init__(self, iz: bool):
         self.isZombie = iz
-        self.ID = rd.randint(0, 30)
+        self.ID = Person.ID + 1
+        if(self.isZombie):
+            self.animation = Animation(Animations.zombie.value)
+        else:
+            self.animation = Animation(Animations.human.value)
+        self.AP.setToMax()
+        self.ai = ZombieAI()
 
     def clone(self):
         ret = Person(self.isZombie)
@@ -20,6 +30,7 @@ class Person:
         ret.isVaccinated = self.isVaccinated
         ret.wasCured = self.wasCured
         ret.AP = self.AP
+        ret.animation = self.animation
         return ret
 
     def calcInfect(self):
@@ -30,6 +41,7 @@ class Person:
             chance -= self.vaccinationStatus()
         if rd.randint(0,100) < chance:
             self.isZombie = True
+            self.animation = Animation(Animations.zombie.value)
             print("The zombie successfully infected you, action completed successfully in Person")
         else:
             print("The zombie failed to infect you, action completed successfully in Person")
@@ -41,8 +53,12 @@ class Person:
             chance -= self.vaccinationStatus()
         if rd.random() < chance:
             self.isZombie = False
+            self.animation = Animation(Animations.human.value)
             self.wasCured = True
             print("Cure/Vaccine was successful, action completed successfully in Person")
+            Person.ID -= 1
+            return True
+        return False
  
     def vaccinationStatus(self):
         if(self.turnsVaccinated == 0 or self.turnsVaccinated == 1):

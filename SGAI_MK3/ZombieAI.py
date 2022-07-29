@@ -1,35 +1,32 @@
-from Board import Board
-import random as rd
-from SGAI_MK3.Person import Person
-from main import main
-
 class ZombieAI :
     currentState = ""
     active = False
     seekPosition = [1, 1]
-    def __init__(self, gameboard):
+    ID = 0
+    currentBoard = [[0,0,0,0,0],
+                    [0,0,0,0,0],
+                    [0,0,0,0,0],
+                    [0,0,0,0,0],
+                    [0,0,0,0,0]]
+    selfPosition = [2,2]
+    def __init__(self):
         self.active = True
-        self.states = {
-            "Roam" : self.stateRoam(),
-            "Seek" : self.stateSeek(),
-            "Attack" : self.stateAttack()
-        }
-        self.createmap(gameboard)
-    def act(self):
-        self.states[self.currentState]
-
+        self.ID = ZombieAI.ID + 1
+    def createMap(self, gameboard):
+        return False
+    def positionUpdate(self, gameBoard):
+        self.position = gameBoard.findPerson(self.ID)
     def setState(self, state):
-        self.currentState = self.states[state]
+        self.currentState = state
+    
+    def stateSeek(self, ):  
+         
 
-    def stateSeek(self ):
-        Board.move()
-        if(self.seekPosition = Board.currentPosition):
+        if self.seekPosition == self.position():
+            self.setState("Roam")
+    def stateAttack(self, board):
         return False
-    def stateAttack():
+    def playerFind(self, board):
         return False
-    def playerFind():
-        return False
-    def stateRoam():
-        if(p)
-    def createMap(self, board):
+    def stateRoam(self, board):
         return False

@@ -4,9 +4,11 @@ import math
 
 
 class State:
-    def __init__(self, p: Person, i) -> None:
+    def __init__(self, p: Person, cellType, i, obstacle = None) -> None:
         self.person = p
         self.location = i
+        self.cellType = cellType
+        self.obstacle = obstacle
         pass
 
     def distance(self, GameBoard, other_location: int):
@@ -68,8 +70,8 @@ class State:
 
     def clone(self):
         if self.person is None:
-            return State(self.person, self.location)
-        return State(self.person.clone(), self.location)
+            return State(self.person, self.cellType, self.location)
+        return State(self.person.clone(), self.cellType, self.location)
 
     def __eq__(self, __o: object) -> bool:
         if type(__o) == State:

@@ -6,13 +6,11 @@ import random as rd
 from constants import *
 import time
 import renderConstants
-
 SELF_PLAY = True  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
 # Create the game board
 GameBoard = Board((ROWS, COLUMNS), player_role)
 GameBoard.populate()
-
 # Self play variables
 alpha = 0.1
 gamma = 0.6
@@ -34,63 +32,44 @@ while running:
             #Here we should implement the HumanAi
             
             if not GameBoard.containsPerson(False):
-                PF.display_lose_screen()
+                PF.displayResultScreen(False)
                 running = False
                 continue
             # Event Handling
+            finished = False
             for event in P:
                 if event.type == pygame.MOUSEBUTTONUP:
                     x, y = pygame.mouse.get_pos()
                     action = PF.get_action(GameBoard, x, y)
-                    if action == "heal" or action == "bite":
-                        # only allow healing by itself (prevents things like ['move', (4, 1), 'heal'])
-                        if len(take_action) == 0:
-                            take_action.append(action)
-                    elif action == "reset move":
-                        take_action = []
-                    elif action is not None:
-                        idx = GameBoard.toIndex(action)
-                        # action is a coordinate
-                        if idx < (GameBoard.rows * GameBoard.columns) and idx > -1:
-                            if "move" not in take_action and len(take_action) == 0:
-                                # make sure that the space is not an empty space or a space of the opposite team
-                                # since cannot start a move from those invalid spaces
-                                if (
-                                    GameBoard.States[action[1]][action[0]].person is not None
-                                    and GameBoard.States[action[1]][action[0]].person.isZombie
-                                    == ROLE_TO_ROLE_BOOLEAN[player_role]
-                                ):
-                                    take_action.append("move")
-                                else:
-                                    continue
-
-                            # don't allow duplicate cells
-                            if action not in take_action:
-                                take_action.append(action)
+                    if(action == "finish"):
+                        finished = True
+                        break
                 if event.type == pygame.QUIT:
                     running = False
 
-            PF.display_cur_move(take_action)
 
             # Action handling
-            if len(take_action) > 1:
-                if take_action[0] == "move":
-                    if len(take_action) > 2:
-                        directionToMove = PF.direction(take_action[1], take_action[2])
-                        result = GameBoard.actionToFunction[directionToMove](
-                            take_action[1]
-                        )
-                        if result[0] is not False:
-                            playerMoved = True
-                            print("Player has moved, action completed successfully in Main")
-                        take_action = []
-
-                elif take_action[0] == "heal" or take_action[0] == "bite":
-                    result = GameBoard.actionToFunction[take_action[0]](take_action[1])
-                    if result[0] is not False:
-                        playerMoved = True
-                        print("Cure, Vaccinate, or Infect either failed or succeeded, action completed successfully in Main")
-                    take_action = []
+            if finished:
+                moveMult = 0
+                for i in range(PF.actionSlot + 1):
+                    if(PF.actions[i].actionType == PF.ActionTypes.move.value):
+                        moveMult += 1
+                        GameBoard.pickup(PF.actions[i].coord2)
+                for i in range(PF.actionSlot + 1):
+                    act = PF.actions[i]
+                    if(act.actionType == PF.ActionTypes.heal.value):
+                        GameBoard.heal(act.coord, infRange=True)
+                if(moveMult != 0):
+                    GameBoard.move(PF.firstActor, PF.selectedActor, mult= moveMult)
+                #elif take_action[0] == "heal" or take_action[0] == "bite":
+                #    result = GameBoard.actionToFunction[take_action[0]](take_action[1])
+                #    if result[0] is not False:
+                #        playerMoved = True
+                #        print("Cure, Vaccinate, or Infect either failed or succeeded, action completed successfully in Main")
+                #    take_action = []
+                playerMoved = True
+                GameBoard.update()
+                PF.reset_actions()
 
         # Computer turn
         else:
@@ -110,10 +89,10 @@ while running:
                 possible_move_coords = GameBoard.get_possible_moves(
                     action, "Government" if player_role == "Zombie" else "Zombie"
                 )
-
+            #print(possible_actions)
             # no valid moves, player wins
             if len(possible_actions) == 0 and len(possible_move_coords) == 0:
-                PF.display_win_screen()
+                PF.displayResultScreen(True)
                 running = False
                 continue
 
