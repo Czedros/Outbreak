@@ -14,7 +14,7 @@ class Node:
     #MCTS works by constructing a tree of these Nodes.
     #Could be e.g. a chess or checkers board state.
 
-    def __init__(self, board, parent = None ): 
+    def __init__(self, board: Board, parent = None ): 
         # **kwargs take in a arbitrary amount of keyword arguments
 
         self.parent = parent #for the starter node its None
@@ -35,7 +35,7 @@ class Node:
         s = sorted(self.children, key=lambda c: c.wins / c.visits + np.sqrt(2 * np.log(self.visits) / c.visits))[-1]
         return s
     
-    def get_actions(self, board):
+    def get_actions(self):
         """
             For this node, a list of possible actions is created and returned 
             [name of action, [coord(x,y...)] ]
@@ -43,8 +43,9 @@ class Node:
         a_move = []
         #get_possible_moves returns a list of set(x,y)
         for i in actions: 
-            a_move.append([i, board.get_possible_moves(action = i, role = 'Human')]) 
-            return a_move
+            a_move.append([i, self.board.get_possible_moves(action = i, role = 'Human')]) 
+            
+        return a_move
     
     #add_child
     def update(self, s):
@@ -80,7 +81,7 @@ class Node:
                 # If we have stats on all of the legal moves here, use them
                 log_total = log(
                     sum(plays[(player, S)] for p, S in moves_states))
-                value, move, sate = max(
+                value, move, state = max(
                     ((wins[(player, S)] / plays[(player, S)]) + self.C * sqrt(log_total / plays[(player, S)]), p, S)
                     for p, S in moves_states
                 
