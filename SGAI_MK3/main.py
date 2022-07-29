@@ -52,6 +52,7 @@ while running:
                 for i in range(PF.actionSlot + 1):
                     if(PF.actions[i].actionType == PF.ActionTypes.move.value):
                         moveMult += 1
+                        GameBoard.pickup(PF.actions[i].coord2)
                 for i in range(PF.actionSlot + 1):
                     act = PF.actions[i]
                     if(act.actionType == PF.ActionTypes.heal.value):

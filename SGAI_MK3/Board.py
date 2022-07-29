@@ -9,6 +9,7 @@ from Resource import Resource
 import renderConstants
 from Animator import Animations
 from Animator import Animation
+from Obstacle import Obstacles
 import Animator
 import PygameFunctions
 
@@ -237,7 +238,7 @@ class Board:
             (coord[0], coord[1])
         ]
         for coord in vals:
-            print(coord)
+            #print(coord)
             if (self.isValidCoordinate(coord) 
                 and self.States[coord[1]][coord[0]].person is not None 
                 and self.States[coord[1]][coord[0]].person.isZombie == False):
@@ -265,7 +266,7 @@ class Board:
         #Checks if you have enough AP
             
         # Check if the destination is currently occupied
-        print(self.States[new_coords[1]])
+        #print(self.States[new_coords[1]])
         if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable and (self.States[new_coords[1]][new_coords[0]].obstacle == None or self.States[new_coords[1]][new_coords[0]].obstacle.passable):
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
                 if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") * mult <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
@@ -281,9 +282,6 @@ class Board:
                     self.States[from_coords[1]][from_coords[0]].person = None
                     self.resources[0].alterByValue(-mult)
                     return [True, destination_idx]
-                print("REEE")
-                print(self.resources[0].currentValue)
-                print(self.resources[0].checkCost("Move") * mult)
 
         return [False, destination_idx]
 
@@ -470,7 +468,10 @@ class Board:
             p.isZombie = True
             p.animation = Animation(Animations.zombie.value)
             used.append(s)
-
+    def pickup(self, coord):
+        if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
+            self.States[coord[1]][coord[0]].obstacle = None
+            self.resources[1].alterByValue(5)
     def update(self):
         """
         Update each of the states;
@@ -481,7 +482,7 @@ class Board:
         self.timeCounter += 1
         self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
         self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
-        print(self.resources[1].currentValue)
+        #print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
                 state.update()
