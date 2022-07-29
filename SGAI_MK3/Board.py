@@ -507,16 +507,17 @@ class Board:
             if(len(newCoords) == 0):
                 return None
             oldCoords.append(newCoords)
-    def update(self):
+    def update(self, isHuman = True):
         """
         Update each of the states;
         This method should be called at the end of each round
         (after player and computer have each gone once)
         """ 
         self.resources[0].alterByValue(2)
-        self.timeCounter += 1
-        self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
+        if(isHuman):
+            self.timeCounter += 1
+            self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
+            self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
         #print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
