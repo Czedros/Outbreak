@@ -473,6 +473,17 @@ class Board:
             p.isZombie = True
             p.animation = Animation(Animations.zombie.value)
             used.append(s)
+    def zombieWave(self):
+        total = 7
+        for i in range(total):
+            pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None):
+                pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+            p = Person(False)
+            p.isZombie = True
+            p.animation = Animation(Animations.zombie.value)
+            self.States[pos[1]][pos[0]].person = p
+
     def pickup(self, coord):
         if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
             self.States[coord[1]][coord[0]].obstacle = None
@@ -518,6 +529,8 @@ class Board:
             self.timeCounter += 1
             self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
             self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
+            if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
+                self.zombieWave()
         #print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
