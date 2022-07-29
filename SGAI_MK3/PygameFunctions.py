@@ -1,3 +1,4 @@
+from glob import glob
 from re import S
 from typing import List, Tuple
 import pygame
@@ -143,6 +144,8 @@ moveImageUp = pygame.transform.rotate(moveImageRight, 90)
 moveImageDown = pygame.transform.flip(moveImageUp, False, True)
 ##
 healTurnImage = pygame.image.load(r'Assets/UI/cure2Transparent.png')
+healImageMult = 0.8
+healTurnImage = pygame.transform.scale(healTurnImage, (renderConstants.CELLSIZE * healImageMult * healTurnImage.get_width() / healTurnImage.get_height(), renderConstants.CELLSIZE * healImageMult))
 #######
 healing = False
 #######
@@ -155,7 +158,10 @@ class Action:
     def __init__(self, actionType, coord, coord2 = None):
         self.actionType = actionType
         self.coord = coord
-        self.coord2 = coord2
+        if(coord2 == None):
+            self.coord2 = coord
+        else:
+            self.coord2 = coord2
 class ActionTypes(Enum):
     move = ActionType(1)
     heal = ActionType(2)
@@ -163,16 +169,19 @@ class ActionTypes(Enum):
 actions = []
 actionSlot = -1
 actionsAPCost = 0
+actionsAPCostShow = 0
 firstActor = None
 selectedActor = None
 def reset_actions():
     global actions
     global actionsAPCost
+    global actionsAPCostShow
     global actionSlot
     global selectedActor
     global firstActor
     actions = []
     actionsAPCost = 0
+    actionsAPCostShow = 0
     actionSlot = -1
     selectedActor = None
     firstActor = None
@@ -191,23 +200,27 @@ def add_action(GameBoard, action):
     global actionSlot
     global actionsAPCost
     global selectedActor
-    if(GameBoard.resources[0].currentValue - actionsAPCost < action.actionType.ap):
+    global actionsAPCostShow
+    if(GameBoard.resources[0].currentValue - actionsAPCostShow < action.actionType.ap):
         return False
     for i in range(actionSlot + 1):
         act = actions[i]
-        if(act.actionType == action.actionType and act.coord == action.coord):
+        if(act.actionType == action.actionType and act.coord2 == action.coord2):
             return False
-    while(len(actions) < actionSlot + 1):
-        act = action.pop()
+    while(len(actions) > actionSlot + 1):
+        act = actions.pop()
         actionsAPCost -= act.actionType.ap
     actions.append(action)
     actionSlot += 1
     actionsAPCost += action.actionType.ap
+    actionsAPCostShow = actionsAPCost
     return True
 def get_action(GameBoard, pixel_x: int, pixel_y: int):
     global healing
     global selectedActor
     global firstActor
+    global actionSlot
+    global actionsAPCostShow
     """
     Get the action that the click represents.
     If the click was on the heal button, returns "heal"
@@ -227,9 +240,20 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
         return "finish"
     if(arrowClickPos[0] >= 0 and arrowClickPos[0] <= arrowClickSize[0] and arrowClickPos[1] >= 0 and arrowClickPos[1] <= arrowClickSize[1]):
         if(arrowClickPos[0] <= arrowClickSize[0]/2):
-            print("Back")
+            if(actionSlot != -1):
+                print("Back")
+                actionSlot -= 1
+                actionsAPCostShow -= actions[actionSlot + 1].actionType.ap
+                if(actions[actionSlot + 1].actionType == ActionTypes.move.value):
+                    selectedActor = actions[actionSlot + 1].coord
         else:
-            print("Foward")
+            if(actionSlot != len(actions) - 1):
+                print("Foward")
+                actionSlot += 1
+                actionsAPCostShow += actions[actionSlot].actionType.ap
+                if(actions[actionSlot].actionType == ActionTypes.move.value):
+                    selectedActor = actions[actionSlot].coord2
+
         return None
     if(clickPos[0] < renderConstants.GRIDRECT.left or clickPos[1] < renderConstants.GRIDRECT.top or clickPos[0] > renderConstants.GRIDRECT.right or clickPos[1] > renderConstants.GRIDRECT.bottom):
         return None
@@ -277,7 +301,7 @@ def run(GameBoard):
             cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
             display_surface.blit(GameBoard.States[y][x].cellType.image, (cellX, cellY))
     #######
-    for i in range(len(actions) - 1, -1, -1):
+    for i in range(actionSlot, -1, -1):
         act = actions[i]
         if(act.actionType == ActionTypes.move.value):
             pos1 = cellCoord(act.coord)
@@ -303,9 +327,11 @@ def run(GameBoard):
                 state.person.animation = state.person.animation.getNextAnimation()
                 display_surface.blit(state.person.animation.getImage(), cellPosition(x, y))
     #######
-    for act in actions:
+    for i in range(actionSlot + 1):
+        act = actions[i]
         if(act.actionType == ActionTypes.heal.value):
-            #display_surface.blit(healTurnImage, (posT[0] - img.get_width()/2, posT[1] - img.get_height()/2))
+            pos = cellCoord(act.coord)
+            display_surface.blit(healTurnImage, (pos[0] + (renderConstants.CELLSIZE - healTurnImage.get_width())/2, pos[1] + (renderConstants.CELLSIZE - healTurnImage.get_height())/2))
             a=1
     #######
     if(GameBoard.isDay):
@@ -335,10 +361,10 @@ def run(GameBoard):
     display_surface.blit(apImage, apImagePos)
     apBarRect.width = apRectBound * ap / GameBoard.resources[0].maxValue
     pygame.draw.rect(display_surface, (239, 73, 52), apBarRect)
-    apUsedWidth = apRectBound * actionsAPCost / GameBoard.resources[0].maxValue
+    apUsedWidth = apRectBound * actionsAPCostShow / GameBoard.resources[0].maxValue
     apBarRectUsed = pygame.Rect(apBarRect.left + apBarRect.width - apUsedWidth, apBarRect.top, apUsedWidth, apBarRect.height)
     pygame.draw.rect(display_surface, (244, 144, 83), apBarRectUsed)
-    apText = apFont.render('Action Points: ' + str(ap - actionsAPCost) + "/" + str(GameBoard.resources[0].maxValue), True, (255, 255, 255))
+    apText = apFont.render('Action Points: ' + str(ap - actionsAPCostShow) + "/" + str(GameBoard.resources[0].maxValue), True, (255, 255, 255))
     display_surface.blit(apText, apTextRect)
     #######
     display_surface.blit(arrowImageForward, (int(renderConstants.SIZE/2) + arrowImageOff[0], arrowImagePosY))

@@ -73,10 +73,16 @@ while running:
 
             # Action handling
             if finished:
-                GameBoard.move(PF.firstActor, PF.selectedActor)
-                for i in PF.actions:
-                    if(i.actionType == PF.ActionTypes.heal.value):
-                        GameBoard.heal(i.coord, infRange=True)
+                moveMult = 0
+                for i in range(PF.actionSlot + 1):
+                    if(PF.actions[i].actionType == PF.ActionTypes.move.value):
+                        moveMult += 1
+                if(moveMult != 0):
+                    GameBoard.move(PF.firstActor, PF.selectedActor, mult= moveMult)
+                for i in range(PF.actionSlot + 1):
+                    act = PF.actions[i]
+                    if(act.actionType == PF.ActionTypes.heal.value):
+                        GameBoard.heal(act.coord, infRange=True)
                 #elif take_action[0] == "heal" or take_action[0] == "bite":
                 #    result = GameBoard.actionToFunction[take_action[0]](take_action[1])
                 #    if result[0] is not False:

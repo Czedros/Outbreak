@@ -247,7 +247,7 @@ class Board:
         return ret
 
     def move(
-        self, from_coords: Tuple[int, int], new_coords: Tuple[int, int]
+        self, from_coords: Tuple[int, int], new_coords: Tuple[int, int], mult = 1
     ) -> Tuple[bool, int]:
         """
         Check if the move is valid.
@@ -268,18 +268,18 @@ class Board:
         print(self.States[new_coords[1]])
         if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable:
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
-                if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
+                if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") * mult <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
                     self.States[from_coords[1]][from_coords[0]].person = None
-                    self.States[new_coords[1]][new_coords[0]].person.AP.alterByValue(-1)
+                    self.States[new_coords[1]][new_coords[0]].person.AP.alterByValue(-mult)
                     return [True, destination_idx]
                 else:
                     print("Not enough AP")
             else:
-                if  self.resources[0].currentValue >= self.resources[0].checkCost("Move"):
+                if  self.resources[0].currentValue >= self.resources[0].checkCost("Move") * mult:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
                     self.States[from_coords[1]][from_coords[0]].person = None
-                    self.resources[0].alterByValue(-1)
+                    self.resources[0].alterByValue(-mult)
                     return [True, destination_idx]
 
         return [False, destination_idx]
