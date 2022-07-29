@@ -30,6 +30,7 @@ class Person:
         ret.isVaccinated = self.isVaccinated
         ret.wasCured = self.wasCured
         ret.AP = self.AP
+        ret.animation = self.animation
         return ret
 
     def calcInfect(self):

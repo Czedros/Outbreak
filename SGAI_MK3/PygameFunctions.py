@@ -262,7 +262,7 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     clickPos[1] -= clickOff
     gridPos = (int(clickPos[0] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)), int(clickPos[1] / (constants.LINE_WIDTH + renderConstants.CELLSIZE)))
     if(healing and GameBoard.States[gridPos[1]][gridPos[0]].person is not None):
-        if(abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1):
+        if((abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1) or (gridPos[0] == firstActor[0] and gridPos[1] == firstActor[1])):
             add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))
     elif(GameBoard.States[gridPos[1]][gridPos[0]].person == None):
         if(GameBoard.States[gridPos[1]][gridPos[0]].cellType.passable and selectedActor != None):
