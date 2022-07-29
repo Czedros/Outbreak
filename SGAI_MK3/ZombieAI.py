@@ -18,6 +18,7 @@ class ZombieAI :
         self.ID = ZombieAI.ID + 1 #creates the ID for the current Ai, for every AI increase by 1
 
     def performAction(self, board): 
+        self.setState(0)
         self.positionUpdate(board) 
         self.seekPosition = board.findPlayer() #coords the player one
         if abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) <= 4: #a vision scenario: seek
@@ -29,8 +30,7 @@ class ZombieAI :
             "Attack" : self.stateAttack(board),
             "Seek" : self.stateSeek(board)
         }
-        stateactions[self.currentState]
-        self.setState(0)
+        return stateactions[self.currentState]
         
     def setState(self, state):
         self.currentState = self.states[state]
