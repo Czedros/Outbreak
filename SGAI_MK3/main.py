@@ -89,6 +89,7 @@ while running:
                 #        playerMoved = True
                 #        print("Cure, Vaccinate, or Infect either failed or succeeded, action completed successfully in Main")
                 #    take_action = []
+                playerMoved = True
                 GameBoard.update()
                 PF.reset_actions()
 
@@ -110,7 +111,7 @@ while running:
                 possible_move_coords = GameBoard.get_possible_moves(
                     action, "Government" if player_role == "Zombie" else "Zombie"
                 )
-
+            print(possible_actions)
             # no valid moves, player wins
             if len(possible_actions) == 0 and len(possible_move_coords) == 0:
                 PF.displayResultScreen(True)
