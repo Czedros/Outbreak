@@ -9,5 +9,6 @@ class Obstacle:
 class Obstacles(Enum):
     resource = Obstacle(r"Assets/Tiles/ResourceTile.png", True)
     rock = Obstacle(r"Assets/Tiles/Boulder.png", False)
-    tree = Obstacle(r"Assets/Tiles/Cactus.png", False)
+    tree = Obstacle(r"Assets/Tiles/Tree.png", False)
+    cactus = Obstacle(r"Assets/Tiles/Cactus.png", False)
     nan = Obstacle(r"Assets/Tiles/nanObstacle.png", False)

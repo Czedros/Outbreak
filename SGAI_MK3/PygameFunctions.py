@@ -161,6 +161,10 @@ moveImageDown = pygame.transform.flip(moveImageUp, False, True)
 healTurnImage = pygame.image.load(r'Assets/UI/cure2Transparent.png')
 healImageMult = 0.8
 healTurnImage = pygame.transform.scale(healTurnImage, (renderConstants.CELLSIZE * healImageMult * healTurnImage.get_width() / healTurnImage.get_height(), renderConstants.CELLSIZE * healImageMult))
+##
+moveLockImage = pygame.image.load(r'Assets/UI/moveLock.png')
+moveLockImageHeight = renderConstants.CELLSIZE * 0.6
+moveLockImage = pygame.transform.scale(moveLockImage, (moveLockImageHeight * healTurnImage.get_width() / healTurnImage.get_height(), moveLockImageHeight))
 #######
 healing = False
 #######
@@ -276,7 +280,6 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
         return None
     state = GameBoard.States[gridPos[1]][gridPos[0]]
     canAct = (actionSlot == -1 or actions[actionSlot].actionType != ActionTypes.heal.value)
-    print(canAct)
     if(healing and state.person is not None):
         if(canAct and ((abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1) or (gridPos[0] == firstActor[0] and gridPos[1] == firstActor[1]))):
             add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))
@@ -326,7 +329,6 @@ def run(GameBoard):
             pos2 = cellCoord(act.coord2)
             posT = [(pos1[0] + pos2[0] + renderConstants.CELLSIZE) / 2, (pos1[1] + pos2[1] + renderConstants.CELLSIZE) / 2]
             img = None
-            off = (moveImageLeft.get_width() - renderConstants.CELLSIZE) / 2
             if(pos2[0] > pos1[0]):
                 img = moveImageRight
             elif(pos2[0] < pos1[0]):
@@ -344,6 +346,11 @@ def run(GameBoard):
             if state.person != None:
                 state.person.animation = state.person.animation.getNextAnimation()
                 display_surface.blit(state.person.animation.getImage(), cellPosition(x, y))
+    #######
+    canAct = ((actionSlot == -1 or actions[actionSlot].actionType != ActionTypes.heal.value) and (ap - actionsAPCostShow) != 0)
+    if(selectedActor != None and not canAct):
+        cellPos = cellPosition(selectedActor[0], selectedActor[1])
+        display_surface.blit(moveLockImage, [cellPos[0] + (renderConstants.CELLSIZE - moveLockImage.get_width()) / 2, cellPos[1] + (renderConstants.CELLSIZE - moveLockImage.get_height()) / 2]) 
     #######
     if(selectedActor != None and healing):
         cellPos = cellPosition(selectedActor[0], selectedActor[1])
