@@ -367,8 +367,10 @@ def run(GameBoard):
     apText = apFont.render('Action Points: ' + str(ap - actionsAPCostShow) + "/" + str(GameBoard.resources[0].maxValue), True, (255, 255, 255))
     display_surface.blit(apText, apTextRect)
     #######
-    display_surface.blit(arrowImageForward, (int(renderConstants.SIZE/2) + arrowImageOff[0], arrowImagePosY))
-    display_surface.blit(arrowImageBackward, (int(renderConstants.SIZE/2) - arrowImageForward.get_width() - arrowImageOff[0], arrowImagePosY))
+    if(actionSlot + 1 != len(actions)):
+        display_surface.blit(arrowImageForward, (int(renderConstants.SIZE/2) + arrowImageOff[0], arrowImagePosY))
+    if(actionSlot != -1):
+        display_surface.blit(arrowImageBackward, (int(renderConstants.SIZE/2) - arrowImageForward.get_width() - arrowImageOff[0], arrowImagePosY))
     ##
     display_surface.blit(finishImage, finishImagePos)
     #######
