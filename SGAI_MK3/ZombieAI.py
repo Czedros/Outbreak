@@ -71,6 +71,6 @@ class ZombieAI :
         ]
         for coordinate in vals:
             if gameBoard.isValidCoordinate(coordinate) and gameBoard.States[coordinate[1]][coordinate[0]].person == None:
-                if gameBoard.States[coordinate[1]][coordinate[0]].isPassable == True:
+                if gameBoard.States[coordinate[1]][coordinate[0]].passable() == True:
                      possible_move_coords.append(coordinate)
         return possible_move_coords
