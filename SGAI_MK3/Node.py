@@ -3,6 +3,8 @@ from Board import Board
 import PygameFunctions as PF 
 import numpy as np
 from random import choice
+import datetime
+#needs to be improted
 
 actions = ['moveUp', 'moveDown','moveLeft', 'moveRight', 'heal']
 #don't need pick_resource 
@@ -12,14 +14,17 @@ class Node:
     #MCTS works by constructing a tree of these Nodes.
     #Could be e.g. a chess or checkers board state.
 
-    def __init__(self, state, parent = None ): 
+    def __init__(self, board, parent = None ): 
+        # **kwargs take in a arbitrary amount of keyword arguments
 
         self.parent = parent #for the starter node its None
         self.children = [] #none at first
-        self.state = state #GameBoard
+        self.board = board #GameBoard
         self.wins = 0 #initally zero for each new node
-        self.visits = 0
-        self.budget = 100 #how many iterations
+        self.plays = 0
+        self.budget = 30 #how many iterations
+        # seconds = kwargs.get('time', 30) TODO: figre out what this mean 
+        self.calculation_time = datetime.timedelta(seconds = 30)
      
     
     def uct_select_child(self):
@@ -30,7 +35,7 @@ class Node:
         s = sorted(self.children, key=lambda c: c.wins / c.visits + np.sqrt(2 * np.log(self.visits) / c.visits))[-1]
         return s
     
-    def get_actions(self, state):
+    def get_actions(self, board):
         """
             For this node, a list of possible actions is created and returned 
             [name of action, [coord(x,y...)] ]
@@ -38,38 +43,75 @@ class Node:
         a_move = []
         #get_possible_moves returns a list of set(x,y)
         for i in actions: 
-            a_move.append([i, state.get_possible_moves(action = i, role = 'Human')]) 
+            a_move.append([i, board.get_possible_moves(action = i, role = 'Human')]) 
             return a_move
     
     #add_child
     def update(self, s):
          # Takes a game state, and appends it to the history.
         self.children.append(s)
+
+    #play the game multiple times from this current state. this is time-based
+    #Note this is different from budget, as it runs the simulations multiple times
+    def get_play(self):
+        """
+            calls run_simulation a number of thimes until a certain amount of time has passed
+        """
+        begin = datetime.datetime.utcnow()
+        while datetime.daetime.utcnow() - begin < self.calculation_time:
+            self.run_simulation()
+        
     
     #simulation: 4-step process
     def run_simulation(self):
-        states_copy = self.children[:]
-        state = states_copy[-1]
+        plays, wins = self.plays, self.wins
 
-        for t in range(self.budget):
+        visited_states = set()
+        states_copy = self.children[:] #get a copy of self.children. self.children is an authoraitative record of what has happened so far in the game
+        state = states_copy[-1] #get a recent state
+        player = self.board.current_player(state) #TOOD: impelment current_player
+
+        expand = True
+        for t in range(1, self.budget + 1): #limits the amount of moves forward that the AI will play
             legal = self.get_actions(states_copy) #get a list of possible actions
+            moves_states = [(p, self.board.next_state(state, p)) for p in legal]
 
-            play = choice(legal) #play a random move for now 
-            state = self.state.next_state(state, play) #TODO: define 
-            
-            winner = self.state.winner(states_copy)
+            if all(plays.get((player, S)) for p, S in moves_states):
+                # If we have stats on all of the legal moves here, use them
+                log_total = log(
+                    sum(plays[(player, S)] for p, S in moves_states))
+                value, move, sate = max(
+                    ((wins[(player, S)] / plays[(player, S)]) + self.C * sqrt(log_total / plays[(player, S)]), p, S)
+                    for p, S in moves_states
+                
+                )
+            else:
+                #otherwise, just make an arbitrary decision
+                move, state = choice(moves_states)
+            states_copy.append(state)
+
+            #'player' here and below refers to the player
+            #who moved into that particular state
+            if expand and (player, state) not in plays:
+                expand = False
+                plays[(player, state)] = 0
+                wins[(player, state)] = 0
+                if t < self.max_depth:
+                    self.max_depth = t
+            visited_states.add((player, state))
+
+            player = self.board.current_player(state)
+            winner = self.board.winner(states_copy)
+
             if winner: break
+        for player, state in visited_states:
+            if (player, state) not in plays:
+                continue
+            plays[(player, state)] += 1
+            if player == winner:
+                wins[(player, state)] +=1
 
 
-"""
-def select(self):
-        if not self.is_fully_expanded() or self.mdp.is_terminal(self.state):
-            return self
-        else:
-            actions = list(self.children.keys())
-            action = self.bandit.select(self.state, actions, self.qfunction)
-            return self.get_outcome_child(action).select()
-"""
 
 """
     We need to link the HumanAi with our board (state)
