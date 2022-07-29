@@ -487,3 +487,26 @@ class Board:
             for state in arr:
                 state.update()
         
+"""
+Board:
+def start(self): basically our __init__()
+
+def current_player(self, state, play): find the player
+    find the position of the player
+
+def next_state(self, state, play):
+    - state: a copy of our current board
+    -specify the play:
+        -call one of the Board.functions (moveUp, heal etc)
+    -return the state 
+def legal_plays(self, state_history):
+    loop through state_history and call get_possible_moves
+
+def winner(self, state_history):
+    
+    
+
+
+
+
+"""
