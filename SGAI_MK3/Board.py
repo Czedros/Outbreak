@@ -458,6 +458,7 @@ class Board:
 
     def populate(self):
         total = 7
+        poss = []
         for arr in self.States:
             for state in arr:
                 state.person = None
@@ -534,9 +535,9 @@ class Board:
             self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
             if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
                 self.zombieWave()
-            #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):
-            #    self.populate()
-        #print(self.resources[1].currentValue)
+                #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):
+                #    self.populate()
+            #print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
                 state.update()
