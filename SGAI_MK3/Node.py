@@ -23,7 +23,6 @@ class Node:
         self.wins = 0 #initally zero for each new node
         self.plays = 0
         self.budget = 30 #how many iterations
-        # seconds = kwargs.get('time', 30) TODO: figre out what this mean 
         self.calculation_time = datetime.timedelta(seconds = 30)
      
     
@@ -54,6 +53,7 @@ class Node:
 
     #play the game multiple times from this current state. this is time-based
     #Note this is different from budget, as it runs the simulations multiple times
+    #ROLLOUT
     def get_play(self):
         """
             calls run_simulation a number of thimes until a certain amount of time has passed
@@ -73,6 +73,7 @@ class Node:
         player = self.board.current_player(state) #TOOD: impelment current_player
 
         expand = True
+        #SELECTION
         for t in range(1, self.budget + 1): #limits the amount of moves forward that the AI will play
             legal = self.get_actions(states_copy) #get a list of possible actions
             moves_states = [(p, self.board.next_state(state, p)) for p in legal]
@@ -87,12 +88,14 @@ class Node:
                 
                 )
             else:
+
                 #otherwise, just make an arbitrary decision
                 move, state = choice(moves_states)
             states_copy.append(state)
 
             #'player' here and below refers to the player
             #who moved into that particular state
+            #EXPANSION 
             if expand and (player, state) not in plays:
                 expand = False
                 plays[(player, state)] = 0
@@ -105,6 +108,7 @@ class Node:
             winner = self.board.winner(states_copy)
 
             if winner: break
+        #BACKPROPAGATION
         for player, state in visited_states:
             if (player, state) not in plays:
                 continue
@@ -121,7 +125,7 @@ class Node:
 
 
     Board:
-    1. start : returns a represntation of the tarting state of the game
+    1. start : returns a represntation of the starting state of the game
     2. current_player: returns the current palyer's number
     3. next)state: takes the game state, and the move to be applied
         and returns the new game state
