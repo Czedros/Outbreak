@@ -4,10 +4,11 @@ import PygameFunctions as PF
 import numpy as np
 from random import choice
 import datetime
+import math
 #needs to be improted
 
 
-#don't need pick_resource 
+
 
 class Node:
     #A representation of a single board state.
@@ -28,6 +29,7 @@ class Node:
         self.plays = {}
         self.budget = 30 #how many iterations
         self.calculation_time = datetime.timedelta(seconds = 30)
+        self.C = 1.4 #constant C
      
     
     def uct_select_child(self):
@@ -50,10 +52,56 @@ class Node:
     def get_play(self):
         """
             calls run_simulation a number of thimes until a certain amount of time has passed
+            return the best move from it
+            some debugging notes at the bottom, but the print format
+            might be outdated
         """
+        self.max_depth = 0
+        state = self.states[-1] #current state
+        player = self.board.current_player(state) #current player
+        legal = self.board.get_actions(self.states[:])
+    
+        #No real choices bail out. or only one choice return it
+        if not legal:
+            return
+        if len(legal) == 1:
+            return legal[0]
+
+        games = 0
         begin = datetime.datetime.utcnow()
         while datetime.daetime.utcnow() - begin < self.calculation_time:
             self.run_simulation()
+            games+=1
+        
+        moves_states = [(p, self.board.next_state(state, p)) for p in legal]
+        #number of games and time taken
+        print (games, datetime.datetime.utcnow() - begin)
+
+        #pick the move with the highest percentage of wins
+        percent_wins, move = max(
+            (self.wins.get((player, S), 0) /
+            self.plays.get((player, S), 1),
+            p)
+            for p, s in moves_states
+        )
+        #display the states for each possible play
+        
+        for x in sorted(
+            ((100 * self.wins.get((player, S), 0) /
+              self.plays.get((player, S), 1),
+              self.wins.get((player, S), 0),
+              self.plays.get((player, S), 0), p)
+             for p, S in moves_states),
+            reverse=True
+        ):
+            print(f"{3}: {0:.2f}% ({1} / {2})".format(*x))
+            #i think this is python 2 format not sure if this works
+
+        print("Maximum depth searched:", self.max_depth)
+
+        return move #return best move
+
+
         
     
     #simulation: 4-step process
@@ -70,15 +118,20 @@ class Node:
         for t in range(1, self.budget + 1): #limits the amount of moves forward that the AI will play
             legal = self.get_actions(states_copy) #get a list of possible actions
             moves_states = [(p, self.board.next_state(state, p)) for p in legal]
+            #list of (the play, the board after the play is made). these plays are all legal
 
             if all(plays.get((player, S)) for p, S in moves_states):
                 # If we have stats on all of the legal moves here, use them
-                log_total = log(
+                #TODO: implement the uct function because tf is this
+                #Some info about our constant C:
+                    # Larger values of C will encourage more exploration of 
+                    # the possibilities, and smaller values will cause the AI
+                    # to prefer concentrating on known good moves.
+                log_total = math.log(
                     sum(plays[(player, S)] for p, S in moves_states))
                 value, move, state = max(
-                    ((wins[(player, S)] / plays[(player, S)]) + self.C * sqrt(log_total / plays[(player, S)]), p, S)
+                    ((wins[(player, S)] / plays[(player, S)]) + self.C * math.sqrt(log_total / plays[(player, S)]), p, S)
                     for p, S in moves_states
-                
                 )
             else:
 
@@ -93,8 +146,8 @@ class Node:
                 expand = False #expanding this
                 self.plays[(player, state)] = 0
                 self.wins[(player, state)] = 0 #creation of new state/node
-                if t < self.max_depth:
-                    self.max_depth = t
+                if t < self.max_depth: 
+                    self.max_depth = t #a new layer is added
             visited_states.add((player, state)) #used to update stats in backpropagation
 
             player = self.board.current_player(state)
@@ -103,11 +156,11 @@ class Node:
             if winner: break
         #BACKPROPAGATION
         for player, state in visited_states:
-            if (player, state) not in plays:
+            if (player, state) not in self.plays: #unexplored don't touch!
                 continue
-            plays[(player, state)] += 1
+            self.plays[(player, state)] += 1
             if player == winner:
-                wins[(player, state)] +=1
+                self.wins[(player, state)] +=1
 
 
 
