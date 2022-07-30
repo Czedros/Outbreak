@@ -5,6 +5,7 @@ import numpy as np
 from random import choice
 import datetime
 import math
+import Person 
 #needs to be improted
 
 
@@ -17,6 +18,8 @@ class Node:
     """
         A Node holds a board, its parent, list of children (states), number of plays
         and visits.
+
+        list of states are really different boards that represnt different states of the game
     """
 
     def __init__(self, board: Board, parent = None ): 
@@ -51,7 +54,7 @@ class Node:
     #ROLLOUT
     def get_play(self):
         """
-            calls run_simulation a number of thimes until a certain amount of time has passed
+            calls run_simulation a number of times until a certain amount of time has passed
             return the best move from it
             some debugging notes at the bottom, but the print format
             might be outdated
@@ -69,7 +72,7 @@ class Node:
 
         games = 0
         begin = datetime.datetime.utcnow()
-        while datetime.daetime.utcnow() - begin < self.calculation_time:
+        while datetime.datetime.utcnow() - begin < self.calculation_time:
             self.run_simulation()
             games+=1
         
@@ -111,12 +114,12 @@ class Node:
         visited_states = set()
         states_copy = self.states[:] #get a copy of self.states. it is an authoraitative record of what has happened so far in the game
         state = states_copy[-1] #get a recent state
-        player = self.board.current_player(state) 
+        player = self.board.current_player(state) #Return the Person 
 
         expand = True
         #SELECTION
         for t in range(1, self.budget + 1): #limits the amount of moves forward that the AI will play
-            legal = self.get_actions(states_copy) #get a list of possible actions
+            legal = self.board.get_actions(states_copy) #get a list of possible actions
             moves_states = [(p, self.board.next_state(state, p)) for p in legal]
             #list of (the play, the board after the play is made). these plays are all legal
 
