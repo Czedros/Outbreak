@@ -1,13 +1,19 @@
 import pygame
-import PygameFunctions.py as PF
+import PygameFunctions as PF
 import Board
 
-class GameBoard{
+class GameBoard:
+    #return the initial game state (TBC)
     def start(self):
+        """
+        13x13 grid
+        """
         pass
-    def current_player(self, state):
-        pass
-    def next_state(self, state,play):
+
+    def next_state(self, state, play):
+        """
+        advance the given state and return the new state
+        """
         pass
     def legal_plays(self, state):
         """
@@ -22,7 +28,7 @@ class GameBoard{
         pass
     
         
-}
+
 
 """
 
