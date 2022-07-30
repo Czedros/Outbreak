@@ -49,16 +49,16 @@ class ZombieAI :
             if abs(self.seekPosition[0] - (self.position[0] + Move[0])) + abs(self.seekPosition[1] - (self.position[1] + Move[1])) <= prevDistance:
                 distance = prevDistance 
                 chosenMove = Move
-        return chosenMove
+        return ["move", chosenMove]
 
     def stateAttack(self, board):
         #Bite at the seeked position
-        return ["Bite", self.seekPosition]
+        return ["bite", self.seekPosition]
 
     def stateRoam(self, gameBoard):
         possibleMoves = self.getLegalMoves(gameBoard)
         move = rd.choice(possibleMoves) 
-        return move
+        return ["move", move]
 
     def getLegalMoves(self, gameBoard): #legal moves for this zombie
         possible_move_coords = []
