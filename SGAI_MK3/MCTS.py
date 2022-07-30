@@ -39,14 +39,14 @@ class MCTS:
         self.calculation_time = datetime.timedelta(seconds = 30) #time taken to to do entire 4 step process
         
         begin = datetime.datetime.utcnow()
-        while datetime.daetime.utcnow() - begin < self.calculation_time:
+        while datetime.datetime.utcnow() - begin < self.calculation_time:
             node = self.select(state) #SELECTION: existing info repeadetly choose successive child node down to end of search tree
             winner = self.board.winner(node.state)
 
             if(node.isLeaf() == False and winner == None):
                 node = self.expand(node) #EXPANSION: seach tree is expanded by adding a node
                 winner = self.simulate(node) #SIMULATION: run the game starting form the added node to determine the winner
-            self.backpropagate(node, winner) #BACKPROPAGATION: All the nodes in the selected path are updated with new info from simulation
+            self.back(node, winner) #BACKPROPAGATION: All the nodes in the selected path are updated with new info from simulation
 
     def bestPlay(self, state):
         """

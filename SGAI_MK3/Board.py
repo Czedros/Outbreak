@@ -12,6 +12,8 @@ from Animator import Animation
 from Obstacle import Obstacles
 import Animator
 import PygameFunctions
+import State_MC
+import copy 
 
 class Board:
     resources = [
@@ -54,6 +56,49 @@ class Board:
             "heal": self.heal,
             "bite": self.bite,
         }
+    
+    #Hannah's addition for ai
+    def start(self):
+        """
+        return the intial game state
+        only call at begining :)
+        """
+        boardC = self.clone(self.States, self.player_role) #copy
+        return State_MC([], boardC, 1)
+    def legal_plays(self, state):
+        """
+         return the current player's legal moves from given state
+        """
+        legalPlays = []
+        for i in state.board.actionToFunction.keys():
+            role = ""
+            if state.isPlayer(1):
+                role = 'Human'
+            else: role = 'Zombie'
+            coords = state.board.getPossibleMoves(self, action = i, role = role)
+            for val in coords:
+                legalPlays.append(Play(val)) #TODO: understand that 
+        
+        return legalPlays
+    def next_state(self, state: State_MC, play):
+        """
+        advance the given state and return the new state
+        """
+        newHistory = copy.deepcopy(state.playHistory)
+        newHistory.append(play)
+        newBoard = state.board.clone(state.board.States, state.board.player_role) #I hope this works lol
+        newBoard[play.row][play.col] = state.player #player occupies this place now
+        newPlayer = -state.player
+        return State(newHistory, newBoard, newPlayer)
+
+    #WINNER FOR THE SIMULATED GAMES, NOT THE ACTUAL GAME!!!
+    def winner(self, state):
+        if state.board.num_zombies() == 0: #human won!
+            return 1 
+        if state.board.population == state.board.num_zombies():
+            return -1 #human lost
+
+    # End of Hannah's Addition
 
     def num_zombies(self) -> int:
         r = 0
