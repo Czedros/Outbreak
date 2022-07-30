@@ -6,22 +6,26 @@ from random import choice
 import datetime
 #needs to be improted
 
-actions = ['moveUp', 'moveDown','moveLeft', 'moveRight', 'heal']
+
 #don't need pick_resource 
 
 class Node:
     #A representation of a single board state.
     #MCTS works by constructing a tree of these Nodes.
     #Could be e.g. a chess or checkers board state.
+    """
+        A Node holds a board, its parent, list of children (states), number of plays
+        and visits.
+    """
 
     def __init__(self, board: Board, parent = None ): 
         # **kwargs take in a arbitrary amount of keyword arguments
 
         self.parent = parent #for the starter node its None
-        self.children = [] #none at first
+        self.states = [] #none at first
         self.board = board #GameBoard
-        self.wins = 0 #initally zero for each new node
-        self.plays = 0
+        self.wins = {} #initally zero for each new node
+        self.plays = {}
         self.budget = 30 #how many iterations
         self.calculation_time = datetime.timedelta(seconds = 30)
      
@@ -31,25 +35,14 @@ class Node:
             lamba c is the expression that uses the formula
            return one child node 
         """
-        s = sorted(self.children, key=lambda c: c.wins / c.visits + np.sqrt(2 * np.log(self.visits) / c.visits))[-1]
+        s = sorted(self.states, key=lambda c: c.wins / c.visits + np.sqrt(2 * np.log(self.visits) / c.visits))[-1]
         return s
     
-    def get_actions(self):
-        """
-            For this node, a list of possible actions is created and returned 
-            [name of action, [coord(x,y...)] ]
-        """
-        a_move = []
-        #get_possible_moves returns a list of set(x,y)
-        for i in actions: 
-            a_move.append([i, self.board.get_possible_moves(action = i, role = 'Human')]) 
-            
-        return a_move
     
     #add_child
     def update(self, s):
          # Takes a game state, and appends it to the history.
-        self.children.append(s)
+        self.states.append(s)
 
     #play the game multiple times from this current state. this is time-based
     #Note this is different from budget, as it runs the simulations multiple times
@@ -68,9 +61,9 @@ class Node:
         plays, wins = self.plays, self.wins
 
         visited_states = set()
-        states_copy = self.children[:] #get a copy of self.children. self.children is an authoraitative record of what has happened so far in the game
+        states_copy = self.states[:] #get a copy of self.states. it is an authoraitative record of what has happened so far in the game
         state = states_copy[-1] #get a recent state
-        player = self.board.current_player(state) #TOOD: impelment current_player
+        player = self.board.current_player(state) 
 
         expand = True
         #SELECTION
@@ -96,13 +89,13 @@ class Node:
             #'player' here and below refers to the player
             #who moved into that particular state
             #EXPANSION 
-            if expand and (player, state) not in plays:
-                expand = False
-                plays[(player, state)] = 0
-                wins[(player, state)] = 0
+            if expand and (player, state) not in self.plays: #new encountereted state
+                expand = False #expanding this
+                self.plays[(player, state)] = 0
+                self.wins[(player, state)] = 0 #creation of new state/node
                 if t < self.max_depth:
                     self.max_depth = t
-            visited_states.add((player, state))
+            visited_states.add((player, state)) #used to update stats in backpropagation
 
             player = self.board.current_player(state)
             winner = self.board.winner(states_copy)
