@@ -71,34 +71,14 @@ while running:
 
         # Computer turn
         else:
-            playerMoved = False
-            take_action = []
-
-            # Make a list of all possible actions that the computer can take
-            possible_actions = [
-                ACTION_SPACE[i]
-                for i in range(6)
-                if (i != 4 and player_role == "Government")
-                or (i != 5 and player_role == "Zombie")
-            ]
-            possible_move_coords = []
-            while len(possible_move_coords) == 0 and len(possible_actions) != 0:
-                action = possible_actions.pop(rd.randint(0, len(possible_actions) - 1))
-                possible_move_coords = GameBoard.get_possible_moves(
-                    action, "Government" if player_role == "Zombie" else "Zombie"
-                )
-            #print(possible_actions)
-            # no valid moves, player wins
-            if (len(possible_actions) == 0 and len(possible_move_coords) == 0) or GameBoard.timeCounter >= 50:
-                PF.displayResultScreen(True)
-                running = False
-                continue
-
-            # Select the destination coordinates
-            move_coord = rd.choice(possible_move_coords)
-
+            zombies = []
+            for arr in GameBoard.States:
+                for state in arr:
+                    if state.person is not None and state.person.isZombie == True:
+                        zombies.append(state.person)
+            for zomb in zombies:
+                for
             # Implement the selected action
-            GameBoard.actionToFunction[action](move_coord)
 
             # update the board's states
             GameBoard.update(False)
