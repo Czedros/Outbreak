@@ -37,8 +37,6 @@ class Person:
 
     def calcInfect(self):
         chance = 100
-        if self.wasCured == True:
-            chance -= 10
         if self.isVaccinated == True:
             chance -= self.vaccinationStatus()
         if rd.randint(0,100) < chance:
@@ -63,8 +61,6 @@ class Person:
         return False
  
     def vaccinationStatus(self):
-        if(self.turnsVaccinated == 0 or self.turnsVaccinated == 1):
-            return 100
         return 100 - (25*(self.turnsVaccinated - 1))
 
     def get_vaccinated(self):

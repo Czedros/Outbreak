@@ -99,7 +99,10 @@ while running:
                     GameBoard.bite(Action[1])
 
             # Implement the selected action
-
+            if (not GameBoard.containsPerson(True)) or GameBoard.timeCounter > 40:
+                PF.displayResultScreen(True)
+                running = False
+                continue
             # update the board's states
             playerMoved = False
             GameBoard.update(False)

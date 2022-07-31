@@ -396,7 +396,7 @@ class Board:
         if self.resources[0].currentValue < 2:
             print("Not Enough AP")
             return [False, None]
-        self.resources[0].alterByValue(-2)
+        self.resources[0].alterByValue(-3)
         p = self.States[coords[1]][coords[0]].person
 
         if p.isZombie:
@@ -466,7 +466,7 @@ class Board:
             self.States[pos[1]][pos[0]].person = p
         self.population = total + 1
     def zombieWave(self):
-        total = 7
+        total = rd.randint(0,6)
         humanPos = self.findPlayer()
         for i in range(total):
             pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
@@ -478,6 +478,7 @@ class Board:
     def pickup(self, coord):
         if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
             self.States[coord[1]][coord[0]].obstacle = None
+            self.resources[1].alterByValue(5)
             self.resources[1].alterByPercent(6*self.resources[2].currentValue, False)
     def findPath(self, from_coord, to_coord):#Tiankuo, you can replace this with you're path finding algorithm, but I need to call a path finding algorithm for my UI
         oldCoords = [{from_coord: None}]
@@ -515,11 +516,12 @@ class Board:
         This method should be called at the end of each round
         (after player and computer have each gone once)
         """ 
-        self.resources[0].alterByValue(2)
         if(isHuman):
+            self.resources[0].alterByValue(3)
             self.timeCounter += 1
             self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-            self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
+            self.resources[1].alterByValue(-1*(1+(self.resources[2].currentValue)), False)
+            # self.resources[1].alterByPercent(-3*(1+(self.resources[2].currentValue)), False)
             if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
                 self.zombieWave()
             #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):
