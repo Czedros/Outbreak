@@ -7,6 +7,8 @@ from constants import *
 import time
 import renderConstants
 from MCTS import MCTS
+from Animator import Animations
+from Animator import Animation
 SELF_PLAY = True  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
 # Create the game board
@@ -82,31 +84,27 @@ while running:
             for arr in GameBoard.States:
                 for state in arr:
                     if state.person is not None and state.person.isZombie == True:
-                        tup = (state.person, state.person.ai.ID) #Do you need ID if you already have state.person?
+                        tup = (state.person, state.person.ai.ID) 
                         print(tup)
                         zombies.append(tup)
                         #zombies.append(state.person)
                         #zombies.append(state.person.ai.ID) #class State -> class Person -> class ZombieAi
             for zomb, id in zombies:
+                #this part is confusing? but idk lol - Hannah
                 moves.append(zomb.ai.performAction(GameBoard))
-                #moves.append(GameBoard.findPerson(zomb).ai.performAction(GameBoard))
-                
-                #debug
-                for ya in moves:
-                    print(ya)
+                #print("performaction")
             for x in range(len(zombies)):
-                #currentZom = GameBoard.findPerson(zombies[x]) #this returns the location, not a Person
-                pair = zombies[x] #move and zombies index should be the same correspondence
-                currentZom = pair[0] 
+                currentZom = zombies[x][0] #returns a Person
                 Action = moves[x]
                 if Action[0] == 'move':
-                    GameBoard.move(currentZom.ai.selfPosition, Action[1]) #Error
+                    GameBoard.move(currentZom.ai.position, Action[1])     
                 else:
                     GameBoard.bite(Action[1])
 
             # Implement the selected action
 
             # update the board's states
+            playerMoved = False
             GameBoard.update(False)
 
         # Update the display

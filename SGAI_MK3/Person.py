@@ -11,17 +11,19 @@ class Person:
     isVaccinated : bool= False
     isZombie : bool = False
     wasCured : bool = False
-    ID = 0
+    classID = 0
     AP = Resource("AP", 3, {"Move" : 1 , "Bite": 2 } )
     def __init__(self, iz: bool):
         self.isZombie = iz
-        self.ID = Person.ID + 1
+        self.ID = Person.classID
+        Person.classID+=1
         if(self.isZombie):
             self.animation = Animation(Animations.zombie.value)
+            self.ai = ZombieAI() #originally at bottom
         else:
             self.animation = Animation(Animations.human.value)
         self.AP.setToMax()
-        self.ai = ZombieAI()
+        
 
     def clone(self):
         ret = Person(self.isZombie)
@@ -56,7 +58,7 @@ class Person:
             self.animation = Animation(Animations.human.value)
             self.wasCured = True
             print("Cure/Vaccine was successful, action completed successfully in Person")
-            Person.ID -= 1
+            Person.classID -= 1
             return True
         return False
  

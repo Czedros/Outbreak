@@ -128,7 +128,7 @@ class Board:
     def findPerson(self, ID):
         for arr in self.States:
             for state in arr:
-                if state.person is not None and state.person.ai.ID == ID:
+                if state.person is not None and state.person.isZombie and state.person.ai.ID == ID:
                     return state.location
     def findPlayer(self):
         for arr in self.States:
@@ -545,9 +545,8 @@ class Board:
             pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
             while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) <= 3):
                 pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
-            p = Person(False)
-            p.isZombie = True
-            p.animation = Animation(Animations.zombie.value)
+            p = Person(True)
+            #print("zombie", p.ID, p.ai.ID) #ID and aiID are different
             self.States[pos[1]][pos[0]].person = p
         self.population = total + 1
     def zombieWave(self):
@@ -557,9 +556,7 @@ class Board:
             pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
             while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) <= 2 or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) > 6):
                 pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
-            p = Person(False)
-            p.isZombie = True
-            p.animation = Animation(Animations.zombie.value)
+            p = Person(True)
             self.States[pos[1]][pos[0]].person = p
 
     def pickup(self, coord):

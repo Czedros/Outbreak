@@ -6,16 +6,17 @@ class ZombieAI :
     currentState = "Roam"
     active = False
     states = ["Roam", "Seek", "Attack"]
-    seekPosition = [1, 1]
-    ID = 0
-    selfPosition = [2,2]
+    seekPosition = (1, 1)
+    classID = 0
+    position = (2,2)
     board = None
     vision = 3
     
     
     def __init__(self):
         self.active = True
-        self.ID = ZombieAI.ID + 1 #creates the ID for the current Ai, for every AI increase by 1
+        self.ID = ZombieAI.classID #creates the ID for the current Ai, for every AI increase by 1
+        ZombieAI.classID += 1
 
     def performAction(self, board): 
         self.setState(0)
@@ -43,22 +44,30 @@ class ZombieAI :
             self.setState(0)
         possiblemoves = self.getLegalMoves(board) #gets all possible move 
         prevDistance = abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) 
-        chosenMove = possiblemoves[0]
-        #find the position that is the closest to the human
-        for Move in possiblemoves:
-            if abs(self.seekPosition[0] - (self.position[0] + Move[0])) + abs(self.seekPosition[1] - (self.position[1] + Move[1])) <= prevDistance:
-                distance = prevDistance 
-                chosenMove = Move
-        return ["move", chosenMove]
+        if(len(possiblemoves) == 0): #no posible moves exist
+            chosenMove = self.position
+        else: 
+            chosenMove = possiblemoves[0]
+            #find the position that is the closest to the human
+            for Move in possiblemoves:
+                prevDistance = -1
+                distance = abs(self.seekPosition[0] - (self.position[0] + Move[0])) + abs(self.seekPosition[1] - (self.position[1] + Move[1]))
+                if prevDistance <= distance:
+                    prevDistance = distance 
+                    chosenMove = Move
+        return ("move", chosenMove, "seek") #Added third data value for Animation
 
     def stateAttack(self, board):
         #Bite at the seeked position
-        return ["bite", self.seekPosition]
+        return ("bite", self.seekPosition)
 
     def stateRoam(self, gameBoard):
         possibleMoves = self.getLegalMoves(gameBoard)
-        move = rd.choice(possibleMoves) 
-        return ["move", move]
+        if len(possibleMoves) != 0: #if theres no possibleMovement rd crashes
+            move = rd.choice(possibleMoves) 
+        else: 
+            move = self.position #stay there
+        return ("move", move, "roam")
 
     def getLegalMoves(self, gameBoard): #legal moves for this zombie
         possible_move_coords = []
