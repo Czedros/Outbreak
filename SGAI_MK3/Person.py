@@ -12,7 +12,7 @@ class Person:
     isZombie : bool = False
     wasCured : bool = False
     classID = 0
-    AP = Resource("AP", 3, {"Move" : 1 , "Bite": 2 } )
+    AP = Resource("AP", 3, {"Move" : 1 , "Bite": 1} )
     def __init__(self, iz: bool):
         self.isZombie = iz
         self.ID = Person.classID

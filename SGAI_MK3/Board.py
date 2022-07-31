@@ -449,15 +449,6 @@ class Board:
 
     def bite(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         i = self.toIndex(coords)
-        if (
-            self.States[coords[1]][coords[0]].person is None
-            or self.States[coords[1]][coords[0]].person.isZombie
-            or not self.isAdjacentTo(coords, True)
-        ):
-            return [False, None]
-        if  self.States[coords[1]][coords[0]].person.AP.currentValue < 2:
-            print("Not Enough AP")
-            return [False, None]
         self.States[coords[1]][coords[0]].person.calcInfect()
         print("Infection has either failed or succeeded, action completed successfully in Board")
         return [True, i]
