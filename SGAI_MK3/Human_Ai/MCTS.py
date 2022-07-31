@@ -1,17 +1,8 @@
 from ast import Pass
-from Board import Board
-import PygameFunctions as PF 
-import numpy as np
 from random import choice
 import datetime
-import math
-import Person 
-import Node
 import copy
-#needs to be improted
-
-#reward for each action (pick up resources or something)
-
+import Node
 
 class MCTS:
 
@@ -19,7 +10,7 @@ class MCTS:
         represents the search tree
     """
 
-    def __init__(self, board: GameBoard, c = 2): 
+    def __init__(self, board, c = 2): 
         # **kwargs take in a arbitrary amount of keyword arguments
         self.board = board 
         self.c = self.c
@@ -53,7 +44,7 @@ class MCTS:
         """
         self.makeNode(state)
         if not self.nodes[hash[state]].isFullyExpanded():
-            raise("Not eough information to make bestPlay")
+            raise("Not enough information to make bestPlay")
         
         node = self.nodes[hash(state)]
         allPlays = node.allPlays()
@@ -79,7 +70,7 @@ class MCTS:
             bUCB1 = float('-inf') #this is like java version of like Integer.MIN_VALUE... but python can do -infinity damn
 
             for play in plays:
-                cUCB1 = node.children[play].getUCB1(self.c) #TODO: need hash; getse UCB1 value of each child
+                cUCB1 = node.children[play].getUCB1(self.c) 
                 if cUCB1 > bUCB1: #process of pickng the best child 
                     bPlay = play
                     bUCB1 = cUCB1

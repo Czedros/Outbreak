@@ -1,4 +1,4 @@
-import pygame
+
 class State_MC:
     """
     State.py represents each square of the entire Board

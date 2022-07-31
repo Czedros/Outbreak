@@ -12,7 +12,9 @@ from Animator import Animation
 from Obstacle import Obstacles
 import Animator
 import PygameFunctions
-import State_MC
+#Human_Ai imports
+from Human_Ai import State_MC
+from Human_Ai import Play
 import copy 
 
 class Board:
