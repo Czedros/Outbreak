@@ -21,8 +21,6 @@ epsilon = 0.1
 epochs = 1000
 epochs_ran = 0
 Original_Board = GameBoard.clone(GameBoard.States, GameBoard.player_role)
-#Create the MCTS
-mcts = MCTS(Original_Board, 2)
 
 # Initialize variables
 running = True
@@ -111,6 +109,27 @@ while running:
         pygame.display.update()
 
     else:
+        #TODO: implement HUMAN_AI
+        #Create the MCTS
+        mcts = MCTS(GameBoard, 2)
+        if not playerMoved:
+            mcts.runSearch(GameBoard, 1)
+            stats = mcts.stats(GameBoard) #States about this search on this state
+            play = mcts.bestPlay(GameBoard) #get the best play
+            #Go to next state
+            GameBoard = GameBoard.nextState(GameBoard, play)
+            winner = GameBoard.winner(state)
+            playerMoved = True
+            GameBoard.update()
+            PF.reset_actions()  #don't understand 
+        else:
+            #Zombie AI
+            playerMoved = False
+            GameBoard.update(False)
+        
+        pygame.display.update()
+
+        #Already Here
         if epochs_ran % 100 == 0:
             print("Board Reset!")
             GameBoard = Original_Board  # reset environment

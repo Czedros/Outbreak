@@ -25,6 +25,9 @@ class MCTS:
             node = Node(None, None, state, unexpandedPlays)
             self.nodes[hash(state), node]
     def runSearch(self,state):
+        """
+        runs the entire 4-step process in a set amount of time
+        """
         self.makeNode(state)
         self.calculation_time = datetime.timedelta(seconds = 30) #time taken to to do entire 4 step process
         

@@ -1,8 +1,8 @@
 
 class State_MC:
     """
-    State.py represents each square of the entire Board
-    State_MC is class for a state of the entire game
+    This is a copy of self.States in the Board 
+    State_MC is class for a state of the entire game, and ITS PLAYHISTORY that brings it to here
     """
     def __init__(self, playHistory, board, player):
         self.playHistory = playHistory
@@ -16,6 +16,7 @@ class State_MC:
     
     def __hash__(self): 
         #hashable; equality in playHistory
+        #So if two State_MC have the same playhistory that gets it to this State, then they are the same
         return hash(self.playHistory)
 
-        
+#TODO: I want to put two classes in one file because i think it's too spaced out lol

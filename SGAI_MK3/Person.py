@@ -2,7 +2,7 @@ import random as rd
 from Resource import Resource
 from Animator import Animations
 from Animator import Animation
-import Animator
+
 from ZombieAI import ZombieAI
 
 class Person:
