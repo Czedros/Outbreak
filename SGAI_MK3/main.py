@@ -1,4 +1,5 @@
 from asyncio import constants
+from shutil import move
 import pygame
 from Board import Board
 import PygameFunctions as PF
@@ -72,12 +73,21 @@ while running:
         # Computer turn
         else:
             zombies = []
+            moves = []
             for arr in GameBoard.States:
                 for state in arr:
                     if state.person is not None and state.person.isZombie == True:
-                        zombies.append(state.person)
+                        zombies.append(state.person.ai.ID)
             for zomb in zombies:
-                for
+                moves.append(GameBoard.findPerson(zomb).ai.performAction(GameBoard))
+            for x in len(zombies):
+                currentZom = GameBoard.findPerson(zombies[x])
+                Action = moves[x]
+                if Action[0] == move:
+                    GameBoard.move(currentZom.ai.selfPosition, Action[1])
+                else:
+                    GameBoard.bite(Action[1])
+
             # Implement the selected action
 
             # update the board's states
