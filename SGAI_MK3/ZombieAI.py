@@ -6,9 +6,9 @@ class ZombieAI :
     currentState = "Roam"
     active = False
     states = ["Roam", "Seek", "Attack"]
-    seekPosition = (1, 1)
+    seekPosition = [1, 1]
     classID = 0
-    position = (2,2)
+    position = [2,2]
     board = None
     vision = 3
     
@@ -22,17 +22,19 @@ class ZombieAI :
         self.setState(0)
         self.positionUpdate(board) 
         self.seekPosition = board.findPlayer() #coords the player one
-        if abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) <= 4: #a vision scenario: seek
+        if abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) <= 3: #a vision scenario: seek
             self.setState(1)
-        if board.isAdjacentTo(self.position, False): #a vision scenario: attack
-            self.setState(2)
+        if board.isAdjacentTo(self.position,False): #a vision scenario: attack
+            self.setState(2) 
         stateactions = {
             "Roam" : self.stateRoam(board),
             "Attack" : self.stateAttack(board),
             "Seek" : self.stateSeek(board)
         }
-        return stateactions[self.currentState] #return the value
-        
+        print("current Pos" , self.position)
+        action = stateactions[self.currentState] #return the value
+        print(action)
+        return action
     def setState(self, state):
         self.currentState = self.states[state]
 
@@ -49,21 +51,24 @@ class ZombieAI :
         else: 
             chosenMove = possiblemoves[0]
             #find the position that is the closest to the human
-            for Move in possiblemoves:
-                prevDistance = -1
-                distance = abs(self.seekPosition[0] - (self.position[0] + Move[0])) + abs(self.seekPosition[1] - (self.position[1] + Move[1]))
-                if prevDistance <= distance:
-                    prevDistance = distance 
-                    chosenMove = Move
+        for Move in possiblemoves:
+            distance = abs(self.seekPosition[0] - (Move[0])) + abs(self.seekPosition[1] - (Move[1]))
+            if prevDistance > distance:
+                prevDistance = distance 
+                chosenMove = Move
+        print(self.seekPosition)
+        print("Moving to")
+        print(chosenMove)
         return ("move", chosenMove, "seek") #Added third data value for Animation
 
     def stateAttack(self, board):
         #Bite at the seeked position
+        print(self.seekPosition)
         return ("bite", self.seekPosition)
 
     def stateRoam(self, gameBoard):
         possibleMoves = self.getLegalMoves(gameBoard)
-        if len(possibleMoves) != 0: #if theres no possibleMovement rd crashes
+        if len(possibleMoves) > 0: #if theres no possibleMovement rd crashes
             move = rd.choice(possibleMoves) 
         else: 
             move = self.position #stay there
