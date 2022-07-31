@@ -166,6 +166,11 @@ moveLockImage = pygame.image.load(r'Assets/UI/moveLock.png')
 moveLockImageHeight = renderConstants.CELLSIZE * 0.6
 moveLockImage = pygame.transform.scale(moveLockImage, (moveLockImageHeight * healTurnImage.get_width() / healTurnImage.get_height(), moveLockImageHeight))
 #######
+mapImageSize = renderConstants.SIZE * 0.08
+mapImageOff = ((renderConstants.GRIDDIST * renderConstants.SIZE - mapImageSize) / 2, renderConstants.SIZE * 0.03)
+mapImage = pygame.transform.scale(pygame.image.load(r'Assets/UI/Compass.png'), (mapImageSize, mapImageSize))
+mapImagePos = (renderConstants.SIZE - mapImage.get_width() - mapImageOff[0], healImagePos[1] + healImage.get_height() + mapImageOff[1])
+#######
 healing = False
 #######
 #GameBoard.isValidCoordinate(new_coords)
@@ -272,6 +277,12 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
                     selectedActor = actions[actionSlot].coord2
 
         return None
+    mapClickPos = (clickPos[0] - mapImagePos[0], clickPos[1] - mapImagePos[1])
+    if(mapClickPos[0] >= 0 and mapClickPos[0] <= mapImageSize and mapClickPos[1] >= 0 and mapClickPos[1] <= mapImageSize):
+        if(GameBoard.resources[0].currentValue == 8):
+            return GameBoard.newBoard()
+        else:
+            return None
     clickOff = renderConstants.GRIDRECT.left + constants.LINE_WIDTH + renderConstants.CELLOFF
     clickPos[0] -= clickOff
     clickPos[1] -= clickOff
@@ -409,6 +420,8 @@ def run(GameBoard):
         display_surface.blit(healImageOpen, healImagePos)
     else:
         display_surface.blit(healImage, healImagePos)
+    #######
+    display_surface.blit(mapImage, mapImagePos)
     pygame.display.update()
     return pygame.event.get()
 
@@ -437,11 +450,13 @@ for i in range(1, 3):
     loseImages[i - 1] = pygame.transform.scale(imgL, (resultImageSize * imgL.get_width() / imgL.get_height(), resultImageSize))
 #######
 textW = resultFont.render("You win!", True, WHITE)
-textW2 = resultFont2.render("You understood the assignment", True, WHITE)
+textW1 = resultFont2.render("You cured everyone!", True, WHITE)
+textW2 = resultFont2.render("You survived till the 5th day!", True, WHITE)
 textL = resultFont.render("You lose... Noob", True, WHITE)
-textL2 = resultFont2.render("You know you're supposed to keep the human alive?", True, WHITE)
+textL1 = resultFont2.render("Remember to collect resources", True, WHITE)
+textL2 = resultFont2.render("Zombie bad", True, WHITE)
 #######
-def displayResultScreen(won):
+def displayResultScreen(won, reason = 1):
     def movie():
         res = None
         if(won):
@@ -478,12 +493,19 @@ def displayResultScreen(won):
             resMoviePos[1] += resMovieSpeed[1] * deltaTime
             resMovie.draw(display_surface, (int(resMoviePos[0]), resMoviePos[1]))
         #######
-        text = textW
-        text2 = textW2
-        images = winImages
-        if(not won):
+        if(won):
+            text = textW
+            if(reason == 1):
+                text2 = textW1
+            else:
+                text2 = textW2
+            images = winImages
+        else:
             text = textL
-            text2 = textL2
+            if(reason == 1):
+                text2 = textL1
+            else:
+                text2 = textL2
             images = loseImages
         img = images[int(startTime) % 2]
         #######

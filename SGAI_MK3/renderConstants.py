@@ -14,3 +14,5 @@ CELLSIZE = int((GRIDRECT.height - constants.LINE_WIDTH * (constants.ROWS + 1)) /
 CELLOFF = (GRIDRECT.height % CELLSIZE) / 4
 
 frame_time = time.process_time()#not a constant but don't really care
+
+TEXTCOLOR = (0, 0, 0)

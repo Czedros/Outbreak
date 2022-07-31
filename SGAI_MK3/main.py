@@ -8,6 +8,7 @@ import time
 import renderConstants
 from Animator import Animations
 from Animator import Animation
+rd.seed(10)
 SELF_PLAY = True  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
 # Create the game board
@@ -30,8 +31,12 @@ while running:
 
     if SELF_PLAY:
         if not playerMoved:
-            if (not GameBoard.containsPerson(False)) or GameBoard.resources[1].currentValue < 1:
-                PF.displayResultScreen(False)
+            if (GameBoard.resources[1].currentValue < 1):
+                PF.displayResultScreen(False, 1)
+                running = False
+                continue
+            if (not GameBoard.containsPerson(False)):
+                PF.displayResultScreen(False, 2)
                 running = False
                 continue
             # Event Handling
@@ -41,6 +46,12 @@ while running:
                     x, y = pygame.mouse.get_pos()
                     action = PF.get_action(GameBoard, x, y)
                     if(action == "finish"):
+                        finished = True
+                        break
+                    elif(type(action) == Board):
+                        GameBoard = action
+                        PF.reset_actions()
+                        GameBoard.resources[0].currentValue = 0
                         finished = True
                         break
                 if event.type == pygame.QUIT:
@@ -67,7 +78,7 @@ while running:
                 #        print("Cure, Vaccinate, or Infect either failed or succeeded, action completed successfully in Main")
                 #    take_action = []
                 playerMoved = True
-                GameBoard.update()
+                GameBoard = GameBoard.update()
                 PF.reset_actions()
 
         # Computer turn
@@ -99,13 +110,17 @@ while running:
                     GameBoard.bite(Action[1])
 
             # Implement the selected action
-            if (not GameBoard.containsPerson(True)) or GameBoard.timeCounter > 40:
-                PF.displayResultScreen(True)
+            if (not GameBoard.containsPerson(True)):
+                PF.displayResultScreen(True, 1)
+                running = False
+                continue
+            elif GameBoard.timeCounter > 40:
+                PF.displayResultScreen(True, 2)
                 running = False
                 continue
             # update the board's states
             playerMoved = False
-            GameBoard.update(False)
+            GameBoard = GameBoard.update(False)
 
         # Update the display
         pygame.display.update()

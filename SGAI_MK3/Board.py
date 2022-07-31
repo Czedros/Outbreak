@@ -21,7 +21,7 @@ class Board:
         ]
     def __init__(self,  dimensions: Tuple[int, int],
         player_role: str,
-    ):
+    excludeMap = None):
         self.rows = dimensions[0]
         self.columns = dimensions[1]
         self.player_role = player_role
@@ -45,7 +45,10 @@ class Board:
                 a.append(State(None, Cells.nan.value, (x, y)))
                 self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
             self.States.append(a)
-        PygameFunctions.imageToGrid(r'Assets/TestGrids/TrueGrid.png', r'Assets/TestGrids/TrueGridObstacles.png', self.States, (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1)))
+        self.map = (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1))
+        while(self.map == excludeMap):
+            self.map = (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1))
+        PygameFunctions.imageToGrid(r'Assets/TestGrids/TrueGrid.png', r'Assets/TestGrids/TrueGridObstacles.png', self.States, self.map)
         self.actionToFunction = {
             "moveUp": self.moveUp,
             "moveDown": self.moveDown,
@@ -474,7 +477,6 @@ class Board:
                 pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
             p = Person(True)
             self.States[pos[1]][pos[0]].person = p
-
     def pickup(self, coord):
         if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
             self.States[coord[1]][coord[0]].obstacle = None
@@ -510,6 +512,15 @@ class Board:
             if(len(newCoords) == 0):
                 return None
             oldCoords.append(newCoords)
+    def newBoard(self):
+        coords = self.findPlayer()
+        rd.seed(coords[0] + coords[1] * COLUMNS)
+        ret = Board((ROWS, COLUMNS), self.player_role, excludeMap = self.map)
+        ret.resources = self.resources
+        ret.timeCounter = self.timeCounter
+        ret.isDay = self.isDay
+        ret.populate()
+        return ret
     def update(self, isHuman = True):
         """
         Update each of the states;
@@ -530,4 +541,5 @@ class Board:
         for arr in self.States:
             for state in arr:
                 state.update()
+        return self
         
