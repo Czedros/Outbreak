@@ -12,8 +12,17 @@ from Animator import Animation
 from Obstacle import Obstacles
 import Animator
 import PygameFunctions
+#Human_Ai imports
+from Human_Ai import State_MC
+from Human_Ai import Play
+import copy 
 
 class Board:
+    resources = [
+            Resource("Human AP", 8, {"Move" : 1 , "Cure": 3, } ), 
+            Resource("Food", 100, {"Gather": 5 , "Consume" : 3 }), 
+            Resource("Survivors", 10000, {"Gain" : 1} )
+        ]
     def __init__(self,  dimensions: Tuple[int, int],
         player_role: str,
     ):
@@ -49,6 +58,49 @@ class Board:
             "heal": self.heal,
             "bite": self.bite,
         }
+    
+    #Hannah's addition for ai
+    def start(self):
+        """
+        return the intial game state
+        only call at begining :)
+        """
+        boardC = self.clone(self.States, self.player_role) #copy
+        return State_MC([], boardC, 1)
+    def legal_plays(self, state):
+        """
+         return the current player's legal moves from given state
+        """
+        legalPlays = []
+        for i in state.board.actionToFunction.keys():
+            role = ""
+            if state.isPlayer(1):
+                role = 'Human'
+            else: role = 'Zombie'
+            coords = state.board.getPossibleMoves(self, action = i, role = role)
+            for val in coords:
+                legalPlays.append(Play(val)) #TODO: understand that 
+        
+        return legalPlays
+    def next_state(self, state: State_MC, play):
+        """
+        advance the given state and return the new state
+        """
+        newHistory = copy.deepcopy(state.playHistory)
+        newHistory.append(play)
+        newBoard = state.board.clone(state.board.States, state.board.player_role) #I hope this works lol
+        newBoard[play.row][play.col] = state.player #player occupies this place now
+        newPlayer = -state.player
+        return State(newHistory, newBoard, newPlayer)
+
+    #WINNER FOR THE SIMULATED GAMES, NOT THE ACTUAL GAME!!!
+    def winner(self, state):
+        if state.board.num_zombies() == 0: #human won!
+            return 1 
+        if state.board.population == state.board.num_zombies():
+            return -1 #human lost
+
+    # End of Hannah's Addition
 
     def num_zombies(self) -> int:
         r = 0
@@ -78,21 +130,11 @@ class Board:
             for state in arr:
                 if state.person is not None and state.person.ai.ID == ID:
                     return state.location
-    
-    def get_actions(self, states_history):
-        """
-            For this node, a list of possible actions is created and returned 
-            [name of action, [coord(x,y...)] ]
-
-            states_history: the history of full list of games history
-        """
-        a_move = []
-        actions = ['moveUp', 'moveDown','moveLeft', 'moveRight', 'heal']
-        #get_possible_moves returns a list of set(x,y)
-        for i in actions: 
-            a_move.append([i, states_history.get_possible_moves(action = i, role = 'Human')]) 
-        print(a_move)
-        return a_move
+    def findPlayer(self):
+        for arr in self.States:
+            for state in arr:
+                if state.person is not None and state.person.isZombie == False:
+                    return state.location
 
     def get_possible_moves(self, action: str, role: str):
         """
@@ -309,7 +351,7 @@ class Board:
             
         # Check if the destination is currently occupied
         #print(self.States[new_coords[1]])
-        if self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable and (self.States[new_coords[1]][new_coords[0]].obstacle == None or self.States[new_coords[1]][new_coords[0]].obstacle.passable):
+        if self.States[new_coords[1]][new_coords[0]].passable():
             if self.States[from_coords[1]][from_coords[0]].person.isZombie:
                 if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") * mult <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
                     self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
@@ -494,37 +536,82 @@ class Board:
         for arr in self.States:
             for state in arr:
                 state.person = None
+        humanPos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+        while(not self.States[humanPos[1]][humanPos[0]].cellType.passable or self.States[humanPos[1]][humanPos[0]].obstacle != None):
+            humanPos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+        self.States[humanPos[1]][humanPos[0]].person = Person(False)
+        poss = []
         for i in range(total):
             pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
-            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None):
+            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) <= 3):
                 pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
-            poss.append(pos)
-            self.States[pos[1]][pos[0]].person = Person(False)
-        self.population = total
-        used = []
-        for x in range(total-1):
-            s = rd.randint(0, len(poss) - 1)
-            while s in used:
-                s = rd.randint(0, len(poss) - 1)
-            p = self.States[poss[s][1]][poss[s][0]].person
+            p = Person(False)
             p.isZombie = True
             p.animation = Animation(Animations.zombie.value)
-            used.append(s)
+            self.States[pos[1]][pos[0]].person = p
+        self.population = total + 1
+    def zombieWave(self):
+        total = 7
+        humanPos = self.findPlayer()
+        for i in range(total):
+            pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+            while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) <= 2 or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) > 6):
+                pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))
+            p = Person(False)
+            p.isZombie = True
+            p.animation = Animation(Animations.zombie.value)
+            self.States[pos[1]][pos[0]].person = p
+
     def pickup(self, coord):
         if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
             self.States[coord[1]][coord[0]].obstacle = None
-            self.resources[1].alterByValue(5)
-    def update(self):
+            self.resources[1].alterByPercent(6*self.resources[2].currentValue, False)
+    def findPath(self, from_coord, to_coord):#Tiankuo, you can replace this with you're path finding algorithm, but I need to call a path finding algorithm for my UI
+        oldCoords = [{from_coord: None}]
+        while True:
+            newCoords = {}
+            curCoordsOld = oldCoords[len(oldCoords) - 2]
+            curCoords = oldCoords[len(oldCoords) - 1]
+            for i in curCoords:
+                if i == to_coord:
+                    cur = i
+                    res = [cur]
+                    for i2 in range(len(oldCoords) - 1, 1, -1):
+                        cur = oldCoords[i2][cur]
+                        res.append(cur)
+                    res.reverse()
+                    return res
+                news = []
+                if (i[0] != 0 and self.States[i[1]][i[0] - 1].passable()):
+                    news.append((i[0] - 1, i[1]))
+                if (i[1] != 0 and self.States[i[1] - 1][i[0]].passable()):
+                    news.append((i[0], i[1] - 1))
+                if (i[1] != COLUMNS - 1 and self.States[i[1] + 1][i[0]].passable()):
+                    news.append((i[0], i[1] + 1))
+                if (i[0] != ROWS - 1 and self.States[i[1]][i[0] + 1].passable()):
+                    news.append((i[0] + 1, i[1]))
+                for i2 in news:
+                    if (i2 not in newCoords.keys() and i2 not in curCoordsOld.keys()):
+                        newCoords[i2] = i
+            if(len(newCoords) == 0):
+                return None
+            oldCoords.append(newCoords)
+    def update(self, isHuman = True):
         """
         Update each of the states;
         This method should be called at the end of each round
         (after player and computer have each gone once)
         """ 
         self.resources[0].alterByValue(2)
-        self.timeCounter += 1
-        self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-        self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
-        #print(self.resources[1].currentValue)
+        if(isHuman):
+            self.timeCounter += 1
+            self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
+            self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
+            if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
+                self.zombieWave()
+                #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):
+                #    self.populate()
+            #print(self.resources[1].currentValue)
         for arr in self.States:
             for state in arr:
                 state.update()

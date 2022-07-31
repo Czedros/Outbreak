@@ -284,12 +284,14 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
         if(canAct and ((abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1) or (gridPos[0] == firstActor[0] and gridPos[1] == firstActor[1]))):
             add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))
     elif(state.person == None):
-        if(canAct and state.cellType.passable and selectedActor != None and (state.obstacle == None or state.obstacle.passable)):
-            xDiff = abs(gridPos[0] - selectedActor[0])
-            yDiff = abs(gridPos[1] - selectedActor[1])
-            if((xDiff == 1 and yDiff == 0) or (xDiff == 0 and yDiff == 1)):
-                if(add_action(GameBoard, Action(ActionTypes.move.value, selectedActor, gridPos))):
-                    selectedActor = gridPos
+        if(canAct and state.passable()):
+            path = GameBoard.findPath(selectedActor, gridPos)
+            if(path != None):
+                for i in path:
+                    if(add_action(GameBoard, Action(ActionTypes.move.value, selectedActor, i))):
+                        selectedActor = i
+                    else:
+                        break
     elif(state.person.isZombie == False):
         reset_actions()
         selectedActor = gridPos

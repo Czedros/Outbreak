@@ -67,7 +67,8 @@ class State:
         for r in remove:
             moves.pop(r)
         return moves
-
+    def passable(self):
+        return (self.obstacle == None or self.obstacle.passable) and self.cellType.passable and self.person is None
     def clone(self):
         if self.person is None:
             return State(self.person, self.cellType, self.location)
