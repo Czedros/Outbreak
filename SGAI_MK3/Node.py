@@ -15,7 +15,7 @@ class Node:
         #Key: hash value of play
         #Value: the node
         for play in unexpandedPlays: #array of legal Plays that can be made form this node
-            self.children[play] = (play, None)
+            self.children[hash(play)] = {"play": play, "node": None}
 
     
     def childNode(self, play):
@@ -24,18 +24,18 @@ class Node:
         #TODO: article in JavaScript so this has to be changed a bit 
         """
         child = self.children[play]
-        if child == None:
-            raise("Child is not expanded or child doesn't exist") #TODO: might want a debug for child that doesn't exist
+        if child["node"] is None:
+            print("NOPE") #TODO: might want a debug for child that doesn't exist
         return child
     
     def expand(self, play, cState, unexpandedPlays):
         """
         expand the child node and return the new child node
         """
-        if play not in self.children:
-            raise("No such play")
+        if play not in self.children.values():
+            print("NOPE FOR EXPANSION")
         cNode = Node(self, play, cState, unexpandedPlays)
-        self.children[play] = {play, cNode}
+        self.children[hash(play)] = {play, cNode}
         return cNode
     
     def allPlays(self):
@@ -44,7 +44,7 @@ class Node:
         """
         acts = []
         for child in self.children.values():
-            acts.append(child.play)
+            acts.append(child["play"])
         return acts
 
     def unexpandedPlays(self):
@@ -53,7 +53,8 @@ class Node:
         """
         acts = []
         for child in self.children.values():
-            if child == None: acts.append(child.play)
+            if child["node"] is None: acts.append(child["play"])
+        print("the unexpanded plays", acts)
         return acts
 
     def isFullyExpanded(self):
@@ -61,7 +62,7 @@ class Node:
         return whether this node is fully expanded
         """
         for child in self.children.values():
-            if child == None: return False
+            if child["node"] is None: return False
         return True 
 
     def isLeaf(self):

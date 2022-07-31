@@ -14,7 +14,7 @@ import Animator
 import PygameFunctions
 #Human_Ai imports
 from State_MC import State_MC
-#import Play
+from Play import Play
 import copy 
 
 class Board:
@@ -68,38 +68,70 @@ class Board:
         boardC = self.clone(self.States, self.player_role) #copy
         copied = State_MC([], boardC, 1)
         return copied
-    def legal_plays(self, state):
+    def legal_plays(self, state : State_MC):
         """
          return the current player's legal moves from given state
+         Difference for Zombie
+         Difference for Human
         """
         legalPlays = []
-        for i in state.board.actionToFunction.keys():
-            role = ""
+        action = ["moveUp", "moveDown", "moveLeft", "moveRight", "heal"] #only for human
+        for i in action:
+            print(i)
+            role = ''
+            coords = "poop"
             if state.isPlayer(1):
                 role = 'Human'
-            else: role = 'Zombie'
-            coords = state.board.get_possible_moves(self, action = i, role = role)
-            for val in coords:
-                legalPlays.append(Play(val)) #TODO: understand that 
-        
+                coords = state.board.get_possible_moves(i, role)
+                for val in coords:
+                    legalPlays.append(Play(val[0], val[1], 1)) #Human Move 
+            else: 
+                zombies = []
+                coords = []
+                for arr in state.board.States:
+                    for s in arr:
+                        if s.person is not None and s.person.isZombie == True:
+                            tup = (s.person, s.person.ai.ID) 
+                            print(tup)
+                            zombies.append(tup)
+                for zomb, id in zombies:
+                    coords.append(zomb.ai.performAction(state.board))
+                    #(name of movement, coordinates, specifics )
+                for val in coords:
+                    legalPlays.append(Play(val[1][0], val[1][1], -1, id, val[2]))  #Zombie Move
         return legalPlays
-    def next_state(self, state: State_MC, play):
+    #It's this part having an error, I messed up the Zombies ID not on and on the board
+    #When  i first the simulation, the IDs literally starts at like 56 and I don't think that's supposed to happen LMAO
+    def next_state(self, state: State_MC, play : Play):
         """
         advance the given state and return the new state
         """
         newHistory = copy.deepcopy(state.playHistory)
         newHistory.append(play)
-        newBoard = state.board.clone(state.board.States, state.board.player_role) #I hope this works lol
-        newBoard[play.row][play.col] = state.player #player occupies this place now
-        newPlayer = -state.player
-        return State(newHistory, newBoard, newPlayer)
+        newBoard = copy.copy(state.board) #this might be wrong but the clone function might not work either
+
+        if state.isPlayer(1): #next_state for player 
+            newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
+        else:
+            for p in play: #all the plays for each zombie
+                if p.Zmove != 'bite':
+                    print("debug finding zombie", p.ZId, newBoard.findPerson(p.ZId)) #prints None
+                    #The problem is the Zombie's ID and the ID on the board are not the same
+                    newBoard.move(newBoard.findPerson(p.ZId), (p.row, p.col))     
+                else:
+                    newBoard.bite((p.row, p.col))
+        newPlayer = -state.player #next player's turn
+        return State_MC(newHistory, newBoard, newPlayer)
 
     #WINNER FOR THE SIMULATED GAMES, NOT THE ACTUAL GAME!!!
     def winner(self, state):
+        if state.board.timeCounter == 40:
+            return 0.5 #TODO: idk if you want to change it orrrr
         if state.board.num_zombies() == 0: #human won!
             return 1 
         if state.board.population == state.board.num_zombies():
             return -1 #human lost
+        return None #no winner yet
 
     # End of Hannah's Addition
 
@@ -236,33 +268,6 @@ class Board:
                                     #if(arr[x] == arrB[x]):
                                 B.States.append(arrB)
         return poss
-    
-    def winner(self, state_history):
-        """
-        takes a sequence of game states representing the full game history
-        if the game is now over and human won, return the player number
-        if the game is still ongoing, return zero
-        if the game is tied, return a different distinct value
-
-        """
-        state = state_history[-1] #recent node
-        if state.board.num_zombies() == 0:
-            print("won")
-            return state.board.current_player(state) #won
-        elif state.board.num_zombies() == state.board.population():
-            print("lost")
-            return -1
-        else:
-            print("Still ongoing")
-            return 0
-
-    def current_player(self, state):
-        """
-        return players current number based on game state
-        player's current number is the last element in state, hence [-1]
-        (UNFINISHED)
-        """
-        return state[-1]
 
     def toCoord(self, i: int):
         return (int(i % self.columns), int(i / self.rows))
@@ -608,27 +613,4 @@ class Board:
         def __hash__(self):
             return hash(self.States)
 
-        
-"""
-Board:
-def start(self): basically our __init__()
 
-def current_player(self, state, play): find the player
-    find the position of the player
-
-def next_state(self, state, play):
-    - state: a copy of our current board
-    -specify the play:
-        -call one of the Board.functions (moveUp, heal etc)
-    -return the state 
-def legal_plays(self, state_history):
-    loop through state_history and call get_possible_moves
-
-def winner(self, state_history):
-    
-    
-
-
-
-
-"""
