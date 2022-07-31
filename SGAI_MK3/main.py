@@ -1,5 +1,4 @@
 from asyncio import constants
-from shutil import move
 import pygame
 from Board import Board
 import PygameFunctions as PF
@@ -7,6 +6,7 @@ import random as rd
 from constants import *
 import time
 import renderConstants
+from MCTS import MCTS
 SELF_PLAY = True  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
 # Create the game board
@@ -19,7 +19,8 @@ epsilon = 0.1
 epochs = 1000
 epochs_ran = 0
 Original_Board = GameBoard.clone(GameBoard.States, GameBoard.player_role)
-
+#Create the MCTS
+mcts = MCTS(Original_Board, 2)
 
 # Initialize variables
 running = True
@@ -72,19 +73,34 @@ while running:
 
         # Computer turn
         else:
+            #Hi I think the issue is that all the zombie ai have the same ID!
+            #I print the ID and new are all the same 
+            #When you first intilalize the board, I think that's when you
+            #created a new ZombieAi. So I think is Board.populate
             zombies = []
             moves = []
             for arr in GameBoard.States:
                 for state in arr:
                     if state.person is not None and state.person.isZombie == True:
-                        zombies.append(state.person.ai.ID)
-            for zomb in zombies:
-                moves.append(GameBoard.findPerson(zomb).ai.performAction(GameBoard))
-            for x in len(zombies):
-                currentZom = GameBoard.findPerson(zombies[x])
+                        tup = (state.person, state.person.ai.ID) #Do you need ID if you already have state.person?
+                        print(tup)
+                        zombies.append(tup)
+                        #zombies.append(state.person)
+                        #zombies.append(state.person.ai.ID) #class State -> class Person -> class ZombieAi
+            for zomb, id in zombies:
+                moves.append(zomb.ai.performAction(GameBoard))
+                #moves.append(GameBoard.findPerson(zomb).ai.performAction(GameBoard))
+                
+                #debug
+                for ya in moves:
+                    print(ya)
+            for x in range(len(zombies)):
+                #currentZom = GameBoard.findPerson(zombies[x]) #this returns the location, not a Person
+                pair = zombies[x] #move and zombies index should be the same correspondence
+                currentZom = pair[0] 
                 Action = moves[x]
-                if Action[0] == move:
-                    GameBoard.move(currentZom.ai.selfPosition, Action[1])
+                if Action[0] == 'move':
+                    GameBoard.move(currentZom.ai.selfPosition, Action[1]) #Error
                 else:
                     GameBoard.bite(Action[1])
 
@@ -170,3 +186,4 @@ while running:
                 print("loseCase")
             if event.type == pygame.QUIT:
                 running = False
+    

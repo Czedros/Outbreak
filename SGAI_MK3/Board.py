@@ -13,8 +13,8 @@ from Obstacle import Obstacles
 import Animator
 import PygameFunctions
 #Human_Ai imports
-from Human_Ai import State_MC
-from Human_Ai import Play
+import State_MC
+import Play
 import copy 
 
 class Board:
@@ -247,7 +247,7 @@ class Board:
         state = state_history[-1] #recent node
         if state.board.num_zombies() == 0:
             print("won")
-            return board.current_player(state) #won
+            return state.board.current_player(state) #won
         elif state.board.num_zombies() == state.board.population():
             print("lost")
             return -1

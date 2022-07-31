@@ -13,7 +13,7 @@ class MCTS:
     def __init__(self, board, c = 2): 
         # **kwargs take in a arbitrary amount of keyword arguments
         self.board = board 
-        self.c = self.c
+        self.c = c
         self.nodes = {} # TODO: need hashable states. get you any node given its state
         
     def makeNode(self, state):
