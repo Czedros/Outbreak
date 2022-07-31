@@ -30,7 +30,7 @@ class ZombieAI :
             "Attack" : self.stateAttack(board),
             "Seek" : self.stateSeek(board)
         }
-        return stateactions[self.currentState]
+        return stateactions[self.currentState] #return the value
         
     def setState(self, state):
         self.currentState = self.states[state]
@@ -39,7 +39,7 @@ class ZombieAI :
         self.position = gameBoard.findPerson(self.ID)
 
     def stateSeek(self, board):           
-        if self.seekPosition == self.position(): #back to Roam
+        if self.seekPosition == self.position: #back to Roam
             self.setState(0)
         possiblemoves = self.getLegalMoves(board) #gets all possible move 
         prevDistance = abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) 
