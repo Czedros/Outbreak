@@ -9,7 +9,7 @@ import renderConstants
 from MCTS import MCTS
 from Animator import Animations
 from Animator import Animation
-SELF_PLAY = True  # whether or not a human will be playing
+SELF_PLAY = False  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
 # Create the game board
 GameBoard = Board((ROWS, COLUMNS), player_role)
@@ -113,12 +113,16 @@ while running:
         #Create the MCTS
         mcts = MCTS(GameBoard, 2)
         if not playerMoved:
-            mcts.runSearch(GameBoard, 1)
+            print("Running MCTS")
+            mcts.runSearch(GameBoard) #TODO: make the MCTS know to make a move for player
             stats = mcts.stats(GameBoard) #States about this search on this state
+            print("Getting best play")
             play = mcts.bestPlay(GameBoard) #get the best play
             #Go to next state
+            print("Next State")
             GameBoard = GameBoard.nextState(GameBoard, play)
             winner = GameBoard.winner(state)
+
             playerMoved = True
             GameBoard.update()
             PF.reset_actions()  #don't understand 
