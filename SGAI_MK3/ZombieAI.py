@@ -10,7 +10,7 @@ class ZombieAI :
     classID = 0
     position = [2,2]
     board = None
-    vision = 3
+    vision = 5
     
     
     def __init__(self):
@@ -22,7 +22,7 @@ class ZombieAI :
         self.setState(0)
         self.positionUpdate(board) 
         self.seekPosition = board.findPlayer() #coords the player one
-        if abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) <= 3: #a vision scenario: seek
+        if abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) <= self.vision: #a vision scenario: seek
             self.setState(1)
         if board.isAdjacentTo(self.position,False): #a vision scenario: attack
             self.setState(2) 
