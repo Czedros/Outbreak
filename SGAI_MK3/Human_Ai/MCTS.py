@@ -7,7 +7,6 @@ import datetime
 import math
 import Person 
 import Node
-import GameBoard
 import copy
 #needs to be improted
 
