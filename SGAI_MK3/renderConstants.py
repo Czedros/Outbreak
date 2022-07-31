@@ -15,4 +15,6 @@ CELLOFF = (GRIDRECT.height % CELLSIZE) / 4
 
 frame_time = time.process_time()#not a constant but don't really care
 
-TEXTCOLOR = (0, 0, 0)
+RESULTTEXTCOLOR = (0, 0, 0)
+BARTEXTCOLOR = (255, 255, 255)
+APTEXTCOLOR = (255, 255, 255)

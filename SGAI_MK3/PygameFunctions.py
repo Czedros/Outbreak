@@ -99,7 +99,7 @@ resourceRectBound = resourceBar.get_width() - resourceBar.get_height() * resourc
 resourceBarRect = pygame.Rect(resourceBarPos[0] + resourceBar.get_height() * resourceBorderSize, resourceBarPos[1] + resourceBar.get_height() * resourceBorderSize, resourceRectBound, resourceBar.get_height() * (1 - resourceBorderSize * 2) + 2)
 ##
 resourceFont = pygame.font.Font('freesansbold.ttf', int(renderConstants.SIZE / 40))
-resourceText = resourceFont.render('Resources: sus', True, (255, 255, 255))
+resourceText = resourceFont.render('Resources: sus', True, renderConstants.BARTEXTCOLOR)
 resourceTextRect = resourceText.get_rect()
 resourceTextRect.left = resourceBarPos[0] + renderConstants.SIZE * 0.02
 resourceTextRect.top = resourceBarPos[1] - resourceTextRect.height
@@ -117,7 +117,7 @@ apBarPos = (apImagePos[0] + apImage.get_width() * apBorderSize[0] - 1, apImagePo
 apRectBound = apImage.get_width() * (1 - apBorderSize[0] - 0.033)
 apBarRect = pygame.Rect(apBarPos[0], apBarPos[1], apRectBound, apImage.get_height() * (1 - apBorderSize[1] * 2) + 2)
 apFont = pygame.font.Font('freesansbold.ttf', int(apImage.get_width() / 15))
-apText = apFont.render('Action Points: sus', True, (255, 255, 255))
+apText = apFont.render('Action Points: sus', True, renderConstants.BARTEXTCOLOR)
 apTextRect = apText.get_rect()
 apTextRect.left = apBarRect.left + apImage.get_width() * 0.01
 apTextRect.top  = apBarRect.top + (apBarRect.height - apTextRect.height) / 2
@@ -389,14 +389,17 @@ def run(GameBoard):
     dayProgressRect.left = dayProgressRectBounds[0] * (1 - ratio) + dayProgressRectBounds[1] * ratio
     pygame.draw.rect(display_surface, (255, 255, 255), dayProgressRect)
     #######
+    resourceDrain = min((1+(GameBoard.resources[2].currentValue)), resources)
+    resourceDrainWidth = resourceRectBound * resourceDrain / GameBoard.resources[1].maxValue
     display_surface.blit(resourceBar, resourceBarPos)
     display_surface.blit(resourceIcon, (iconDist, iconDist - iconYOff))
     resourceBarRect.width = resourceRectBound * resources / GameBoard.resources[1].maxValue
     pygame.draw.rect(display_surface, (202, 0, 69), resourceBarRect)
-    resourceText = resourceFont.render('Resources: ' + str(int(resources)) + "/" + str(GameBoard.resources[1].maxValue), True, (255, 255, 255))
+    pygame.draw.rect(display_surface, (121, 0, 41), pygame.Rect(resourceBarRect.width + resourceBarRect.left - resourceDrainWidth, resourceBarRect.top, resourceDrainWidth, resourceBarRect.height))
+    resourceText = resourceFont.render('Resources: ' + str(int(resources)) + "/" + str(GameBoard.resources[1].maxValue), True, renderConstants.BARTEXTCOLOR)
     display_surface.blit(resourceText, resourceTextRect)
     #######
-    savedCounter = savedFont.render('People Saved: ' + str(GameBoard.resources[2].currentValue), True, (255, 255, 255))#placeholder
+    savedCounter = savedFont.render('People Saved: ' + str(GameBoard.resources[2].currentValue), True, renderConstants.BARTEXTCOLOR)#placeholder
     display_surface.blit(savedIcon, (renderConstants.SIZE - iconDist - savedIcon.get_width(), iconDist - iconYOff))
     display_surface.blit(savedCounter, (renderConstants.SIZE - resourceTextRect[0] - savedCounter.get_width(), resourceBarPos[1]))#(resourceTextRect[0], resourceTextRect[1] - savedCounter.get_width())
     #######
@@ -406,7 +409,7 @@ def run(GameBoard):
     apUsedWidth = apRectBound * actionsAPCostShow / GameBoard.resources[0].maxValue
     apBarRectUsed = pygame.Rect(apBarRect.left + apBarRect.width - apUsedWidth, apBarRect.top, apUsedWidth, apBarRect.height)
     pygame.draw.rect(display_surface, (244, 144, 83), apBarRectUsed)
-    apText = apFont.render('Action Points: ' + str(ap - actionsAPCostShow) + "/" + str(GameBoard.resources[0].maxValue), True, (255, 255, 255))
+    apText = apFont.render('Action Points: ' + str(ap - actionsAPCostShow) + "/" + str(GameBoard.resources[0].maxValue), True, renderConstants.APTEXTCOLOR)
     display_surface.blit(apText, apTextRect)
     #######
     if(actionSlot + 1 != len(actions)):
@@ -449,12 +452,12 @@ for i in range(1, 3):
     winImages[i - 1] = pygame.transform.scale(imgW, (resultImageSize * imgW.get_width() / imgW.get_height(), resultImageSize))
     loseImages[i - 1] = pygame.transform.scale(imgL, (resultImageSize * imgL.get_width() / imgL.get_height(), resultImageSize))
 #######
-textW = resultFont.render("You win!", True, WHITE)
-textW1 = resultFont2.render("You cured everyone!", True, WHITE)
-textW2 = resultFont2.render("You survived till the 5th day!", True, WHITE)
-textL = resultFont.render("You lose... Noob", True, WHITE)
-textL1 = resultFont2.render("Remember to collect resources", True, WHITE)
-textL2 = resultFont2.render("Zombie bad", True, WHITE)
+textW = resultFont.render("You win!", True, renderConstants.RESULTTEXTCOLOR)
+textW1 = resultFont2.render("You cured everyone!", True, renderConstants.RESULTTEXTCOLOR)
+textW2 = resultFont2.render("You survived till the 5th day!", True, renderConstants.RESULTTEXTCOLOR)
+textL = resultFont.render("You lose... Noob", True, renderConstants.RESULTTEXTCOLOR)
+textL1 = resultFont2.render("Remember to collect resources", True, renderConstants.RESULTTEXTCOLOR)
+textL2 = resultFont2.render("Zombie bad", True, renderConstants.RESULTTEXTCOLOR)
 #######
 def displayResultScreen(won, reason = 1):
     def movie():
