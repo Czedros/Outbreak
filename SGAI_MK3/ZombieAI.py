@@ -64,7 +64,7 @@ class ZombieAI :
     def stateAttack(self, board):
         #Bite at the seeked position
         print(self.seekPosition)
-        return ("bite", self.seekPosition)
+        return ("bite", self.seekPosition, "bite")
 
     def stateRoam(self, gameBoard):
         possibleMoves = self.getLegalMoves(gameBoard)

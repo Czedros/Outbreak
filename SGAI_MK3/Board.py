@@ -95,10 +95,10 @@ class Board:
                             print(tup)
                             zombies.append(tup)
                 for zomb, id in zombies:
-                    coords.append(zomb.ai.performAction(state.board))
+                    coords.append((zomb.ai.performAction(state.board), zomb))
                     #(name of movement, coordinates, specifics )
-                for val in coords:
-                    legalPlays.append(Play(val[1][0], val[1][1], -1, id, val[2]))  #Zombie Move
+                for val, ai in coords:
+                    legalPlays.append(Play(val[1][0], val[1][1], -1, ai, val[2]))  #Zombie Move
         return legalPlays
     #It's this part having an error, I messed up the Zombies ID not on and on the board
     #When  i first the simulation, the IDs literally starts at like 56 and I don't think that's supposed to happen LMAO
@@ -108,16 +108,16 @@ class Board:
         """
         newHistory = copy.deepcopy(state.playHistory)
         newHistory.append(play)
-        newBoard = copy.copy(state.board) #this might be wrong but the clone function might not work either
+        newBoard = state.board.clone(state.board.States, state.board.player_role) #this might be wrong but the clone function might not work either
 
         if state.isPlayer(1): #next_state for player 
             newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
         else:
             for p in play: #all the plays for each zombie
                 if p.Zmove != 'bite':
-                    print("debug finding zombie", p.ZId, newBoard.findPerson(p.ZId)) #prints None
+                    print("debug finding zombie", p.Z.ID, newBoard.findPerson(p.Z.ID)) #prints None
                     #The problem is the Zombie's ID and the ID on the board are not the same
-                    newBoard.move(newBoard.findPerson(p.ZId), (p.row, p.col))     
+                    newBoard.move(newBoard.findPerson(p.Z.ID), (p.row, p.col))     
                 else:
                     newBoard.bite((p.row, p.col))
         newPlayer = -state.player #next player's turn
