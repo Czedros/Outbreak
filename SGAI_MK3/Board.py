@@ -13,7 +13,7 @@ from Obstacle import Obstacles
 import Animator
 import PygameFunctions
 #Human_Ai imports
-import State_MC
+from State_MC import State_MC
 #import Play
 import copy 
 
@@ -66,7 +66,8 @@ class Board:
         only call at begining :)
         """
         boardC = self.clone(self.States, self.player_role) #copy
-        return State_MC([], boardC, 1)
+        copied = State_MC([], boardC, 1)
+        return copied
     def legal_plays(self, state):
         """
          return the current player's legal moves from given state
@@ -77,7 +78,7 @@ class Board:
             if state.isPlayer(1):
                 role = 'Human'
             else: role = 'Zombie'
-            coords = state.board.getPossibleMoves(self, action = i, role = role)
+            coords = state.board.get_possible_moves(self, action = i, role = role)
             for val in coords:
                 legalPlays.append(Play(val)) #TODO: understand that 
         
@@ -603,6 +604,10 @@ class Board:
         for arr in self.States:
             for state in arr:
                 state.update()
+        
+        def __hash__(self):
+            return hash(self.States)
+
         
 """
 Board:

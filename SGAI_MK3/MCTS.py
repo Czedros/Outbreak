@@ -20,7 +20,7 @@ class MCTS:
         """
         if given state does not exist, create root node
         """
-        if(self.nodes[hash(state)] == None):
+        if self.nodes.get(hash(state)) == None:
             unexpandedPlays = copy(self.board.legal_plays(state))
             node = Node(None, None, state, unexpandedPlays)
             self.nodes[hash(state), node]
@@ -46,10 +46,10 @@ class MCTS:
         Get the best move from available stats
         """
         self.makeNode(state)
-        if not self.nodes[hash[state]].isFullyExpanded():
+        if not self.nodes[hash(state)].isFullyExpanded():
             raise("Not enough information to make bestPlay")
         
-        node = self.nodes[hash(state)]
+        node = self.nodes[state]
         allPlays = node.allPlays()
         bPlay = None
         max = float(-'inf')
@@ -66,7 +66,7 @@ class MCTS:
         1. until not fully expanded 
         2. until Leaf 
         """
-        node = self.nodes[hash(state)]
+        node = self.nodes[state]
         while(node.isFullyExpanded() and not node.isLeaf()):
             plays = node.allPlays()
             bPlay = None
@@ -92,7 +92,7 @@ class MCTS:
         cState = self.board.nextState(node.state, play) #play the next state and return it
         cUnexpandedPlays = self.board.legalPlays(cState) #find all the unexpandedplays for this new child State
         cNode = node.expand(play, cState, cUnexpandedPlays) #expand the child node and return it
-        self.nodes[hash(cState), cNode] #add it to our dict of nodes hahahahah
+        self.nodes[cState, cNode] #add it to our dict of nodes hahahahah
 
         return cNode
 
@@ -133,3 +133,8 @@ class MCTS:
             else:
                 stats[2].append((child.play, child.plays, child.n_wins))
         return stats
+
+
+    #Errors: 
+    # creating Hashes
+    # getting legalMoves for zombie

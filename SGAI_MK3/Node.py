@@ -15,7 +15,7 @@ class Node:
         #Key: hash value of play
         #Value: the node
         for play in unexpandedPlays: #array of legal Plays that can be made form this node
-            self.children[hash(play)] = (play, None)
+            self.children[play] = (play, None)
 
     
     def childNode(self, play):
@@ -23,7 +23,7 @@ class Node:
         gets the node associated with the play
         #TODO: article in JavaScript so this has to be changed a bit 
         """
-        child = self.children[hash[play]]
+        child = self.children[play]
         if child == None:
             raise("Child is not expanded or child doesn't exist") #TODO: might want a debug for child that doesn't exist
         return child
@@ -35,7 +35,7 @@ class Node:
         if play not in self.children:
             raise("No such play")
         cNode = Node(self, play, cState, unexpandedPlays)
-        self.children[hash(play)] = {play, cNode}
+        self.children[play] = {play, cNode}
         return cNode
     
     def allPlays(self):

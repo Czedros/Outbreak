@@ -113,15 +113,18 @@ while running:
         #Create the MCTS
         mcts = MCTS(GameBoard, 2)
         if not playerMoved:
+
             print("Running MCTS")
-            mcts.runSearch(GameBoard) #TODO: make the MCTS know to make a move for player
-            stats = mcts.stats(GameBoard) #States about this search on this state
+            state = GameBoard.start() #Return State_MC
+            mcts.runSearch(state) #TODO: make the MCTS know to make a move for player
+            stats = mcts.stats(state) #States about this search on this state
             print("Getting best play")
-            play = mcts.bestPlay(GameBoard) #get the best play
+            play = mcts.bestPlay(state) #get the best play
             #Go to next state
             print("Next State")
-            GameBoard = GameBoard.nextState(GameBoard, play)
+            state = GameBoard.nextState(state, play)
             winner = GameBoard.winner(state)
+
 
             playerMoved = True
             GameBoard.update()
