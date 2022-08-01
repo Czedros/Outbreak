@@ -33,12 +33,20 @@ while running:
     if SELF_PLAY:
         if not playerMoved:
             if (GameBoard.resources[1].currentValue < 1):
-                PF.displayResultScreen(False, 1)
                 running = False
+                print("Resources Remaining:", GameBoard.resources[1].currentValue)
+                print("People Saved:", GameBoard.resources[2].currentValue)
+                print("Days Survived:", GameBoard.timeCounter)
+                print("Lost By Starvation")
+                PF.displayResultScreen(False, 1)
                 continue
             if (not GameBoard.containsPerson(False)):
                 PF.displayResultScreen(False, 2)
                 running = False
+                print("Resources Remaining:", GameBoard.resources[1].currentValue)
+                print("People Saved:", GameBoard.resources[2].currentValue)
+                print("Days Survived:", GameBoard.timeCounter)
+                print("Lost By Infection")
                 continue
             # Event Handling
             finished = False
@@ -114,11 +122,11 @@ while running:
                     GameBoard.bite(Action[1])
 
             # Implement the selected action
-            if (not GameBoard.containsPerson(True)):
-                PF.displayResultScreen(True, 1)
-                running = False
-                continue
-            elif GameBoard.timeCounter > 40:
+            if GameBoard.timeCounter > 40:
+                print("Resources Remaining:", GameBoard.resources[1].currentValue)
+                print("People Saved:", GameBoard.resources[2].currentValue)
+                print("Days Survived:", GameBoard.timeCounter)
+                print("Won")
                 PF.displayResultScreen(True, 2)
                 running = False
                 continue
