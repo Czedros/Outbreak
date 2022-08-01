@@ -108,7 +108,7 @@ class MCTS:
         """
         state = node.state 
         winner = self.board.winner(state)
-        while winner is None: #while the game continues 
+        while winner == None: #while the game continues 
             plays = self.board.legal_plays(state)
             if node.state.player == 1 : #if human, onl do 1 plaay
                 play = choice(plays) #random unexpanded child node
@@ -126,7 +126,7 @@ class MCTS:
         """
         while node is not None:
             node.plays +=1
-            if(node.state.isPlayer(-winner) or node.state.isplayer(0.5)): #TODO: change 0.5 later 
+            if(node.state.isPlayer(not winner) or node.state.isplayer(0.5)): #TODO: change 0.5 later 
                 node.wins += winner 
             node = node.parent
     def stats(self, state):

@@ -1,4 +1,5 @@
 from os import system
+from types import NoneType
 from Cell import Cells
 from State import State
 import random as rd
@@ -130,17 +131,18 @@ class Board:
             pass
 
     #WINNER FOR THE SIMULATED GAMES, NOT THE ACTUAL GAME!!!
-    def winner(self, state):
-        try:
-            if state.board.timeCounter == 40:
+    def winner(self, winstate):
+        if winstate != NoneType:
+            if winstate.board.timeCounter == 40:
                 return 0.5 #TODO: idk if you want to change it orrrr
-            if state.board.num_zombies() == 0: #human won!
+            if winstate.board.num_zombies() == 0: #human won!
                 return 1 
-            if state.board.population == state.board.num_zombies():
+            if winstate.board.population == winstate.board.num_zombies():
                 return -1 #human lost
-            return None #no winner yet
-        except:
-            pass
+            if winstate.board.num_zombies() > 0 and winstate.board.population != winstate.board.num_zombies():
+                return None #no winner yet
+        else:
+            print("simulation has ended")
 
     # End of Hannah's Addition
 
