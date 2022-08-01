@@ -450,7 +450,7 @@ class Board:
         # QTable[state][acti] = new_value
 
     def populate(self):
-        total = 7
+        total = rd.randint(6,10)
         for arr in self.States:
             for state in arr:
                 state.person = None
