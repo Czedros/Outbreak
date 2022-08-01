@@ -481,6 +481,8 @@ class Board:
             self.States[coord[1]][coord[0]].obstacle = None
             self.resources[1].alterByValue(5)
             self.resources[1].alterByPercent(6*self.resources[2].currentValue, False)
+            return True
+        return False
     def findPath(self, from_coord, to_coord):#Tiankuo, you can replace this with you're path finding algorithm, but I need to call a path finding algorithm for my UI
         oldCoords = [{from_coord: None}]
         while True:

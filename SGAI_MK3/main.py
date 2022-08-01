@@ -8,6 +8,7 @@ import time
 import renderConstants
 from Animator import Animations
 from Animator import Animation
+from Audio import Audio
 rd.seed(10)
 SELF_PLAY = True  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
@@ -61,10 +62,13 @@ while running:
             # Action handling
             if finished:
                 moveMult = 0
+                picked = False
                 for i in range(PF.actionSlot + 1):
                     if(PF.actions[i].actionType == PF.ActionTypes.move.value):
                         moveMult += 1
-                        GameBoard.pickup(PF.actions[i].coord2)
+                        picked = picked or GameBoard.pickup(PF.actions[i].coord2)
+                if(picked):
+                    PF.audios.append(Audio(r"Assets/Audio/Pickup.wav"))
                 for i in range(PF.actionSlot + 1):
                     act = PF.actions[i]
                     if(act.actionType == PF.ActionTypes.heal.value):

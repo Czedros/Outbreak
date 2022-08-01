@@ -1,3 +1,4 @@
+from email.mime import audio
 from glob import glob
 from re import S
 from typing import List, Tuple
@@ -19,6 +20,7 @@ from Obstacle import Obstacles
 import Animator
 from pymediainfo import MediaInfo
 from ffpyplayer.player import MediaPlayer
+from Audio import Audio
 
 
 def imageToGrid(path, pathObstacles, States, mapOff = (0, 0)):
@@ -73,8 +75,8 @@ pygame.display.set_caption("Sussy Baka") #Nice name - Hannah
 # Initialize variables
 start = renderConstants.frame_time
 #######
-#sus =MediaPlayer(r"Assets/Audio/Ambience.wav")
 ambience = MediaPlayer(r"Assets/Audio/Ambience.wav", ff_opts = {"loop": 0})
+audios = []#Garbage collector deletes audio without this
 #######
 day = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/SunBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
 noon = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/SunDownBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
@@ -263,7 +265,8 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     arrowClickSize = (int((arrowImageForward.get_width() + arrowImageOff[0]) * 2), int(arrowImageSize))
     if(healClickPos[0] >= 0 and healClickPos[0] <= healImage.get_width() and healClickPos[1] >= 0 and healClickPos[1] <= healImage.get_height()):
         healing = not healing
-        MediaPlayer(r"Assets/Audio/Cure.wav")
+        if(healing):
+            audios.append(Audio(r"Assets/Audio/Cure.wav"))
         return "heal"
     if(finishClickPos[0] >= 0 and finishClickPos[0] <= finishImage.get_width() and finishClickPos[1] >= 0 and finishClickPos[1] <= finishImage.get_height()):
         return "finish"
@@ -285,6 +288,7 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     mapClickPos = (clickPos[0] - mapImagePos[0], clickPos[1] - mapImagePos[1])
     if(mapClickPos[0] >= 0 and mapClickPos[0] <= mapImageSize and mapClickPos[1] >= 0 and mapClickPos[1] <= mapImageSize):
         if(GameBoard.resources[0].currentValue == 8):
+            audios.append(Audio(r"Assets/Audio/Page Flip.wav"))
             return GameBoard.newBoard()
         else:
             return None
@@ -303,11 +307,15 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
         if(canAct and state.passable()):
             path = GameBoard.findPath(selectedActor, gridPos)
             if(path != None):
+                worked = False
                 for i in path:
                     if(add_action(GameBoard, Action(ActionTypes.move.value, selectedActor, i))):
+                        worked = True
                         selectedActor = i
                     else:
                         break
+                if(worked):
+                    audios.append(Audio(r"Assets/Audio/Walksount.mp3"))
     elif(state.person.isZombie == False):
         reset_actions()
         selectedActor = gridPos
@@ -327,6 +335,11 @@ def cellCoord(coord):
         return (cellX, cellY)
 def run(GameBoard):
     renderConstants.frame_time = time.process_time()
+    for i in range(len(audios) - 1, -1, -1):
+        aud = audios[i]
+        if(renderConstants.frame_time >= aud.endTime):
+            aud.audio.toggle_pause()
+            audios.pop(i)
     turn = GameBoard.timeCounter
     ap = GameBoard.resources[0].currentValue
     resources = min(GameBoard.resources[1].currentValue, GameBoard.resources[1].maxValue)
@@ -465,6 +478,10 @@ textL1 = resultFont2.render("Remember to collect resources", True, renderConstan
 textL2 = resultFont2.render("Zombie bad", True, renderConstants.RESULTTEXTCOLOR)
 #######
 def displayResultScreen(won, reason = 1):
+    global audios
+    for i in audios:
+        i.toggle_pause()
+    audios = []
     ambience.toggle_pause()
     def movie():
         res = None
