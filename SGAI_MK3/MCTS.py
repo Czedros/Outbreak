@@ -76,6 +76,7 @@ class MCTS:
         """
         print("SELECTION RN")
         node = self.nodes[hash(state)]
+        print("node type", type(node))
         while(node.isFullyExpanded() and not node.isLeaf()):
             print("IF EXPANDED AND NOT TERMINAL")
             plays = node.allPlays()
@@ -83,12 +84,12 @@ class MCTS:
             bUCB1 = float('-inf') #this is like java version of like Integer.MIN_VALUE... but python can do -infinity damn
 
             for play in plays:
-                cUCB1 = node.children[hash(play)]["node"].getUCB1(self.c) 
+                dic = node.children[hash(play)]
+                cUCB1 = dic["node"].getUCB1(self.c) 
                 if cUCB1 > bUCB1: #process of pickng the best child 
-                    bPlay = play
+                    bPlay = hash(play)
                     bUCB1 = cUCB1
-            print(hash(bPlay) == hash(play)) #haven't been printed out yet 
-            node = node.children[hash(bPlay)] 
+            node = node.childNode(bPlay)
         return node #return the best child slay
 
     def expand(self, node : Node):
@@ -149,7 +150,7 @@ class MCTS:
         print("backpropagation")
         while node is not None:
             node.plays +=1
-            if node.state.isPlayer( not winner) and winner is not None: #TODO: or node.state.isplayer(0.5)
+            if node.state.isPlayer( not winner): #TODO: or node.state.isplayer(0.5)
                 node.wins += 1 
             node = node.parent
     

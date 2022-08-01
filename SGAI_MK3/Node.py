@@ -25,10 +25,10 @@ class Node:
         gets the node associated with the play
         #TODO: article in JavaScript so this has to be changed a bit 
         """
-        child = self.children[play]
+        child = self.children[play] #the parameter play in this case is already hashed
         if child["node"] is None:
             print("NOPE") #TODO: might want a debug for child that doesn't exist
-        return child
+        return child["node"]
     
     def expand(self, play, cState, unexpandedPlays):
         """
@@ -40,13 +40,14 @@ class Node:
         if hash(play) not in self.children.keys():
             print("NOPE FOR EXPANSION")
         cNode = Node(self, play, cState, unexpandedPlays)
-        self.children[hash(play)] = {play, cNode}
+        self.children[hash(play)] = {"play" : play, "node" : cNode}
         return cNode
     
     def allPlays(self):
         """
         return all legal plays from this node
         """
+        print("allPlays is running")
         acts = []
         for child in self.children.values():
             acts.append(child["play"])
@@ -58,6 +59,7 @@ class Node:
         """
         acts = []
         for child in self.children.values(): #returns a list of different dictionaries, child represent each dic
+            print("child", type(child), child)
             if child["node"] is None:
                 acts.append(child["play"])
         print("the unexpanded plays", acts)
