@@ -36,30 +36,27 @@ def imageToGrid(path, pathObstacles, States, mapOff = (0, 0)):
             ind = x + mapOff[0] * constants.ROWS + (y + mapOff[1] * constants.ROWS) * im.size[0]
             pixel = pix[ind]
             pixelObstacle = pixObstacle[ind]
-            match pixel:
-                case (0, 255, 0):
-                    States[y][x].cellType = Cells.grass.value
-                case (255, 255, 0):
-                    States[y][x].cellType = Cells.sand.value
-                case (0, 0, 255):
-                    States[y][x].cellType = Cells.water.value
-                case (123, 60, 0):
-                    States[y][x].cellType = Cells.woodWall.value
-                case (211, 103, 0):
-                    States[y][x].cellType = Cells.woodFloor.value
-                case _:
-                    States[y][x].cellType = Cells.nan.value
+            if pixel == (0,255,0):
+                States[y][x].cellType = Cells.grass.value
+            elif pixel == (255, 255, 0):
+                States[y][x].cellType = Cells.sand.value
+            elif pixel == (0, 0, 255):
+                States[y][x].cellType = Cells.water.value
+            elif pixel == (123, 60, 0):
+                States[y][x].cellType = Cells.woodWall.value
+            elif pixel == (211, 103, 0):
+                States[y][x].cellType = Cells.woodFloor.value
+            else:
+                States[y][x].cellType = Cells.nan.value
             if(pixelObstacle != pixel):
-                match pixelObstacle:
-                    case (157, 157, 157):
-                        States[y][x].obstacle = Obstacles.rock.value
-                    case (0, 135, 28):
-                        States[y][x].obstacle = Obstacles.tree.value
-                    case (255, 0, 0):
-                        States[y][x].obstacle = Obstacles.resource.value
-                    case _:
-                        States[y][x].obstacle = Obstacles.nan.value
-
+                if pixelObstacle == (157, 157, 157):
+                    States[y][x].obstacle = Obstacles.rock.value
+                elif pixelObstacle == (0, 135, 28):
+                    States[y][x].obstacle = Obstacles.tree.value
+                elif pixelObstacle == (255, 0, 0):
+                    States[y][x].obstacle = Obstacles.resource.value
+                else:
+                    States[y][x].obstacle = Obstacles.nan.value
 def cellPosition(x, y):
     cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * x + renderConstants.CELLOFF)
     cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * y + renderConstants.CELLOFF)
