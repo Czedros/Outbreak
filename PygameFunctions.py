@@ -597,13 +597,12 @@ def direction(coord1: Tuple[int, int], coord2: Tuple[int, int]):
     elif coord2[0] < coord1[0]:
         return "moveLeft"
 
-    #rumeysa:
+    #rumeysa: writes to files
 def dataWrite(path: str, toWrite: Tuple):
     f = open(path, "a", newline="")
     csv.writer(f).writerow(toWrite)
     f.close()
 
     #reads the data from data collection1: 
-dataFrame1 = pd.read_csv("dataCollectionAI1.csv")
-    #make a dataFrame2 if nessecary
-dataFrame2 = pd.read_csv("dataCollectionAI2.csv")
+def dataRead(path: str):
+    return pd.read_csv(path)
