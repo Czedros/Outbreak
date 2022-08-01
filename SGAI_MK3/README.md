@@ -9,11 +9,17 @@ As more zombies are healed (and disappear off the board), more resources will be
 
 AP dictates how much you can do per turn. It refills a little after every turn. This limits how much you can do per turn.
 
-Day and night cycles add changes to the game.*******
+Day and night cycles add changes to the game. More zombies spawn in at night.
 
 Obstacles include water and houses/walls. You are unable to move onto these tiles.
 
-You can heal orthogonally and diagonally, as shown by the shaded squares when you select the human.
+You can heal orthogonally and diagonally by clicking on the potion (upper right) and then on a zombie, as shown by the shaded squares when you select the human. Also, you can vaccinate yourself through the same method.
+
+Hit the compass for a map refresh. This randomly generates a new map.
+
+Use the arrows to redo move choices.
+
+Enjoy the delicious ambient music!
 
 ## Win Scenarios
 1. The human survives 50 turns without running out of food.
@@ -22,4 +28,9 @@ You can heal orthogonally and diagonally, as shown by the shaded squares when yo
 ## Lose Scenarios
 1. You run out of resources before 50 turns are over.
 2. You are turned into a zombie.
+
+## AP
+Moving: 1 AP per tile
+Curing/vaccinating: 2 AP
+Refresh map: 8 AP
 
