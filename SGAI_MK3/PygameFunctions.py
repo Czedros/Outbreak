@@ -17,6 +17,8 @@ from Animator import Animations
 from Animator import Animation
 from Obstacle import Obstacles
 import Animator
+from pymediainfo import MediaInfo
+from ffpyplayer.player import MediaPlayer
 
 
 def imageToGrid(path, pathObstacles, States, mapOff = (0, 0)):
@@ -70,7 +72,9 @@ pygame.display.set_caption("Sussy Baka") #Nice name - Hannah
 
 # Initialize variables
 start = renderConstants.frame_time
-
+#######
+#MediaPlayer(r"Assets/Audio/Ambience.wav")
+ambience = MediaPlayer(r"Assets/Audio/Ambience.wav", ff_opts = {"loop": 2})
 #######
 day = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/SunBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
 noon = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/SunDownBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
@@ -259,6 +263,7 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     arrowClickSize = (int((arrowImageForward.get_width() + arrowImageOff[0]) * 2), int(arrowImageSize))
     if(healClickPos[0] >= 0 and healClickPos[0] <= healImage.get_width() and healClickPos[1] >= 0 and healClickPos[1] <= healImage.get_height()):
         healing = not healing
+        MediaPlayer(r"Assets/Audio/Cure.wav")
         return "heal"
     if(finishClickPos[0] >= 0 and finishClickPos[0] <= finishImage.get_width() and finishClickPos[1] >= 0 and finishClickPos[1] <= finishImage.get_height()):
         return "finish"
@@ -460,6 +465,7 @@ textL1 = resultFont2.render("Remember to collect resources", True, renderConstan
 textL2 = resultFont2.render("Zombie bad", True, renderConstants.RESULTTEXTCOLOR)
 #######
 def displayResultScreen(won, reason = 1):
+    ambience.toggle_pause()
     def movie():
         res = None
         if(won):
