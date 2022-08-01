@@ -112,108 +112,26 @@ while running:
         #TODO: implement HUMAN_AI
         #Create the MCTS
         mcts = MCTS(GameBoard, 2)
-        if not playerMoved:
+        state = GameBoard.start() #Return State_MC
+        winner = GameBoard.winner(state)
+        while winner is None:
 
             print("Running MCTS")
-            state = GameBoard.start() #Return State_MC
-            for arr in GameBoard.States:
-                for s in arr:
-                    if s.person is not None and s.person.isZombie == True:
-                        print("after gameboard start the id", s.person.ai.ID)
             mcts.runSearch(state) #TODO: make the MCTS know to make a move for player
+            print("Getting stats")
             stats = mcts.stats(state) #States about this search on this state
+            print(stats)
             print("Getting best play")
             play = mcts.bestPlay(state) #get the best play
             #Go to next state
             print("Next State")
-            state = GameBoard.nextState(state, play)
+            state = GameBoard.next_state(state, play)
             winner = GameBoard.winner(state)
-
-
             playerMoved = True
             GameBoard.update()
             PF.reset_actions()  #don't understand 
-        else:
-            #Zombie AI
-            playerMoved = False
             GameBoard.update(False)
-        
-        pygame.display.update()
-
-        #Already Here
-        """
-        if epochs_ran % 100 == 0:
-            print("Board Reset!")
-            GameBoard = Original_Board  # reset environment
-        for event in P:
-            i = 0
-            r = rd.uniform(0.0, 1.0)
-            st = (rd.randint(0, GameBoard.columns - 1), rd.randint(0, GameBoard.rows - 1))
-            state = GameBoard.QTable[st[1] * GameBoard.rows + st[0]]
-
-            if r < gamma:
-                while GameBoard.States[st[1]][st[0]].person is None:
-                    st = (rd.randint(0, GameBoard.columns - 1), rd.randint(0, GameBoard.rows - 1))
-            else:
-                biggest = None
-                for x in range(len(GameBoard.columns * GameBoard.rows)):
-                    arr = GameBoard.QTable[x]
-                    exp = sum(arr) / len(arr)
-                    if biggest is None:
-                        biggest = exp
-                        i = x
-                    elif biggest < exp and player_role == "Government":
-                        biggest = exp
-                        i = x
-                    elif biggest > exp and player_role != "Government":
-                        biggest = exp
-                        i = x
-                state = GameBoard.QTable[i]
-            b = 0
-            j = 0
-            ind = 0
-            for v in state:
-                if v > b and player_role == "Government":
-                    b = v
-                    ind = j
-                elif v < b and player_role != "Government":
-                    b = v
-                    ind = j
-                j += 1
-            action_to_take = ACTION_SPACE[ind]
-            old_qval = b
-            old_state = i
-
-            # Update
-            # Q(S, A) = Q(S, A) + alpha[R + gamma * max_a Q(S', A) - Q(S, A)]
-            reward = GameBoard.act(old_state, action_to_take)
-            ns = reward[1]
-            NewStateAct = GameBoard.QGreedyat(ns)
-            NS = GameBoard.QTable[ns][NewStateAct[0]]
-            # GameBoard.QTable[i] = GameBoard.QTable[i] + alpha * (reward[0] + gamma * NS) - GameBoard.QTable[i]
-            if GameBoard.num_zombies() == 0:
-                print("winCase")
-
-            take_action = []
-            print("Enemy turn")
-            ta = ""
-            if player_role == "Government":
-                r = rd.randint(0, 5)
-                while r == 4:
-                    r = rd.randint(0, 5)
-                ta = ACTION_SPACE[r]
-            else:
-                r = rd.randint(0, 4)
-                ta = ACTION_SPACE[r]
-            poss = GameBoard.get_possible_moves(ta, "Zombie")
-
-            if len(poss) > 0:
-                r = rd.randint(0, len(poss) - 1)
-                a = poss[r]
-                GameBoard.actionToFunction[ta](a)
-            if GameBoard.num_zombies() == GameBoard.population:
-                print("loseCase")
-            if event.type == pygame.QUIT:
-                running = False
-        """
+            pygame.display.update()
+            break #ADDED TO TEST ONE ITERATION
+        running = False
     

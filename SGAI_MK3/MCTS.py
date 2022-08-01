@@ -54,18 +54,21 @@ class MCTS:
         Get the best move from available stats
         """
         self.makeNode(state)
-        if not self.nodes[hash(state)].isFullyExpanded():
-            raise("Not enough information to make bestPlay")
+        #if not self.nodes[hash(state)].isFullyExpanded(): #TODO: not sure about this
+           # raise("Not enough information to make bestPlay")
         
-        node = self.nodes[state]
+        node = self.nodes[hash(state)]
         allPlays = node.allPlays()
         bPlay = None
-        max = float(-'inf')
+        max = float('-inf')
         for play in allPlays:
-            cNode = node.children[play]
-            if cNode.plays>max:
+            cNode = node.children[hash(play)]["node"]
+            if cNode is None: continue 
+            if ( cNode.wins / cNode.plays )>max:
                 bPlay = play
-                max = cNode.plays #can TODO: change finding max to highest win rate wins/plays
+                max = cNode.wins / cNode.plays #
+        print("max wr: ", max)
+        print("bestPlay player, roll, and col", bPlay.player, bPlay.row, bPlay.col)
         return bPlay 
 
     def select(self, state):
@@ -101,15 +104,18 @@ class MCTS:
         plays = node.unexpandedPlays()
         play_h_or_z = None
         if node.state.player == 1 : #if human, onl do 1 plaay
+            print("human expanded")
             play_h_or_z = choice(plays) #random unexpanded child node
         else:
-            play_h_or_z = plays
+            play_h_or_z = tuple(plays)
+            print("zombie expanded")
 
         #c for child!
         print("EXPANSION NEXT_STATE")
         cState = self.board.next_state(node.state, play_h_or_z ) #play the next state and return it
         print("EXPANSION LEGAL_PLAYS")
         cUnexpandedPlays = self.board.legal_plays(cState) #find all the unexpandedplays for this new child State
+        print("EXPANSION Node expand")
         cNode = node.expand(play_h_or_z, cState, cUnexpandedPlays) #expand the child node and return it
         self.nodes[hash(cState)] = cNode #add it to our dict of nodes hahahahah
 
@@ -139,7 +145,7 @@ class MCTS:
                 state = self.board.next_state(state, playList)
             print("simulation iteration find winner")
             winner = self.board.winner(state)
-            print("smulation iteration find winner -->", winner)
+            print("simulation iteration find winner -->", winner)
         return winner
 
     def back(self, node, winner):
@@ -156,7 +162,6 @@ class MCTS:
     
     def stats(self, state):
         node = self.nodes[hash(state)]
-        print("heads up for stats ties and wins are together")
         stats = [ node.plays,
                   node.wins,
                   ['children:' ]
@@ -165,7 +170,7 @@ class MCTS:
             if child["node"] is None:
                 stats[2].append((child["play"], None, None))
             else:
-                stats[2].append((child["play"], child["node"].plays, child["node"].ins))
+                stats[2].append((child["play"], child["node"].plays, child["node"].wins))
         return stats
 
 
