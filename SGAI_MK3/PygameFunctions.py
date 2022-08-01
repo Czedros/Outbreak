@@ -73,8 +73,8 @@ pygame.display.set_caption("Sussy Baka") #Nice name - Hannah
 # Initialize variables
 start = renderConstants.frame_time
 #######
-#MediaPlayer(r"Assets/Audio/Ambience.wav")
-ambience = MediaPlayer(r"Assets/Audio/Ambience.wav", ff_opts = {"loop": 2})
+#sus =MediaPlayer(r"Assets/Audio/Ambience.wav")
+ambience = MediaPlayer(r"Assets/Audio/Ambience.wav", ff_opts = {"loop": 0})
 #######
 day = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/SunBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
 noon = pygame.transform.scale(pygame.image.load(r'Assets/UI/Backgrounds/SunDownBackground.png'), (renderConstants.SIZE, renderConstants.SIZE))
