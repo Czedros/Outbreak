@@ -150,10 +150,10 @@ class Board:
     def winner(self, winstate):
         if winstate is not None:
             if winstate.board.timeCounter == 40:
-                return 0.5 #TODO: idk if you want to change it orrrr
-            if winstate.board.num_zombies() == 0: #human won!
-                return 1 
+                print("survived")
+                return 1
             if winstate.board.populationF() == winstate.board.num_zombies():
+                print("lost")
                 return -1 #human lost
             if winstate.board.num_zombies() > 0 and winstate.board.populationF() != winstate.board.num_zombies():
                 return None #no winner yet

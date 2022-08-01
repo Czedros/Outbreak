@@ -17,39 +17,44 @@ class Node:
         for play in unexpandedPlays: #array of legal Plays that can be made form this node
             self.children[hash(play)] = {"play": play, "node": None}
 
-            
-
     
     def childNode(self, play):
         """
         gets the node associated with the play
         #TODO: article in JavaScript so this has to be changed a bit 
         """
-        child = self.children[play]
+        child = self.children[play] #the parameter play in this case is already hashed
         if child["node"] is None:
             print("NOPE") #TODO: might want a debug for child that doesn't exist
-        return child
+        return child["node"]
     
     def expand(self, play, cState, unexpandedPlays):
         """
         expand the child node and return the new child node
         """
-        dict_value = self.children.values()
-        print("THE CHILDREN VALUES: DICTIOANRY", dict_value)
-
+        
+        #The problem rn is that play is sometimes put in as a list
+        #I guess I can just expand multiple plays 
+        
         if hash(play) not in self.children.keys():
             print("NOPE FOR EXPANSION")
         cNode = Node(self, play, cState, unexpandedPlays)
-        self.children[hash(play)] = {play, cNode}
+        self.children[hash(play)] = {"play" : play, "node" : cNode}
+        #The issue here with zombies is that the play is now not class Play anymore, its a tuple of Plays so i have to be careful
         return cNode
     
     def allPlays(self):
         """
         return all legal plays from this node
         """
+        print("allPlays is running")
         acts = []
         for child in self.children.values():
-            acts.append(child["play"])
+            if type(child["play"]) is tuple:
+                for p in child["play"]:
+                    acts.append(p)
+            else:
+                acts.append(child["play"])
         return acts
 
     def unexpandedPlays(self):
@@ -58,8 +63,14 @@ class Node:
         """
         acts = []
         for child in self.children.values(): #returns a list of different dictionaries, child represent each dic
+            print("child", type(child), child)
             if child["node"] is None:
-                acts.append(child["play"])
+                if type(child["play"]) is tuple :
+                    print(type(child["play"]))
+                    for p in child["play"]:
+                        acts.append(p)
+                else:
+                    acts.append(child["play"])
         print("the unexpanded plays", acts)
         return acts
 
