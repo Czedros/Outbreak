@@ -503,7 +503,7 @@ textL2 = resultFont2.render("Zombie bad", True, renderConstants.RESULTTEXTCOLOR)
 def displayResultScreen(won, reason = 1):
     global audios
     for i in audios:
-        i.toggle_pause()
+        i.audio.toggle_pause()
     audios = []
     ambience.toggle_pause()
     def movie():
