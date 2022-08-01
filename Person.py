@@ -49,7 +49,7 @@ class Person:
         chance = 20
         if self.wasCured == True:
             chance -= 20
-        if rd.randint(0,100) < chance:
+        if rd.randint(0,100) > chance:
             self.isZombie = False
             self.animation = Animation(Animations.human.value)
             print("Cure/Vaccine was successful, action completed successfully in Person")
