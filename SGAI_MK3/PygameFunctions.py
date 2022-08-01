@@ -178,6 +178,17 @@ mapImagePos = (renderConstants.SIZE - mapImage.get_width() - mapImageOff[0], hea
 #######
 healing = False
 #######
+timeCounterSize = renderConstants.SIZE * 0.075
+timeCounterPos = (renderConstants.SIZE * 0.983 - timeCounterSize, renderConstants.SIZE * 0.97 - timeCounterSize)
+timeCounts = []
+for i in range(9):
+    path = r'Assets/UI/Time/' + str(int(i / 2 + 1))
+    if(i % 2 == 0):
+        path = path + "D"
+    else:
+        path = path + "N"
+    timeCounts.append(pygame.transform.scale(pygame.image.load(path + ".png"), (timeCounterSize, timeCounterSize)))
+#######
 #GameBoard.isValidCoordinate(new_coords)
 #self.States[new_coords[1]][new_coords[0]].person is None and self.States[new_coords[1]][new_coords[0]].cellType.passable
 class ActionType:
@@ -450,6 +461,11 @@ def run(GameBoard):
         display_surface.blit(healImage, healImagePos)
     #######
     display_surface.blit(mapImage, mapImagePos)
+    #######
+    timeCountInd = int(GameBoard.timeCounter / renderConstants.CYCLELEN) * 2
+    if(not GameBoard.isDay):
+        timeCountInd += 1
+    display_surface.blit(timeCounts[timeCountInd], timeCounterPos)
     pygame.display.update()
     return pygame.event.get()
 
