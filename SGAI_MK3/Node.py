@@ -32,7 +32,10 @@ class Node:
         """
         expand the child node and return the new child node
         """
-        if play not in self.children.values():
+        dict_value = self.children.values()
+        print("THE CHILDREN VALUES: DICTIOANRY", dict_value)
+
+        if hash(play) not in self.children.keys():
             print("NOPE FOR EXPANSION")
         cNode = Node(self, play, cState, unexpandedPlays)
         self.children[hash(play)] = {play, cNode}

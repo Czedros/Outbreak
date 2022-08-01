@@ -20,8 +20,11 @@ class MCTS:
         """
         if given state does not exist, create root node
         """
+        print("MAKENODE")
         if self.nodes.get(hash(state)) == None:
-            unexpandedPlays = copy.copy(self.board.legal_plays(state))
+            print("MAKENODE: LEGALPLAYS")
+            cloned = state.board.clone(state.board.States, state.board.player_role)
+            unexpandedPlays = state.board.legal_plays(state)
             node = Node(None, None, state, unexpandedPlays)
             self.nodes[hash(state)] = node
     def runSearch(self,state):
@@ -33,14 +36,17 @@ class MCTS:
         
         begin = datetime.datetime.utcnow()
         while datetime.datetime.utcnow() - begin < self.calculation_time:
+            print("RUNSEARCH SELECTION STARTING")
             node = self.select(state) #SELECTION: existing info repeadetly choose successive child node down to end of search tree
             winner = self.board.winner(node.state)
 
             if node.isLeaf() == False and winner is None :
                 print("No winner is found -> do the rest of the MCTS")
+                print("RUNSEARCH EXPANSION")
                 node = self.expand(node) #EXPANSION: seach tree is expanded by adding a node
+                print("RUNSEARCH SIMULATION")
                 winner = self.simulate(node) #SIMULATION: run the game starting form the added node to determine the winner
-            print("winner is found or reached a Leaf -->", winner)
+            print("winner is found or reached a Leaf -->", winner, "RUNSEARCH BACKPROPAGATION")
             self.back(node, winner) #BACKPROPAGATION: All the nodes in the selected path are updated with new info from simulation
 
     def bestPlay(self, state):
@@ -68,8 +74,10 @@ class MCTS:
         1. until not fully expanded 
         2. until Leaf 
         """
+        print("SELECTION RN")
         node = self.nodes[hash(state)]
         while(node.isFullyExpanded() and not node.isLeaf()):
+            print("IF EXPANDED AND NOT TERMINAL")
             plays = node.allPlays()
             bPlay = None
             bUCB1 = float('-inf') #this is like java version of like Integer.MIN_VALUE... but python can do -infinity damn
@@ -88,14 +96,20 @@ class MCTS:
         MCTS Expansion Phase
         expand a unexpanded child node. will be random
         """
+        print("EXPANSION")
         plays = node.unexpandedPlays()
+        play_h_or_z = None
         if node.state.player == 1 : #if human, onl do 1 plaay
-            play = choice(plays) #random unexpanded child node
+            play_h_or_z = choice(plays) #random unexpanded child node
+        else:
+            play_h_or_z = plays
 
         #c for child!
-        cState = self.board.next_state(node.state, play) #play the next state and return it
+        print("EXPANSION NEXT_STATE")
+        cState = self.board.next_state(node.state, play_h_or_z ) #play the next state and return it
+        print("EXPANSION LEGAL_PLAYS")
         cUnexpandedPlays = self.board.legal_plays(cState) #find all the unexpandedplays for this new child State
-        cNode = node.expand(play, cState, cUnexpandedPlays) #expand the child node and return it
+        cNode = node.expand(play_h_or_z, cState, cUnexpandedPlays) #expand the child node and return it
         self.nodes[hash(cState)] = cNode #add it to our dict of nodes hahahahah
 
         return cNode
@@ -106,17 +120,25 @@ class MCTS:
         Play game to terminal state, return winner
         Note no new nodes are stored in this process! 
         """
+        print("SIMULATION")
         state = node.state 
         winner = self.board.winner(state)
         while winner == None: #while the game continues 
+            print("a new iteration of simulation")
+            print("a new iteration of legal_plays")
             plays = self.board.legal_plays(state)
-            if node.state.player == 1 : #if human, onl do 1 plaay
+            print("player:", node.state.player, " is Player ", node.state.isPlayer(1))
+            if node.state.isPlayer(1) : #if human, onl do 1 plaay
                 play = choice(plays) #random unexpanded child node
+                print("next state for government")
+                state = self.board.next_state(node.state, play)
             else:
-                play = plays
-            state = self.board.next_state(state, play)
+                playList = plays
+                print("next state for zombie")
+                state = self.board.next_state(node.state, playList)
+            print("simulation iteration find winner")
             winner = self.board.winner(state)
-        print("winner", winner)
+            print("smulation iteration find winner -->", winner)
         return winner
 
     def back(self, node, winner):
@@ -124,11 +146,13 @@ class MCTS:
         MCTS Backpropagation Phase I can never spell this correctly
         Update ancestor node with new hot stats
         """
+        print("backpropagation")
         while node is not None:
             node.plays +=1
-            if(node.state.isPlayer(not winner) or node.state.isplayer(0.5)): #TODO: change 0.5 later 
-                node.wins += winner 
+            if node.state.isPlayer( not winner) and winner is not None: #TODO: or node.state.isplayer(0.5)
+                node.wins += 1 
             node = node.parent
+    
     def stats(self, state):
         node = self.nodes[hash(state)]
         print("heads up for stats ties and wins are together")

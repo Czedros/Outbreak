@@ -17,6 +17,7 @@ import PygameFunctions
 from State_MC import State_MC
 from Play import Play
 import copy 
+from ZombieAI import ZombieAI
 
 class Board:
     resources = [
@@ -75,64 +76,74 @@ class Board:
          Difference for Zombie
          Difference for Human
         """
+        print("LEGALPLAYS")
         legalPlays = []
-        action = ["moveUp", "moveDown", "moveLeft", "moveRight", "heal"] #only for human
-        try:
+        action = ["moveUp", "moveDown", "moveLeft", "moveRight", "heal"] #only for human:
+        if state.isPlayer(1):         
+            print("LEGAL PLAYS get possible moves for human")
+            role = 'Human'
             for i in action:
-                print(i)
-                role = ''
-                coords = "poop"
-                if state.isPlayer(1):
-                    role = 'Human'
-                    coords = state.board.get_possible_moves(i, role)
-                    for val in coords:
-                        legalPlays.append(Play(val[0], val[1], 1)) #Human Move 
-                else: 
-                    zombies = []
-                    coords = []
-                    for arr in state.board.States:
-                        for s in arr:
-                            if s.person is not None and s.person.isZombie == True:
-                                tup = (s.person, s.person.ai.ID) 
-                                print(tup)
-                                zombies.append(tup)
-                    for zomb, id in zombies:
-                        coords.append((zomb.ai.performAction(state.board), zomb))
-                        #(name of movement, coordinates, specifics )
-                    for val, ai in coords:
-                        legalPlays.append(Play(val[1][0], val[1][1], -1, ai, val[2]))  #Zombie Move
-            return legalPlays
-        except:
-            pass
-    #It's this part having an error, I messed up the Zombies ID not on and on the board
-    #When  i first the simulation, the IDs literally starts at like 56 and I don't think that's supposed to happen LMAO
+                coords = state.board.get_possible_moves(i, role)
+                for val in coords:
+                    legalPlays.append(Play(val[0], val[1], 1)) #Human Move 
+        else: 
+            zombies = []
+            coords = []
+            print("LEGAL PLAYS get possible moves for zombie")
+            for arr in state.board.States:
+                for s in arr:
+                    if s.person is not None and s.person.isZombie == True:
+                        tup = (s.person.ai, s.person.ai.ID) 
+                        zombies.append(tup)
+            for zomb, id in zombies:
+                coords.append((zomb.performAction(state.board), zomb))
+                #(name of movement, coordinates, specifics )
+            for val, ai in coords:
+                legalPlays.append(Play(val[1][0], val[1][1], player = -1, Z = ai, Zmove = val[2]))  #Zombie Move
+        print("End make Legal Moves")
+        return legalPlays
     def next_state(self, state: State_MC, play : Play):
         """
         advance the given state and return the new state
         """
-        try:
-            newHistory = copy.copy(state.playHistory)
-            newHistory.append(play)
-            newBoard = state.board.clone(state.board.States, state.board.player_role) #this might be wrong but the clone function might not work either
+       # try:
+        print("NEXT_STATE")
+        newHistory = copy.copy(state.playHistory)
+        newHistory.append(play)
+        newBoard = state.board.clone(state.board.States, state.board.player_role) 
+        print("player:", state.player, " is Player ", state.isPlayer(1))
+        if state.isPlayer(1): #next_state for player
+            print("NEXT_STATE MOVEMENT FOR PLAYER") 
+            newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
+        else:
+            print("NEXT_STATE FOR ZOMBIES")
+            idIndex = 0
+            #for arr in newBoard.States:
+                #for s in arr:
+                    #if s.person is not None and s.person.isZombie == True:
+                       # s.person.ai.ID = state.zombiesID[idIndex]
+                       # print(" state new id: ", s.person.ai.ID)
+            for arr in newBoard.States:
+                for s in arr:
+                    if s.person is not None and s.person.isZombie == True:
+                        print("next_state zombie newBoard ID for this zombie", s.person.ai.ID)
             
-            if state.isPlayer(1): #next_state for player 
-                newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
-            else:
-                for p in play: #all the plays for each zombie
-                    if p.Zmove != 'bite':
-                        print("debug finding zombie", p.Z.ID, newBoard.findPerson(p.Z.ID)) #prints None
-                        #The problem is the Zombie's ID and the ID on the board are not the same
-                        newBoard.move(newBoard.findPerson(p.Z.ID), (p.row, p.col))     
-                    else:
-                        newBoard.bite((p.row, p.col))
-            newPlayer = -state.player #next player's turn
-            return State_MC(newHistory, newBoard, newPlayer)
-        except:
-            pass
+            for p in play: #all the plays for each zombie
+                print("this play", p, "and if play is a zombie:" , p.Z)
+                if p.Zmove != 'bite':
+                     #prints None
+                    #The problem is the Zombie's ID and the ID on the board are not the same
+                    print("this zombie id on p.Z.ID", p.Z.ID)
+                    newBoard.move(newBoard.findPerson(p.Z.ID), (p.row, p.col))     
+                else:
+                    newBoard.bite((p.row, p.col))
+        newPlayer = -state.player #next player's turn
+        return State_MC(newHistory, newBoard, newPlayer)
+             
 
     #WINNER FOR THE SIMULATED GAMES, NOT THE ACTUAL GAME!!!
     def winner(self, winstate):
-        if winstate != NoneType:
+        if winstate is not None:
             if winstate.board.timeCounter == 40:
                 return 0.5 #TODO: idk if you want to change it orrrr
             if winstate.board.num_zombies() == 0: #human won!
@@ -142,7 +153,7 @@ class Board:
             if winstate.board.num_zombies() > 0 and winstate.board.population != winstate.board.num_zombies():
                 return None #no winner yet
         else:
-            print("simulation has ended")
+            print("winstate is None")
 
     # End of Hannah's Addition
 
@@ -190,6 +201,10 @@ class Board:
         """
         poss = []
         B = self.clone(self.States, role)
+        for arr in B.States:
+            for s in arr:
+                if s.person is not None and s.person.isZombie == True:
+                    print("possible moves ID:", s.person.ai.ID)
 
         if role == "Zombie":
             if not self.containsPerson(True):
@@ -298,6 +313,8 @@ class Board:
         )
 
     def clone(self, L: List[List[State]], role: str):
+        Person.classID = 0
+        ZombieAI.classID = 0
         NB = Board(
             (self.rows, self.columns),
             self.player_role,
@@ -307,6 +324,7 @@ class Board:
             NB.States[y] = [state.clone() for state in L[y]]
             
         NB.player_role = role
+        
         return NB
 
     def isAdjacentTo(self, coord: Tuple[int, int], is_zombie: bool) -> bool:
