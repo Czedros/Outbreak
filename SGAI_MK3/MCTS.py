@@ -127,15 +127,15 @@ class MCTS:
             print("a new iteration of simulation")
             print("a new iteration of legal_plays")
             plays = self.board.legal_plays(state)
-            print("player:", node.state.player, " is Player ", node.state.isPlayer(1))
-            if node.state.isPlayer(1) : #if human, onl do 1 plaay
+            print("player:", state.player, " is Player ", state.isPlayer(1))
+            if state.isPlayer(1) : #if human, onl do 1 plaay
                 play = choice(plays) #random unexpanded child node
                 print("next state for government")
-                state = self.board.next_state(node.state, play)
+                state = self.board.next_state(state, play)
             else:
                 playList = plays
                 print("next state for zombie")
-                state = self.board.next_state(node.state, playList)
+                state = self.board.next_state(state, playList)
             print("simulation iteration find winner")
             winner = self.board.winner(state)
             print("smulation iteration find winner -->", winner)

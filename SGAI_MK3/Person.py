@@ -45,8 +45,10 @@ class Person:
             self.isZombie = True
             self.animation = Animation(Animations.zombie.value)
             print("The zombie successfully infected you, action completed successfully in Person")
+            return True
         else:
             print("The zombie failed to infect you, action completed successfully in Person")
+            return False
     def calcCureSuccess(self):
         chance = 50
         if self.wasCured == True:

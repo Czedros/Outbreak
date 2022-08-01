@@ -114,6 +114,7 @@ class Board:
         print("player:", state.player, " is Player ", state.isPlayer(1))
         if state.isPlayer(1): #next_state for player
             print("NEXT_STATE MOVEMENT FOR PLAYER") 
+            print("player moving to: ", play.row, play.col)
             newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
         else:
             print("NEXT_STATE FOR ZOMBIES")
@@ -136,7 +137,11 @@ class Board:
                     print("this zombie id on p.Z.ID", p.Z.ID)
                     newBoard.move(newBoard.findPerson(p.Z.ID), (p.row, p.col))     
                 else:
-                    newBoard.bite((p.row, p.col))
+                    print("bitting at: ", p.row, p.col)
+                    biteSuccess = newBoard.bite((p.row, p.col))
+                    if biteSuccess: #if bite is successful
+                        print("did this bitting mechanic ran?") 
+                        return State_MC(newHistory, newBoard, -state.player)
         newPlayer = -state.player #next player's turn
         return State_MC(newHistory, newBoard, newPlayer)
              
@@ -148,9 +153,9 @@ class Board:
                 return 0.5 #TODO: idk if you want to change it orrrr
             if winstate.board.num_zombies() == 0: #human won!
                 return 1 
-            if winstate.board.population == winstate.board.num_zombies():
+            if winstate.board.populationF() == winstate.board.num_zombies():
                 return -1 #human lost
-            if winstate.board.num_zombies() > 0 and winstate.board.population != winstate.board.num_zombies():
+            if winstate.board.num_zombies() > 0 and winstate.board.populationF() != winstate.board.num_zombies():
                 return None #no winner yet
         else:
             print("winstate is None")
@@ -161,7 +166,7 @@ class Board:
         r = 0
         for arr in self.States:
             for state in arr:
-                if state.person != None:
+                if state.person is not None and state.person.isZombie:
                     if state.person.isZombie:
                         r += 1
         return r
@@ -201,10 +206,6 @@ class Board:
         """
         poss = []
         B = self.clone(self.States, role)
-        for arr in B.States:
-            for s in arr:
-                if s.person is not None and s.person.isZombie == True:
-                    print("possible moves ID:", s.person.ai.ID)
 
         if role == "Zombie":
             if not self.containsPerson(True):
@@ -489,9 +490,11 @@ class Board:
 
     def bite(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         i = self.toIndex(coords)
-        self.States[coords[1]][coords[0]].person.calcInfect()
+        print("before the bite function how many zombies: ", self.num_zombies())
+        work = self.States[coords[1]][coords[0]].person.calcInfect()
         print("Infection has either failed or succeeded, action completed successfully in Board")
-        return [True, i]
+        print("after the bite function how many zombies: ", self.num_zombies(), "but population...", self.population)
+        return [work, i]
 
     def heal(self, coords: Tuple[int, int], infRange = False) -> Tuple[bool, int]:
         """
@@ -646,5 +649,13 @@ class Board:
         
         def __hash__(self):
             return hash(self.States)
+    def populationF(self):  #Hannah added 
+        counter = 0
+        for arr in self.States:
+            for s in arr:
+                if s.person is not None:
+                    counter+=1
+        return counter            
+
 
 

@@ -17,6 +17,8 @@ class Node:
         for play in unexpandedPlays: #array of legal Plays that can be made form this node
             self.children[hash(play)] = {"play": play, "node": None}
 
+            
+
     
     def childNode(self, play):
         """
@@ -55,8 +57,9 @@ class Node:
         get all unexpanded legal plays from this node 
         """
         acts = []
-        for child in self.children.values():
-            if child["node"] is None: acts.append(child["play"])
+        for child in self.children.values(): #returns a list of different dictionaries, child represent each dic
+            if child["node"] is None:
+                acts.append(child["play"])
         print("the unexpanded plays", acts)
         return acts
 
