@@ -12,7 +12,7 @@ class ZombieAI :
     classID = 0
     position = [2,2]
     board = None
-    vision = 5
+    vision = 4
     
     
     def __init__(self):

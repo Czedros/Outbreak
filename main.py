@@ -33,20 +33,20 @@ while running:
     if SELF_PLAY:
         if not playerMoved:
             if (GameBoard.resources[1].currentValue < 1):
-                PF.displayResultScreen(False, 1)
                 running = False
                 print("Resources Remaining:", GameBoard.resources[1].currentValue)
                 print("People Saved:", GameBoard.resources[2].currentValue)
                 print("Days Survived:", GameBoard.timeCounter)
                 print("Lost By Starvation")
+                PF.displayResultScreen(False, 1)
                 continue
             if (not GameBoard.containsPerson(False)):
                 PF.displayResultScreen(False, 2)
+                running = False
                 print("Resources Remaining:", GameBoard.resources[1].currentValue)
                 print("People Saved:", GameBoard.resources[2].currentValue)
                 print("Days Survived:", GameBoard.timeCounter)
                 print("Lost By Infection")
-                running = False
                 continue
             # Event Handling
             finished = False
