@@ -291,6 +291,7 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
             audios.append(Audio(r"Assets/Audio/Page Flip.wav"))
             return GameBoard.newBoard()
         else:
+            audios.append(Audio(r"Assets/Audio/NotAllowed.wav"))
             return None
     clickOff = renderConstants.GRIDRECT.left + constants.LINE_WIDTH + renderConstants.CELLOFF
     clickPos[0] -= clickOff
@@ -302,7 +303,10 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
     canAct = (actionSlot == -1 or actions[actionSlot].actionType != ActionTypes.heal.value)
     if(healing and state.person is not None):
         if(canAct and ((abs(gridPos[0] - selectedActor[0]) <= 1 and abs(gridPos[1] - selectedActor[1]) <= 1) or (gridPos[0] == firstActor[0] and gridPos[1] == firstActor[1]))):
-            add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))
+            if(not add_action(GameBoard, Action(ActionTypes.heal.value, gridPos))):
+                audios.append(Audio(r"Assets/Audio/NotAllowed.wav"))
+        else:
+            audios.append(Audio(r"Assets/Audio/NotAllowed.wav"))
     elif(state.person == None):
         if(canAct and state.passable()):
             path = GameBoard.findPath(selectedActor, gridPos)
@@ -316,6 +320,10 @@ def get_action(GameBoard, pixel_x: int, pixel_y: int):
                         break
                 if(worked):
                     audios.append(Audio(r"Assets/Audio/Walksount.mp3"))
+                else:
+                    audios.append(Audio(r"Assets/Audio/NotAllowed.wav"))
+        else:
+            audios.append(Audio(r"Assets/Audio/NotAllowed.wav"))
     elif(state.person.isZombie == False):
         reset_actions()
         selectedActor = gridPos
