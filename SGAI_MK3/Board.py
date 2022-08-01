@@ -106,7 +106,7 @@ class Board:
         """
         advance the given state and return the new state
         """
-        newHistory = copy.deepcopy(state.playHistory)
+        newHistory = copy.copy(state.playHistory)
         newHistory.append(play)
         newBoard = state.board.clone(state.board.States, state.board.player_role) #this might be wrong but the clone function might not work either
 
@@ -272,8 +272,11 @@ class Board:
     def toCoord(self, i: int):
         return (int(i % self.columns), int(i / self.rows))
 
-    def toIndex(self, coordinates: Tuple[int, int]):
-        return int(coordinates[1] * self.columns) + int(coordinates[0])
+    def toIndex(self, coord: Tuple[int, int]):
+        try:
+            return int(coord[1] * self.columns) + int(coord[0])
+        except:
+            pass
 
     def isValidCoordinate(self, coordinates: Tuple[int, int]):
         return (
@@ -357,23 +360,25 @@ class Board:
             
         # Check if the destination is currently occupied
         #print(self.States[new_coords[1]])
-        if self.States[new_coords[1]][new_coords[0]].passable():
-            if self.States[from_coords[1]][from_coords[0]].person.isZombie:
-                if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") * mult <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
-                    self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
-                    self.States[from_coords[1]][from_coords[0]].person = None
-                    self.States[new_coords[1]][new_coords[0]].person.AP.alterByValue(-mult)
-                    return [True, destination_idx]
+        try:    
+            if self.States[new_coords[1]][new_coords[0]].passable():
+                if self.States[from_coords[1]][from_coords[0]].person.isZombie:
+                    if self.States[from_coords[1]][from_coords[0]].person.AP.checkCost("Move") * mult <=  self.States[from_coords[1]][from_coords[0]].person.AP.currentValue:
+                        self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
+                        self.States[from_coords[1]][from_coords[0]].person = None
+                        self.States[new_coords[1]][new_coords[0]].person.AP.alterByValue(-mult)
+                        return [True, destination_idx]
+                    else:
+                        print("Not enough AP")
                 else:
-                    print("Not enough AP")
-            else:
-                if  self.resources[0].currentValue >= self.resources[0].checkCost("Move") * mult:
-                    self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
-                    self.States[from_coords[1]][from_coords[0]].person = None
-                    self.resources[0].alterByValue(-mult)
-                    return [True, destination_idx]
-
-        return [False, destination_idx]
+                    if  self.resources[0].currentValue >= self.resources[0].checkCost("Move") * mult:
+                        self.States[new_coords[1]][new_coords[0]].person = self.States[from_coords[1]][from_coords[0]].person
+                        self.States[from_coords[1]][from_coords[0]].person = None
+                        self.resources[0].alterByValue(-mult)
+                        return [True, destination_idx]
+            return [False, destination_idx]
+        except:
+            pass
 
     def moveUp(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0], coords[1] - 1)
