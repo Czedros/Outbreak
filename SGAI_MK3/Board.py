@@ -295,7 +295,6 @@ class Board:
                     self.States[from_coords[1]][from_coords[0]].person = None
                     self.resources[0].alterByValue(-mult)
                     return [True, destination_idx]
-
         return [False, destination_idx]
 
     def moveUp(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
@@ -399,7 +398,7 @@ class Board:
         if self.resources[0].currentValue < 2:
             print("Not Enough AP")
             return [False, None]
-        self.resources[0].alterByValue(-3)
+        self.resources[0].alterByValue(-2)
         p = self.States[coords[1]][coords[0]].person
 
         if p.isZombie:
