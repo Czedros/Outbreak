@@ -17,7 +17,6 @@ if(platform != "darwin"):
 from Animator import Animations
 from Animator import Animation
 from Obstacle import Obstacles
-import Animator
 from pymediainfo import MediaInfo
 from ffpyplayer.player import MediaPlayer
 from Audio import Audio

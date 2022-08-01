@@ -35,6 +35,6 @@ class Animations(Enum):
     zombie = zombieAnim
     cure = AnimationType(humanFolder, ["HumanCure1.png", "HumanCure2.png"], 1, humanAnim)
     vaccinate = AnimationType(humanFolder, ["HumanVaccinate1.png", "HumanVaccinate2.png"], 1, humanAnim)
-    seek = AnimationType(zombieFolder, ["ZombieSeek1.png", "ZombieSeek2.png"], 1, zombieAnim)
-    roam = AnimationType(zombieFolder, ["ZombieRoam1.png", "ZombieRoam2.png"], 1, zombieAnim)
+    seek = AnimationType(zombieFolder, ["ZombieSeek1.png", "ZombieSeek2.png"], 1)   
+    bite = AnimationType(zombieFolder, ["ZombieBite1.png", "ZombieBite2.png"], 1)   
 humanAnimation = Animation(Animations.human.value)

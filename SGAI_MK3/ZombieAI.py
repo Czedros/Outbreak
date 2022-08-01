@@ -2,6 +2,8 @@ import time
 from turtle import position
 import renderConstants
 import random as rd
+from Animator import Animations
+from Animator import Animation
 class ZombieAI :
     currentState = "Roam"
     active = False
@@ -19,13 +21,14 @@ class ZombieAI :
         ZombieAI.classID += 1
 
     def performAction(self, board): 
-        self.setState(0)
         self.positionUpdate(board) 
+        if(self.currentState != self.states[0]):
+            self.setState(0, board)
         self.seekPosition = board.findPlayer() #coords the player one
         if abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) <= self.vision: #a vision scenario: seek
-            self.setState(1)
+            self.setState(1, board)
         if board.isAdjacentTo(self.position,False): #a vision scenario: attack
-            self.setState(2) 
+            self.setState(2, board) 
         stateactions = {
             "Roam" : self.stateRoam(board),
             "Attack" : self.stateAttack(board),
@@ -35,9 +38,14 @@ class ZombieAI :
         action = stateactions[self.currentState] #return the value
         print(action)
         return action
-    def setState(self, state):
+    def setState(self, state, board):
         self.currentState = self.states[state]
-
+        if(self.currentState == "Roam"):
+            board.States[self.position[1]][self.position[0]].person.animation = Animation(Animations.zombie.value)
+        elif(self.currentState == "Attack"):
+            board.States[self.position[1]][self.position[0]].person.animation = Animation(Animations.bite.value)
+        elif(self.currentState == "Seek"):
+            board.States[self.position[1]][self.position[0]].person.animation = Animation(Animations.seek.value)
     def positionUpdate(self, gameBoard):
         self.position = gameBoard.findPerson(self.ID)
 

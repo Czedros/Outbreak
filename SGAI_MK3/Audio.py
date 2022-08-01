@@ -7,7 +7,6 @@ class Audio:
         self.filePath = filePath
         aud = MediaPlayer(filePath)
         aud.set_volume(volume)
-        print(aud.get_volume())
         self.audio = aud
         info = MediaInfo.parse(self.filePath).audio_tracks[0]
         self.duration = info.duration / 1000
