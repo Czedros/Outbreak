@@ -116,6 +116,10 @@ while running:
 
             print("Running MCTS")
             state = GameBoard.start() #Return State_MC
+            for arr in GameBoard.States:
+                for s in arr:
+                    if s.person is not None and s.person.isZombie == True:
+                        print("after gameboard start the id", s.person.ai.ID)
             mcts.runSearch(state) #TODO: make the MCTS know to make a move for player
             stats = mcts.stats(state) #States about this search on this state
             print("Getting best play")
@@ -137,6 +141,7 @@ while running:
         pygame.display.update()
 
         #Already Here
+        """
         if epochs_ran % 100 == 0:
             print("Board Reset!")
             GameBoard = Original_Board  # reset environment
@@ -210,4 +215,5 @@ while running:
                 print("loseCase")
             if event.type == pygame.QUIT:
                 running = False
+        """
     

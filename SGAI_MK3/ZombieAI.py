@@ -88,3 +88,14 @@ class ZombieAI :
                 if gameBoard.States[coordinate[1]][coordinate[0]].passable() == True:
                      possible_move_coords.append(coordinate)
         return possible_move_coords
+
+
+
+# MCTS 
+
+# Tree
+# Node: Game State 
+# Edges: move (the human or the zombie will make)
+
+# Selection, Expansion, Simulation, Backprogation (all the information from the simulation is updated in the Tree )
+    
