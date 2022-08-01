@@ -46,18 +46,16 @@ class Person:
         else:
             print("The zombie failed to infect you, action completed successfully in Person")
     def calcCureSuccess(self):
-        chance = 50
+        chance = 20
         if self.wasCured == True:
-            chance -= 10
-        if self.isVaccinated == True:
-            chance -= self.vaccinationStatus()
-        if rd.random() < chance:
+            chance -= 20
+        if rd.randint(0,100) < chance:
             self.isZombie = False
             self.animation = Animation(Animations.human.value)
-            self.wasCured = True
             print("Cure/Vaccine was successful, action completed successfully in Person")
             Person.classID -= 1
             return True
+        self.wasCured = True
         return False
  
     def vaccinationStatus(self):
