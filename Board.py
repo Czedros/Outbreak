@@ -79,29 +79,22 @@ class Board:
         """
         print("LEGALPLAYS")
         legalPlays = []
-        action = ["moveUp", "moveDown", "moveLeft", "moveRight",] #Add others
         if state.isPlayer(1):         
             print("LEGAL PLAYS get possible moves for human")
             role = 'Human'
-            for i in action:
-                coords = state.board.get_possible_moves(i, role)
-                for val in coords:
-                    print("the coords", val)
-                    legalPlays.append(Play(val[0], val[1], 1)) #Human Move 
+            acts = state.board.get_possible_moves(role)
+            for a in acts:
+                #list of [coord, action]
+                print("Action is:", a[1], "to coordinates:", a[0][0], a[0][1])
+                legalPlays.append(Play(a[0][0], a[0][1], player = 1, Z = None, Zmove = a[1])) #Human Move 
         else: 
-            zombies = []
-            coords = []
+            role = 'Zombie'
+            coords = state.board.get_possible_moves(role)
             print("LEGAL PLAYS get possible moves for zombie")
-            for arr in state.board.States:
-                for s in arr:
-                    if s.person is not None and s.person.isZombie == True:
-                        zombies.append(s.person.ai)
-            print("Player's position needs to move, rn player position is", state.board.findPlayer())
-            for zomb in zombies:
-                coords.append((zomb.performAction(state.board), zomb))
-                #(name of movement, coordinates, specifics )
-            for val, ai in coords:
-                legalPlays.append(Play(val[1][0], val[1][1], player = -1, Z = ai, Zmove = val[2]))  #Zombie Move
+            for val in coords:
+                #list of [(coord + move), zombie ai]
+                print("Action is:", val[0][2], "to coordinates:", val[0][0], a[0][1])
+                legalPlays.append(Play(val[0][0], val[0][1], player = -1, Z = val[1], Zmove = val[0][2]))  #Zombie Move
         print("End make Legal Moves")
         return legalPlays
 
@@ -123,7 +116,14 @@ class Board:
         if state.isPlayer(1): #next_state for player
             print("NEXT_STATE HUMAN ") 
             print("player moving to: ", play.row, play.col)
-            newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
+            if play.Zmove == "move":
+                newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
+            elif play.Zmove == "heal":
+                newBoard.heal((play.row, play.col))
+            elif play.Zmove == "refresh":
+                newBoard.map_refresh()
+            else: #to wait 
+                pass 
         else:
             print("NEXT_STATE ZOMBIES")
             newBoard.pZombieID(newBoard) #debug purposes
@@ -197,7 +197,7 @@ class Board:
                 if state.person is not None and state.person.isZombie == False:
                     return state.location
 
-    def get_possible_moves(self, action: str, role: str):
+    def get_possible_moves(self, role: str):
         """
         Get the coordinates of people (or zombies) that are able
         to make the specified move.
@@ -209,43 +209,54 @@ class Board:
         poss = []
         B = self.clone(self.States, role)
 
+        
         if role == 'Zombie':
-            return poss
+            zombies = []
+            for arr in B.States:
+                for s in arr:
+                    if s.person is not None and s.person.isZombie == True:
+                        zombies.append(s.person.ai)
+            for zomb in zombies:
+                poss.append([zomb.performAction(B), zomb])
+                #(name of movement, coordinates, specifics )
         elif role == 'Human':
+            action = ["move", "heal", "refresh", "wait"]
             if not self.containsPerson(False):
                 return poss
-            playerPos = self.findPlayer()
-            if B.resources[0].currentValue > 0:
-                vals = [
-                    (playerPos[0], playerPos[1] + 1),
-                    (playerPos[0], playerPos[1] - 1),
-                    (playerPos[0] + 1, playerPos[1]),
-                    (playerPos[0] - 1, playerPos[1]),
-                ]
-                for coordinate in vals:
-                    if B.isValidCoordinate(coordinate) and B.States[coordinate[1]][coordinate[0]].person == None:
-                        if B.States[coordinate[1]][coordinate[0]].passable() == True:
-                            poss.append([coordinate, "move"])
-            if B.resources[0].currentValue > 1:
-                vals = [
-                    (playerPos[0], playerPos[1] + 1),
-                    (playerPos[0], playerPos[1] + 1),
-                    (playerPos[0], playerPos[1] - 1),
-                    (playerPos[0] + 1, playerPos[1]),
-                    (playerPos[0] - 1, playerPos[1]),
-                    (playerPos[0]+ 1, playerPos[1] + 1),
-                    (playerPos[0]- 1, playerPos[1] - 1),
-                    (playerPos[0] + 1, playerPos[1] - 1),
-                    (playerPos[0] - 1, playerPos[1] + 1),
-                    (playerPos[0], playerPos[1])
-                ]
-                for coord in vals:
-                    if (B.isValidCoordinate(coord) 
-                        and B.States[coord[1]][coord[0]].person is not None ):
-                        poss.append(["heal", coord])
-            if B.resources[0].currentValue == 8:
-                poss.append("refresh", playerPos)
-            poss.append("wait", playerPos)
+            for act in action:
+                playerPos = self.findPlayer()
+                if act == "move" and B.resources[0].currentValue > 0:
+                    vals = [
+                        (playerPos[0], playerPos[1] + 1),
+                        (playerPos[0], playerPos[1] - 1),
+                        (playerPos[0] + 1, playerPos[1]),
+                        (playerPos[0] - 1, playerPos[1]),
+                    ]
+                    for coordinate in vals:
+                        if B.isValidCoordinate(coordinate) and B.States[coordinate[1]][coordinate[0]].person == None:
+                            if B.States[coordinate[1]][coordinate[0]].passable() == True:
+                                poss.append([coordinate, "move"])
+                if act == "heal" and B.resources[0].currentValue > 1:
+                    vals = [
+                        (playerPos[0], playerPos[1] + 1),
+                        (playerPos[0], playerPos[1] + 1),
+                        (playerPos[0], playerPos[1] - 1),
+                        (playerPos[0] + 1, playerPos[1]),
+                        (playerPos[0] - 1, playerPos[1]),
+                        (playerPos[0]+ 1, playerPos[1] + 1),
+                        (playerPos[0]- 1, playerPos[1] - 1),
+                        (playerPos[0] + 1, playerPos[1] - 1),
+                        (playerPos[0] - 1, playerPos[1] + 1),
+                        (playerPos[0], playerPos[1])
+                    ]
+                    for coord in vals:
+                        if (B.isValidCoordinate(coord) 
+                            and B.States[coord[1]][coord[0]].person is not None ):
+                            poss.append([coord, "heal"])
+                if act == "refresh" and B.resources[0].currentValue == 8:
+                    poss.append([playerPos, "refresh"])
+                if act == "wait":
+                    poss.append([playerPos, "wait"])
         return poss
 
     def toCoord(self, i: int):

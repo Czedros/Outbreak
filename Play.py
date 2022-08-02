@@ -13,4 +13,4 @@ class Play:
         self.Z = Z
         self.Zmove = Zmove
     def __hash__(self):
-       return hash(str(self.row) + "," + str(self.col))
+       return hash(str(self.row) + "," + str(self.col) + "," + self.Zmove)
