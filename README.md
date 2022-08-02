@@ -1,36 +1,46 @@
 # Outbreak! (Uly 1)
-A game of moral decisions involving zombies, days and nights, resources, obstacles, and action points. Will you save others, or will you save yourself?
+A game of decisions involving zombies, resources, obstacles, and action points. Will you save others, or will you save yourself?
 
-## How to Play
-Click on your human (there is only one player) and click on the available spots to move. Based on your amount of AP, you can select a certain combination of moves (moving, healing).
+## How to Win
+Survive 40 turns without getting infected or starving to death.
 
 ### Features
-As more zombies are healed (and disappear off the board), more resources will be used up each turn. Move around to gather the resources to replenish your stock so you don't die.
+AP: 
+You have a total of 8 AP as the Human, and you can spend that AP to make a combination of Moves.
+    To move, click on an empty location(it auto pathfinds!). 
+          - Moving Costs 1 AP per square!
+     To Heal/Vaccinate, click on a zombie within the highlighted area to heal, and click on your human to vaccinate
+         - Costs 2 AP
+     To Move to a new city (change the map), click on the compass icon
+        - Costs 8 AP!
+Every turn, 3 AP will be regenerated. To Undo a Move, click on the arrow above the "Finish Turn" Icon to undo 1 previous action.
 
-AP dictates how much you can do per turn. It refills a little after every turn. This limits how much you can do per turn.
+Resource:
+You start with a full satchel of resources (100). 
 
-Day and night cycles add changes to the game. More zombies spawn in at night.
+At the end of your turn, you consume resources depending on how many survivors you have (including you!)
 
-Obstacles include water and houses/walls. You are unable to move onto these tiles.
+To gather more supplies, go to the Well icon. (They are consumed!)
 
-You can heal orthogonally and diagonally by clicking on the potion (upper right) and then on a zombie, as shown by the shaded squares when you select the human. Also, you can vaccinate yourself through the same method.
+Survivors:
 
-Hit the compass for a map refresh. This randomly generates a new map.
+After healing a Zombie, they are removed from play and added to your survivor count. 
 
-Use the arrows to redo move choices.
+Obstacles and Walls
+    - The Map contains wall tiles and rocks and cacti that blocks you from walking through them. You, and zombies gotta walk around them
 
-Enjoy the delicious ambient music!
+####Side Notes
 
-## Win Scenarios
-1. The human survives 50 turns without running out of food.
-2. Every zombie is cured.
+Zombies use a statemachine AI
 
-## Lose Scenarios
-1. You run out of resources before 50 turns are over.
-2. You are turned into a zombie.
+Data Reports should be in the form of:
 
-## AP
-Moving: 1 AP per tile
-Curing/vaccinating: 2 AP
-Refresh map: 8 AP
+Resources Remaining: 
 
+Humans Saved:
+
+Map Refreshed Done:
+
+Win/Loss:
+
+Enjoy the Music and Happy Hunting!
