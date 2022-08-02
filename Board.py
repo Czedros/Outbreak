@@ -479,7 +479,7 @@ class Board:
     def pickup(self, coord):
         if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
             self.States[coord[1]][coord[0]].obstacle = None
-            self.resources[1].alterByValue(10)
+            self.resources[1].alterByValue(5)
             self.resources[1].alterByPercent(2*self.resources[0].currentValue, False)
             return True
         return False
