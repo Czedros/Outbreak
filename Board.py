@@ -532,7 +532,8 @@ class Board:
             self.resources[0].alterByValue(3)
             self.timeCounter += 1
             self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-            self.resources[1].alterByPercent(-6*(1+(self.resources[2].currentValue)), False)
+            self.resources[1].alterByValue(-2*((self.resources[2].currentValue)))
+            self.resources[1].alterByPercent(-2*((self.resources[2].currentValue)), False)
             if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
                 self.zombieWave()
             #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):
