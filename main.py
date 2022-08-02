@@ -36,8 +36,11 @@ while running:
                 running = False
                 print("Resources Remaining:", GameBoard.resources[1].currentValue)
                 print("People Saved:", GameBoard.resources[2].currentValue)
-                print("Days Survived:", GameBoard.timeCounter)
+                print("Turns Survived:", GameBoard.timeCounter)
                 print("Lost By Starvation")
+                #write to datacollectionPlayer
+                PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue, 
+                GameBoard.timeCounter, "lose", "Starvation"])
                 PF.displayResultScreen(False, 1)
                 continue
             if (not GameBoard.containsPerson(False)):
@@ -45,8 +48,11 @@ while running:
                 running = False
                 print("Resources Remaining:", GameBoard.resources[1].currentValue)
                 print("People Saved:", GameBoard.resources[2].currentValue)
-                print("Days Survived:", GameBoard.timeCounter)
+                print("Turns Survived:", GameBoard.timeCounter)
                 print("Lost By Infection")
+                #write to datacollectionPlayer
+                PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue,
+                 GameBoard.timeCounter, "lose", "Infection"])
                 continue
             # Event Handling
             finished = False
@@ -129,6 +135,9 @@ while running:
                 print("Won")
                 PF.displayResultScreen(True, 2)
                 running = False
+                #writes to dataCollectionPlayer win case
+                PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue,
+                 GameBoard.timeCounter, "won", "survived"])
                 continue
             # update the board's states
             playerMoved = False
