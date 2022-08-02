@@ -214,32 +214,40 @@ class Board:
             print("this shouldn't run yet")
             return poss
         elif role == 'Human':
-            found_person = False
             if not self.containsPerson(False):
                 return poss
-            for y in range(len(self.States)):
-                arr = self.States[y]
-                for x in range(len(arr)):
-                    state = arr[x]
-                    if state.person is not None and not state.person.isZombie:
-                        found_person = True
-                        if action == "heal" and (
-                            state.person.isZombie or not 
-                            state.person.isVaccinated 
-                            and self.resources[0].currentValue > 2
-                        ):
-                            print("heal possibleMoves is not finished yet")
-                            changed_states = True
-                        elif (
-                            action != "heal"
-                            and not state.person.isZombie
-                            and B.actionToFunction[action]((x, y))[0]
-                            and self.resources[0].currentValue > 0 #TODO: not down yet
-                        ):
-                            poss.append(B.actionToFunction[action]((x,y))[2])
-                    if found_person:
-                        break
-            
+            playerPos = self.findPlayer()
+            if B.resources[0].currentValue > 0:
+                vals = [
+                    (playerPos[0], playerPos[1] + 1),
+                    (playerPos[0], playerPos[1] - 1),
+                    (playerPos[0] + 1, playerPos[1]),
+                    (playerPos[0] - 1, playerPos[1]),
+                ]
+                for coordinate in vals:
+                    if B.isValidCoordinate(coordinate) and B.States[coordinate[1]][coordinate[0]].person == None:
+                        if B.States[coordinate[1]][coordinate[0]].passable() == True:
+                            poss.append([coordinate, "move"])
+            if B.resources[0].currentValue > 1:
+                vals = [
+                    (playerPos[0], playerPos[1] + 1),
+                    (playerPos[0], playerPos[1] + 1),
+                    (playerPos[0], playerPos[1] - 1),
+                    (playerPos[0] + 1, playerPos[1]),
+                    (playerPos[0] - 1, playerPos[1]),
+                    (playerPos[0]+ 1, playerPos[1] + 1),
+                    (playerPos[0]- 1, playerPos[1] - 1),
+                    (playerPos[0] + 1, playerPos[1] - 1),
+                    (playerPos[0] - 1, playerPos[1] + 1),
+                    (playerPos[0], playerPos[1])
+                ]
+                for coord in vals:
+                    if (self.isValidCoordinate(coord) 
+                        and self.States[coord[1]][coord[0]].person is not None ):
+                        poss.append(["heal", coord])
+            if B.resources[0].currentValue == 8:
+                poss.append("refresh", playerPos)
+            poss.append("wait", playerPos)
         return poss
 
     def toCoord(self, i: int):
@@ -528,7 +536,7 @@ class Board:
             self.States[pos[1]][pos[0]].person = p
         self.population = total + 1
     def zombieWave(self):
-        total = 7
+        total = rd.randint(1,7)
         humanPos = self.findPlayer()
         for i in range(total):
             pos = (rd.randint(0, self.columns - 1), rd.randint(0, self.rows - 1))

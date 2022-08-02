@@ -143,5 +143,5 @@ while running:
             pygame.display.update()
             playerMoved = not playerMoved
             #break #ADDED TO TEST ONE ITERATION
-        running = False
+            running = False
     
