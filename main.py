@@ -10,7 +10,7 @@ from Animator import Animations
 from Animator import Animation
 from Audio import Audio
 rd.seed(10)
-SELF_PLAY = True  # whether or not a human will be playing
+SELF_PLAY = False  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
 # Create the game board
 GameBoard = Board((ROWS, COLUMNS), player_role)
