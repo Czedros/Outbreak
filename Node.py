@@ -32,15 +32,12 @@ class Node:
         """
         expand the child node and return the new child node
         """
-        
-        #The problem rn is that play is sometimes put in as a list
-        #I guess I can just expand multiple plays 
-        
+        #NOTICE: for the Zombie's play, it is a list of plays, not the Class Play
         if hash(play) not in self.children.keys():
             print("NOPE FOR EXPANSION")
         cNode = Node(self, play, cState, unexpandedPlays)
         self.children[hash(play)] = {"play" : play, "node" : cNode}
-        #The issue here with zombies is that the play is now not class Play anymore, its a tuple of Plays so i have to be careful
+        
         return cNode
     
     def allPlays(self):
@@ -62,16 +59,13 @@ class Node:
         get all unexpanded legal plays from this node 
         """
         acts = []
-        for child in self.children.values(): #returns a list of different dictionaries, child represent each dic
-            print("child", type(child), child)
-            if child["node"] is None:
-                if type(child["play"]) is tuple :
-                    print(type(child["play"]))
+        for child in self.children.values(): #returns a list of dictionaries, child represent each dic
+            if child["node"] is None: #if this node is unexpanded
+                if type(child["play"]) is tuple : #all the plays for the zombies ais
                     for p in child["play"]:
-                        acts.append(p)
+                        acts.append(p) #append EVERY play
                 else:
                     acts.append(child["play"])
-        print("the unexpanded plays", acts)
         return acts
 
     def isFullyExpanded(self):
@@ -88,6 +82,7 @@ class Node:
         this is not apart of the case where the player wins
         """
         return len(self.children) == 0
+
     def getUCB1(self, c):
         """
         get the ucb1 value of this node

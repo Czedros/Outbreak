@@ -61,15 +61,16 @@ class Board:
             "bite": self.bite,
         }
     
-    #Hannah's addition for ai
+    #MCTS FUNCTIONS
     def start(self):
         """
         return the intial game state
-        only call at begining :)
+        only call at beginning :)
         """
         boardC = self.clone(self.States, self.player_role) #copy
         copied = State_MC([], boardC, 1)
         return copied
+        
     def legal_plays(self, state : State_MC):
         """
          return the current player's legal moves from given state
@@ -78,13 +79,14 @@ class Board:
         """
         print("LEGALPLAYS")
         legalPlays = []
-        action = ["moveUp", "moveDown", "moveLeft", "moveRight", "heal"] #only for human:
+        action = ["moveUp", "moveDown", "moveLeft", "moveRight",] #Add others
         if state.isPlayer(1):         
             print("LEGAL PLAYS get possible moves for human")
             role = 'Human'
             for i in action:
                 coords = state.board.get_possible_moves(i, role)
                 for val in coords:
+                    print("the coords", val)
                     legalPlays.append(Play(val[0], val[1], 1)) #Human Move 
         else: 
             zombies = []
@@ -93,60 +95,52 @@ class Board:
             for arr in state.board.States:
                 for s in arr:
                     if s.person is not None and s.person.isZombie == True:
-                        tup = (s.person.ai, s.person.ai.ID) 
-                        zombies.append(tup)
-            for zomb, id in zombies:
+                        zombies.append(s.person.ai)
+            print("Player's position needs to move, rn player position is", state.board.findPlayer())
+            for zomb in zombies:
                 coords.append((zomb.performAction(state.board), zomb))
                 #(name of movement, coordinates, specifics )
             for val, ai in coords:
                 legalPlays.append(Play(val[1][0], val[1][1], player = -1, Z = ai, Zmove = val[2]))  #Zombie Move
         print("End make Legal Moves")
         return legalPlays
-    def next_state(self, state: State_MC, play : Play):
+
+    def next_state(self, state: State_MC, play):
         """
         advance the given state and return the new state
         """
-       # try:
+      
         print("NEXT_STATE")
         newHistory = copy.copy(state.playHistory)
-        newHistory.append(play)
+
+        if state.isPlayer(-1):
+            for p in play:
+                newHistory.append(p)
+        else: newHistory.append(play)
+
         newBoard = state.board.clone(state.board.States, state.board.player_role) 
-        print("player:", state.player, " is Player ", state.isPlayer(1))
+        
         if state.isPlayer(1): #next_state for player
-            print("NEXT_STATE MOVEMENT FOR PLAYER") 
+            print("NEXT_STATE HUMAN ") 
             print("player moving to: ", play.row, play.col)
             newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
         else:
-            print("NEXT_STATE FOR ZOMBIES")
-            idIndex = 0
-            #for arr in newBoard.States:
-                #for s in arr:
-                    #if s.person is not None and s.person.isZombie == True:
-                       # s.person.ai.ID = state.zombiesID[idIndex]
-                       # print(" state new id: ", s.person.ai.ID)
-            for arr in newBoard.States:
-                for s in arr:
-                    if s.person is not None and s.person.isZombie == True:
-                        print("next_state zombie newBoard ID for this zombie", s.person.ai.ID)
-            
+            print("NEXT_STATE ZOMBIES")
+            newBoard.pZombieID(newBoard) #debug purposes
             for p in play: #all the plays for each zombie
-                print("this play", p, "and if play is a zombie:" , p.Z)
                 if p.Zmove != 'bite':
-                     #prints None
-                    #The problem is the Zombie's ID and the ID on the board are not the same
-                    print("this zombie id on p.Z.ID", p.Z.ID)
                     newBoard.move(newBoard.findPerson(p.Z.ID), (p.row, p.col))     
                 else:
                     print("bitting at: ", p.row, p.col)
                     biteSuccess = newBoard.bite((p.row, p.col))
                     if biteSuccess: #if bite is successful
-                        print("did this bitting mechanic ran?") 
+                        print("bite success") 
                         return State_MC(newHistory, newBoard, -state.player)
         newPlayer = -state.player #next player's turn
         return State_MC(newHistory, newBoard, newPlayer)
              
 
-    #WINNER FOR THE SIMULATED GAMES, NOT THE ACTUAL GAME!!!
+    #TODO: change with more mechanics probably
     def winner(self, winstate):
         if winstate is not None:
             if winstate.board.timeCounter == 40:
@@ -156,11 +150,18 @@ class Board:
                 print("lost")
                 return -1 #human lost
             if winstate.board.num_zombies() > 0 and winstate.board.populationF() != winstate.board.num_zombies():
+                print("game ongoing")
                 return None #no winner yet
         else:
             print("winstate is None")
 
-    # End of Hannah's Addition
+    def pZombieID(self, board):
+        for arr in board.States:
+                for s in arr:
+                    if s.person is not None and s.person.isZombie == True:
+                        print("Zombie ID:", s.person.ai.ID)
+
+    # End of AI
 
     def num_zombies(self) -> int:
         r = 0
@@ -200,6 +201,7 @@ class Board:
         """
         Get the coordinates of people (or zombies) that are able
         to make the specified move.
+        AHHHHHHHHHHHHHHHHHHHHHHHHH I MISREAD THIS change it to the coordinates of the new move
         @param action - the action to return possibilities for (options are 'bite', 'moveUp', 'moveDown','moveLeft', 'moveRight', and 'heal')
         @param role - either 'Zombie' or 'Human'; helps decide whether an action
         is valid and which people/zombies it applies to
@@ -207,93 +209,37 @@ class Board:
         poss = []
         B = self.clone(self.States, role)
 
-        if role == "Zombie":
-            if not self.containsPerson(True):
-                return poss
-            for y in range(len(self.States)):
-                arr = self.States[y]
-                for x in range(len(arr)):
-                    state = arr[x]
-                    if state.person is not None:
-                        changed_states = False
-
-                        if (
-                            action == "bite"
-                            and not state.person.isZombie
-                            and self.isAdjacentTo((x, y), True)
-                            and state.person.AP.currentValue > 1
-                        ):
-                            # if the current space isn't a zombie and it is adjacent
-                            # a space that is a zombie
-                            poss.append((x, y))
-                            changed_states = True
-                        elif (
-                            action != "bite"
-                            and state.person.isZombie
-                            and B.actionToFunction[action]((x, y))[0]
-                            and state.person.AP.currentValue > 0
-                        ):
-                            poss.append((x, y))
-                            changed_states = True
-
-                        if changed_states:
-                            # reset the states
-                            #B.States = [
-                            #    self.States[int(i / self.columns)][i % self.columns].clone()
-                            #    if self.States[int(i / self.columns)][i % self.columns] != B.States[int(i / self.columns)][i % self.columns]
-                            #    else B.States[int(i / self.columns)][i % self.columns]
-                            #    for i in range(self.columns * self.rows)
-                            #]
-                            B.States = []
-                            for y in range(len(self.States)):
-                                arr = self.States[y]
-                                arrB = [None] * self.columns
-                                for x in range(len(arr)):
-                                    arrB[x] = self.States[y][x].clone()
-                                    #if(arr[x] == arrB[x]):
-                                B.States.append(arrB)
-
-        elif role == "Human":
+        if role == 'Zombie':
+            #TODO: Put zombieAI here
+            print("this shouldn't run yet")
+            return poss
+        elif role == 'Human':
+            found_person = False
             if not self.containsPerson(False):
                 return poss
             for y in range(len(self.States)):
                 arr = self.States[y]
                 for x in range(len(arr)):
                     state = arr[x]
-                    if state.person is not None:
-                        changed_states = False
+                    if state.person is not None and not state.person.isZombie:
+                        found_person = True
                         if action == "heal" and (
                             state.person.isZombie or not 
                             state.person.isVaccinated 
                             and self.resources[0].currentValue > 2
                         ):
-                            poss.append((x, y))
+                            print("heal possibleMoves is not finished yet")
                             changed_states = True
                         elif (
                             action != "heal"
                             and not state.person.isZombie
                             and B.actionToFunction[action]((x, y))[0]
-                            and self.resources[0].currentValue > 0
+                            and self.resources[0].currentValue > 0 #TODO: not down yet
                         ):
-                            poss.append((x, y))
-                            changed_states = True
-
-                        if changed_states:
-                            # reset the states
-                            #B.States = [
-                            #    self.States[int(i / self.columns)][i % self.columns].clone()
-                            #    if self.States[int(i / self.columns)][i % self.columns] != B.States[int(i / self.columns)][i % self.columns]
-                            #    else B.States[int(i / self.columns)][i % self.columns]
-                            #    for i in range(self.columns * self.rows)
-                            #]
-                            B.States = []
-                            for y in range(len(B.States)):
-                                arr = self.States.States[y]
-                                arrB = [None] * self.columns
-                                for x in range(len(arr)):
-                                    arrB[x] = self.States[y][x].clone()
-                                    #if(arr[x] == arrB[x]):
-                                B.States.append(arrB)
+                            poss.append(B.actionToFunction[action]((x,y))[2])
+                    if found_person:
+                        break
+            
         return poss
 
     def toCoord(self, i: int):
@@ -406,7 +352,7 @@ class Board:
                         self.States[from_coords[1]][from_coords[0]].person = None
                         self.resources[0].alterByValue(-mult)
                         return [True, destination_idx]
-            return [False, destination_idx]
+            return [False, destination_idx, new_coords]
         except:
             pass
 
@@ -490,10 +436,8 @@ class Board:
 
     def bite(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         i = self.toIndex(coords)
-        print("before the bite function how many zombies: ", self.num_zombies())
         work = self.States[coords[1]][coords[0]].person.calcInfect()
         print("Infection has either failed or succeeded, action completed successfully in Board")
-        print("after the bite function how many zombies: ", self.num_zombies(), "but population...", self.population)
         return [work, i]
 
     def heal(self, coords: Tuple[int, int], infRange = False) -> Tuple[bool, int]:

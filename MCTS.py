@@ -23,15 +23,16 @@ class MCTS:
         print("MAKENODE")
         if self.nodes.get(hash(state)) is None:
             print("MAKENODE: LEGALPLAYS") 
-            unexpandedPlays = copy.copy(self.board.legalPlays(state))
+            unexpandedPlays = copy.copy(self.board.legal_plays(state))
             node = Node(None, None, state, unexpandedPlays)
             self.nodes[hash(state)] = node
     def runSearch(self,state):
         """
         runs the entire 4-step process in a set amount of time
         """
+        print("RUNSEARCH MAKENODE")
         self.makeNode(state)
-        self.calculation_time = datetime.timedelta(seconds = 10) #time taken to to do entire 4 step process
+        self.calculation_time = datetime.timedelta(seconds = 30) #time taken to to do entire 4 step process
         
         begin = datetime.datetime.utcnow()
         while datetime.datetime.utcnow() - begin < self.calculation_time:
@@ -40,12 +41,11 @@ class MCTS:
             winner = self.board.winner(node.state)
 
             if node.isLeaf() == False and winner is None :
-                print("No winner is found -> do the rest of the MCTS")
                 print("RUNSEARCH EXPANSION")
                 node = self.expand(node) #EXPANSION: seach tree is expanded by adding a node
                 print("RUNSEARCH SIMULATION")
                 winner = self.simulate(node) #SIMULATION: run the game starting form the added node to determine the winner
-            print("winner is found or reached a Leaf -->", winner, "RUNSEARCH BACKPROPAGATION")
+            print("Winner found-->", winner, "or reached a leaf", node.isLeaf(), "RUNSEARCH BACKPROPAGATION")
             self.back(node, winner) #BACKPROPAGATION: All the nodes in the selected path are updated with new info from simulation
 
     def bestPlay(self, state):
@@ -67,7 +67,7 @@ class MCTS:
                 bPlay = play
                 max = cNode.wins / cNode.plays #
         print("max wr: ", max)
-        print("bestPlay player, roll, and col", bPlay.player, bPlay.row, bPlay.col)
+        print("bestPlay player, row, and col", bPlay.player, bPlay.row, bPlay.col)
         return bPlay 
 
     def select(self, state):
@@ -76,20 +76,19 @@ class MCTS:
         1. until not fully expanded 
         2. until Leaf 
         """
-        print("SELECTION RN")
+        print("SELECTION")
         node = self.nodes[hash(state)]
-        print("node type", type(node))
-        while(node.isFullyExpanded() and not node.isLeaf()):
+        while node.isFullyExpanded() and not node.isLeaf():
             print("IF EXPANDED AND NOT TERMINAL")
             plays = node.allPlays()
             bPlay = None
-            bUCB1 = float('-inf') #this is like java version of like Integer.MIN_VALUE... but python can do -infinity damn
-
+            bUCB1 = float('-inf') #negative infinity
             for play in plays:
                 dic = node.children[hash(play)]
                 cUCB1 = dic["node"].getUCB1(self.c) 
                 if cUCB1 > bUCB1: #process of pickng the best child 
                     bPlay = hash(play)
+                    print("hash same? ", bPlay == hash(play))
                     bUCB1 = cUCB1
             node = node.childNode(bPlay)
         return node #return the best child slay
@@ -97,23 +96,24 @@ class MCTS:
     def expand(self, node : Node):
         """
         MCTS Expansion Phase
-        expand a unexpanded child node. will be random
+        expand a unexpanded child node. 
+        player: will be random
+        zombie: all unexpandedPlays are expanded in one state 
         """
         print("EXPANSION")
         plays = node.unexpandedPlays()
         play_h_or_z = None
-        if node.state.player == 1 : #if human, onl do 1 plaay
-            print("human expanded")
+        if node.state.isPlayer(1): #if human, only do 1 random play
             play_h_or_z = choice(plays) #random unexpanded child node
+            print("human expanded")
         else:
-            play_h_or_z = tuple(plays)
+            play_h_or_z = tuple(plays) #all plays are considered
             print("zombie expanded")
 
-        #c for child!
         print("EXPANSION NEXT_STATE")
-        cState = self.board.next_state(node.state, play_h_or_z ) #play the next state and return it
+        cState = self.board.next_state(node.state, play_h_or_z ) # play the next state and return it
         print("EXPANSION LEGAL_PLAYS")
-        cUnexpandedPlays = self.board.legal_plays(cState) #find all the unexpandedplays for this new child State
+        cUnexpandedPlays = self.board.legal_plays(cState) #find all the legal_plays for this new child State
         print("EXPANSION Node expand")
         cNode = node.expand(play_h_or_z, cState, cUnexpandedPlays) #expand the child node and return it
         self.nodes[hash(cState)] = cNode #add it to our dict of nodes hahahahah
@@ -131,20 +131,20 @@ class MCTS:
         winner = self.board.winner(state)
         while winner == None: #while the game continues 
             print("a new iteration of simulation")
-            print("a new iteration of legal_plays")
+            print("SIMULATION legal_plays")
             plays = self.board.legal_plays(state)
-            print("player:", state.player, " is Player ", state.isPlayer(1))
-            if state.isPlayer(1) : #if human, onl do 1 plaay
-                play = choice(plays) #random unexpanded child node
-                print("next state for government")
+            
+            if state.isPlayer(1):
+                play = choice(plays) 
+                print("SIMULATION next_state for human")
                 state = self.board.next_state(state, play)
             else:
                 playList = plays
                 print("next state for zombie")
                 state = self.board.next_state(state, playList)
-            print("simulation iteration find winner")
+            print("SIMULATION find winner")
             winner = self.board.winner(state)
-            print("simulation iteration find winner -->", winner)
+            print("The winner is... -->", winner)
         return winner
 
     def back(self, node, winner):
@@ -154,8 +154,8 @@ class MCTS:
         """
         print("backpropagation")
         while node is not None:
-            node.plays +=1
-            if node.state.isPlayer( not winner): #TODO: or node.state.isplayer(0.5)
+            node.plays += 1
+            if node.state.isPlayer(not winner): #Parent node wins are updaed
                 node.wins += 1 
             node = node.parent
     
@@ -167,9 +167,9 @@ class MCTS:
                 ]
         for child in node.children.values():
             if child["node"] is None:
-                stats[2].append((child["play"], None, None))
+                stats[2].append((hash(child["play"]), None, None))
             else:
-                stats[2].append((child["play"], child["node"].plays, child["node"].wins))
+                stats[2].append((hash(child["play"]), child["node"].plays, child["node"].wins))
         return stats
 
 
