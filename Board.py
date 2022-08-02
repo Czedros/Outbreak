@@ -210,8 +210,6 @@ class Board:
         B = self.clone(self.States, role)
 
         if role == 'Zombie':
-            #TODO: Put zombieAI here
-            print("this shouldn't run yet")
             return poss
         elif role == 'Human':
             if not self.containsPerson(False):
@@ -242,8 +240,8 @@ class Board:
                     (playerPos[0], playerPos[1])
                 ]
                 for coord in vals:
-                    if (self.isValidCoordinate(coord) 
-                        and self.States[coord[1]][coord[0]].person is not None ):
+                    if (B.isValidCoordinate(coord) 
+                        and B.States[coord[1]][coord[0]].person is not None ):
                         poss.append(["heal", coord])
             if B.resources[0].currentValue == 8:
                 poss.append("refresh", playerPos)
