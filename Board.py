@@ -114,7 +114,10 @@ class Board:
                 newHistory.append(p)
         else: newHistory.append(play)
 
+        oldT = state.board.timeCounter
         newBoard = state.board.clone(state.board.States, state.board.player_role) 
+        newBoard.timeCounter = oldT
+        print("next_State newBoard check its timeCounter", newBoard.timeCounter)
         
         if state.isPlayer(1): #next_state for player
             print("NEXT_STATE HUMAN ") 
@@ -126,8 +129,8 @@ class Board:
             elif play.Zmove == "refresh":
                 newBoard = newBoard.newBoard()
             else: #to wait 
-                pass 
-            newBoard.update()
+                pass
+            newBoard.update() 
         else:
             print("NEXT_STATE ZOMBIES")
             newBoard.pZombieID(newBoard) #debug purposes

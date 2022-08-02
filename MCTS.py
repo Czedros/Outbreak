@@ -88,7 +88,6 @@ class MCTS:
                 cUCB1 = dic["node"].getUCB1(self.c) 
                 if cUCB1 > bUCB1: #process of pickng the best child 
                     bPlay = hash(play)
-                    print("hash same? ", bPlay == hash(play))
                     bUCB1 = cUCB1
             node = node.childNode(bPlay)
         return node #return the best child slay
@@ -133,15 +132,18 @@ class MCTS:
             print("a new iteration of simulation")
             print("SIMULATION legal_plays")
             plays = self.board.legal_plays(state)
+            print("after simulation legal plays winCounter", state.board.timeCounter)
             
             if state.isPlayer(1):
                 play = choice(plays) 
                 print("SIMULATION next_state for human")
                 state = self.board.next_state(state, play)
+                print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
             else:
                 playList = plays
-                print("next state for zombie")
+                print("SIMULATION next_state for zombie")
                 state = self.board.next_state(state, playList)
+                print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
             print("SIMULATION find winner")
             winned = self.board.winner(state)
             print("The winner is... -->", winned)
