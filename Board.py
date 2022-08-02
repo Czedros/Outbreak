@@ -237,6 +237,13 @@ class Board:
                             and self.resources[0].currentValue > 0 #TODO: not down yet
                         ):
                             poss.append(B.actionToFunction[action]((x,y))[2])
+                        elif (
+                            action == "mapRefresh"
+                            and not state.person.isZombie
+                            and self.resources[0].currentValue >= 8
+                        ):
+                            print("map refresh possibleMoves is not finished yet")
+                            changed_states = True
                     if found_person:
                         break
             
