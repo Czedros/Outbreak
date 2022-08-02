@@ -108,18 +108,7 @@ while running:
                     GameBoard.bite(Action[1])
 
             # Implement the selected action
-            if GameBoard.timeCounter > 40:
-                print("")
-                print("****************You Won!****************")
-                print("Resources Remaining:", GameBoard.resources[1].currentValue)
-                print("People Saved:", GameBoard.resources[2].currentValue)
-                print("Days Survived:", GameBoard.timeCounter)
-                print("")
-                
-                PF.displayResultScreen(True)
-                running = False
 
-                continue
             # update the board's states
             playerMoved = False
             GameBoard.update(False)
@@ -130,11 +119,12 @@ while running:
     else:
         #TODO: implement HUMAN_AI
         #Create the MCTS
-        mcts = MCTS(GameBoard, 2)
+        mcts = MCTS(GameBoard)
         state = GameBoard.start() #Return State_MC
         winner = GameBoard.winner(state)
         while winner is None:
-
+            P = PF.run(state.board)
+            print("player position before", state.board.findPlayer())
             print("Running MCTS")
             mcts.runSearch(state) #TODO: make the MCTS know to make a move for player
             print("Getting stats")
@@ -142,15 +132,16 @@ while running:
             print(stats)
             print("Getting best play")
             play = mcts.bestPlay(state) #get the best play
+            print("Play's row:", play.row, "Play's col", play.col)
             #Go to next state
+            print("player position before", state.board.findPlayer())
             print("Next State")
             state = GameBoard.next_state(state, play)
             winner = GameBoard.winner(state)
-            playerMoved = True
-            GameBoard.update()
-            PF.reset_actions()  #don't understand 
-            GameBoard.update(False)
+            print("player position after", state.board.findPlayer())
+            state.board.update(playerMoved)
             pygame.display.update()
-            break #ADDED TO TEST ONE ITERATION
+            playerMoved = not playerMoved
+            #break #ADDED TO TEST ONE ITERATION
         running = False
     

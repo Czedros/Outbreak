@@ -14,17 +14,16 @@ class MCTS:
         # **kwargs take in a arbitrary amount of keyword arguments
         self.board = board 
         self.c = c
-        self.nodes = {} # TODO: need hashable states. get you any node given its state
+        self.nodes = {} # key: hashed version of state, value: the node 
         
     def makeNode(self, state):
         """
         if given state does not exist, create root node
         """
         print("MAKENODE")
-        if self.nodes.get(hash(state)) == None:
-            print("MAKENODE: LEGALPLAYS")
-            cloned = state.board.clone(state.board.States, state.board.player_role)
-            unexpandedPlays = state.board.legal_plays(state)
+        if self.nodes.get(hash(state)) is None:
+            print("MAKENODE: LEGALPLAYS") 
+            unexpandedPlays = copy.copy(self.board.legalPlays(state))
             node = Node(None, None, state, unexpandedPlays)
             self.nodes[hash(state)] = node
     def runSearch(self,state):
@@ -32,7 +31,7 @@ class MCTS:
         runs the entire 4-step process in a set amount of time
         """
         self.makeNode(state)
-        self.calculation_time = datetime.timedelta(seconds = 30) #time taken to to do entire 4 step process
+        self.calculation_time = datetime.timedelta(seconds = 10) #time taken to to do entire 4 step process
         
         begin = datetime.datetime.utcnow()
         while datetime.datetime.utcnow() - begin < self.calculation_time:
