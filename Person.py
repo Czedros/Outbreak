@@ -2,7 +2,7 @@ import random as rd
 from Resource import Resource
 from Animator import Animations
 from Animator import Animation
-import Animator
+
 from ZombieAI import ZombieAI
 
 class Person:
@@ -43,8 +43,10 @@ class Person:
             self.isZombie = True
             self.animation = Animation(Animations.zombie.value)
             print("The zombie successfully infected you, action completed successfully in Person")
+            return True
         else:
             print("The zombie failed to infect you, action completed successfully in Person")
+            return False
     def calcCureSuccess(self):
         chance = 20
         if self.wasCured == True:

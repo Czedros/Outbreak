@@ -2,8 +2,6 @@ import time
 from turtle import position
 import renderConstants
 import random as rd
-from Animator import Animations
-from Animator import Animation
 class ZombieAI :
     currentState = "Roam"
     active = False
@@ -12,7 +10,7 @@ class ZombieAI :
     classID = 0
     position = [2,2]
     board = None
-    vision = 4
+    vision = 3
     
     
     def __init__(self):
@@ -21,29 +19,25 @@ class ZombieAI :
         ZombieAI.classID += 1
 
     def performAction(self, board): 
+        self.setState(0)
         self.positionUpdate(board) 
-        if(self.currentState != self.states[0]):
-            self.setState(0, board)
         self.seekPosition = board.findPlayer() #coords the player one
-        if abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) <= self.vision: #a vision scenario: seek
-            self.setState(1, board)
+        if abs(self.seekPosition[0] - self.position[0]) + abs(self.seekPosition[1] - self.position[1]) <= 3: #a vision scenario: seek
+            self.setState(1)
         if board.isAdjacentTo(self.position,False): #a vision scenario: attack
-            self.setState(2, board) 
+            self.setState(2) 
         stateactions = {
             "Roam" : self.stateRoam(board),
             "Attack" : self.stateAttack(board),
             "Seek" : self.stateSeek(board)
         }
+        print("current Pos" , self.position)
         action = stateactions[self.currentState] #return the value
+        print(action)
         return action
-    def setState(self, state, board):
+    def setState(self, state):
         self.currentState = self.states[state]
-        if(self.currentState == "Roam"):
-            board.States[self.position[1]][self.position[0]].person.animation = Animation(Animations.zombie.value)
-        elif(self.currentState == "Attack"):
-            board.States[self.position[1]][self.position[0]].person.animation = Animation(Animations.bite.value)
-        elif(self.currentState == "Seek"):
-            board.States[self.position[1]][self.position[0]].person.animation = Animation(Animations.seek.value)
+
     def positionUpdate(self, gameBoard):
         self.position = gameBoard.findPerson(self.ID)
 
@@ -62,11 +56,15 @@ class ZombieAI :
             if prevDistance > distance:
                 prevDistance = distance 
                 chosenMove = Move
+        print(self.seekPosition)
+        print("Moving to")
+        print(chosenMove)
         return ("move", chosenMove, "seek") #Added third data value for Animation
 
     def stateAttack(self, board):
         #Bite at the seeked position
-        return ("bite", self.seekPosition)
+        print(self.seekPosition)
+        return ("bite", self.seekPosition, "bite")
 
     def stateRoam(self, gameBoard):
         possibleMoves = self.getLegalMoves(gameBoard)
@@ -90,3 +88,14 @@ class ZombieAI :
                 if gameBoard.States[coordinate[1]][coordinate[0]].passable() == True:
                      possible_move_coords.append(coordinate)
         return possible_move_coords
+
+
+
+# MCTS 
+
+# Tree
+# Node: Game State 
+# Edges: move (the human or the zombie will make)
+
+# Selection, Expansion, Simulation, Backprogation (all the information from the simulation is updated in the Tree )
+    
