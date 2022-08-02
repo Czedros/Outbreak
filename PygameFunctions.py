@@ -429,7 +429,7 @@ def run(GameBoard):
     dayProgressRect.left = dayProgressRectBounds[0] * (1 - ratio) + dayProgressRectBounds[1] * ratio
     pygame.draw.rect(display_surface, (255, 255, 255), dayProgressRect)
     #######
-    resourceDrain = min(2*(1+(GameBoard.resources[2].currentValue) + 2*(GameBoard.resources[2].currentValue * (((GameBoard.resources[2].currentValue)/100)))), resources)
+    resourceDrain = min((1+(GameBoard.resources[2].currentValue)), resources)
     resourceDrainWidth = resourceRectBound * resourceDrain / GameBoard.resources[1].maxValue
     display_surface.blit(resourceBar, resourceBarPos)
     display_surface.blit(resourceIcon, (iconDist, iconDist - iconYOff))
@@ -573,6 +573,7 @@ def displayResultScreen(won, reason = 1):
 
         pygame.display.update()
         endTime = time.process_time()
+        
         deltaTime = endTime - startTime
         if(platform != "darwin" and endTime - startTime1 >= videoDuration - 1):
             resMovie.close()
@@ -598,7 +599,7 @@ def direction(coord1: Tuple[int, int], coord2: Tuple[int, int]):
         return "moveLeft"
 
     #rumeysa: writes to files
-def dataWrite(path: str, toWrite: Tuple):
+def dataWrite(path: str, toWrite: list):
     f = open(path, "a", newline="")
     csv.writer(f).writerow(toWrite)
     f.close()
@@ -606,3 +607,35 @@ def dataWrite(path: str, toWrite: Tuple):
     #reads the data from data collection1: 
 def dataRead(path: str):
     return pd.read_csv(path)
+
+'''
+    #graphing the data of player
+def plotGraphPlayer1(path: str):
+    df = dataRead(path)
+    plt.bar(df["resources remaining"], df["turns survived"], color="blue", edgecolor="black")
+    plt.xlabel('resources remaining')
+    plt.ylabel('turns survived')
+
+    plt.savefig('barchart1.png', dpi=300)
+    plt.show()
+    
+def plotGraphPlayer2(path):
+    df = dataRead(path)
+    plt.bar(df["people saved"], df["turns survived"], color="red", edgecolor="black")
+    plt.xlabel('people saved')
+    plt.ylabel('turns survived')
+    plt.savefig('barchart2.png', dpi=300)
+    plt.show()
+'''
+
+def winningData(path):
+    df = dataRead(path)
+    plt.plot(df["people saved"], label="people saved", color="green", linestyle="--", marker="^")
+    plt.plot(df["turns survived"], label="turns survived", color="red", marker=".")
+    plt.xlabel('turns')
+    plt.ylabel('people saved(green) and turns survived(red)')
+    plt.savefig('lineGraph3.png', dpi=300)
+    #plt.show()
+
+
+   
