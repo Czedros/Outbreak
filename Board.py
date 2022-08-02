@@ -480,7 +480,7 @@ class Board:
         if(self.States[coord[1]][coord[0]].obstacle == Obstacles.resource.value):
             self.States[coord[1]][coord[0]].obstacle = None
             self.resources[1].alterByValue(5)
-            self.resources[1].alterByPercent(6*(self.resources[2].currentValue + self.resources[0].currentValue), False)
+            self.resources[1].alterByPercent(2*self.resources[0].currentValue, False)
             return True
         return False
     def findPath(self, from_coord, to_coord):#Tiankuo, you can replace this with you're path finding algorithm, but I need to call a path finding algorithm for my UI
@@ -532,8 +532,8 @@ class Board:
             self.resources[0].alterByValue(3)
             self.timeCounter += 1
             self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
-            self.resources[1].alterByValue(-1*(1+(self.resources[2].currentValue)))
-            # self.resources[1].alterByPercent(-3*(1+(self.resources[2].currentValue)), False)
+            self.resources[1].alterByValue(-2*((self.resources[2].currentValue)))
+            self.resources[1].alterByPercent(-2*((self.resources[2].currentValue)), False)
             if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
                 self.zombieWave()
             #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):

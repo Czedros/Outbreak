@@ -129,6 +129,8 @@ while running:
 
             # Implement the selected action
             if GameBoard.timeCounter > 40:
+                PF.displayResultScreen(True, 2)
+                running = False
                 print("Resources Remaining:", GameBoard.resources[1].currentValue)
                 print("People Saved:", GameBoard.resources[2].currentValue)
                 print("Days Survived:", GameBoard.timeCounter)

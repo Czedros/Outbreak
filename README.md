@@ -4,6 +4,15 @@ A game of decisions involving zombies, resources, obstacles, and action points. 
 ## How to Win
 Survive 4 days (40 turns) without getting infected or starving to death.
 
+## Requirements
+ffpyplayer
+pygame
+pymediainfo
+pillow
+csv
+pandas
+matplotlibs
+
 ## Features
 ### AP:
 You have a total of 8 AP as the Human, and you can spend that AP to make a combination of Moves.

@@ -429,7 +429,7 @@ def run(GameBoard):
     dayProgressRect.left = dayProgressRectBounds[0] * (1 - ratio) + dayProgressRectBounds[1] * ratio
     pygame.draw.rect(display_surface, (255, 255, 255), dayProgressRect)
     #######
-    resourceDrain = min((1+(GameBoard.resources[2].currentValue)), resources)
+    resourceDrain = min(2*(1+(GameBoard.resources[2].currentValue) + 2*(GameBoard.resources[2].currentValue * (((GameBoard.resources[2].currentValue)/100)))), resources)
     resourceDrainWidth = resourceRectBound * resourceDrain / GameBoard.resources[1].maxValue
     display_surface.blit(resourceBar, resourceBarPos)
     display_surface.blit(resourceIcon, (iconDist, iconDist - iconYOff))
