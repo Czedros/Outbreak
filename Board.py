@@ -92,9 +92,12 @@ class Board:
             coords = state.board.get_possible_moves(role)
             print("LEGAL PLAYS get possible moves for zombie")
             for val in coords:
-                #list of [(coord + move), zombie ai]
-                print("Action is:", val[0][2], "to coordinates:", val[0][0], val[0][1])
-                legalPlays.append(Play(val[0][0], val[0][1], player = -1, Z = val[1], Zmove = val[0][2]))  #Zombie Move
+                #a list 
+                 #poss is a list of lists
+                  #each list has first element tupe, second element zombie ai
+                    #tuple first element is either move or bite, second element is a tuple or coords, third element is the specific string
+                print("Action is:", val[0][2], "to coordinates:", val[0][1][0], val[0][1][1])
+                legalPlays.append(Play(val[0][1][0], val[0][1][1], player = -1, Z = val[1], Zmove = val[0][2]))  #Zombie Move
         print("End make Legal Moves")
         return legalPlays
 
@@ -115,7 +118,7 @@ class Board:
         
         if state.isPlayer(1): #next_state for player
             print("NEXT_STATE HUMAN ") 
-            print("player moving to: ", play.row, play.col)
+            print("player move is ", play.Zmove)
             if play.Zmove == "move":
                 newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
             elif play.Zmove == "heal":
@@ -124,6 +127,7 @@ class Board:
                 newBoard = newBoard.newBoard()
             else: #to wait 
                 pass 
+            newBoard.update()
         else:
             print("NEXT_STATE ZOMBIES")
             newBoard.pZombieID(newBoard) #debug purposes
@@ -142,7 +146,9 @@ class Board:
 
     #TODO: change with more mechanics probably
     def winner(self, winstate):
+        print("winner is called")
         if winstate is not None:
+            print("timeCounter", winstate.board.timeCounter)
             if winstate.board.timeCounter == 40:
                 print("survived")
                 return 1
@@ -228,7 +234,9 @@ class Board:
                         zombies.append(s.person.ai)
             for zomb in zombies:
                 poss.append([zomb.performAction(B), zomb])
-                #(name of movement, coordinates, specifics )
+                #poss is a list of lists
+                  #each list has first element tupe, second element zombie ai
+                    #tuple first element is either move or bite, second element is a tuple or coords, third element is the specific string
         elif role == 'Human':
             action = ["move", "heal", "wait"] #add refresh later
             if not self.containsPerson(False):
@@ -609,8 +617,9 @@ class Board:
             self.timeCounter += 1
             self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
             self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
-            if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
-                self.zombieWave()
+            #TODO: add zombie wave later
+            #if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
+                #self.zombieWave()
                 #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):
                 #    self.populate()
             #print(self.resources[1].currentValue)

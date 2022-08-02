@@ -38,15 +38,15 @@ class MCTS:
         while datetime.datetime.utcnow() - begin < self.calculation_time:
             print("RUNSEARCH SELECTION STARTING")
             node = self.select(state) #SELECTION: existing info repeadetly choose successive child node down to end of search tree
-            winner = self.board.winner(node.state)
+            winned = self.board.winner(node.state)
 
-            if node.isLeaf() == False and winner is None :
+            if node.isLeaf() == False and winned is None :
                 print("RUNSEARCH EXPANSION")
                 node = self.expand(node) #EXPANSION: seach tree is expanded by adding a node
                 print("RUNSEARCH SIMULATION")
-                winner = self.simulate(node) #SIMULATION: run the game starting form the added node to determine the winner
-            print("Winner found-->", winner, "or reached a leaf", node.isLeaf(), "RUNSEARCH BACKPROPAGATION")
-            self.back(node, winner) #BACKPROPAGATION: All the nodes in the selected path are updated with new info from simulation
+                winned = self.simulate(node) #SIMULATION: run the game starting form the added node to determine the winner
+            print("Winner found-->", winned, "or reached a leaf", node.isLeaf(), "RUNSEARCH BACKPROPAGATION")
+            self.back(node, winned) #BACKPROPAGATION: All the nodes in the selected path are updated with new info from simulation
 
     def bestPlay(self, state):
         """
@@ -128,8 +128,8 @@ class MCTS:
         """
         print("SIMULATION")
         state = node.state 
-        winner = self.board.winner(state)
-        while winner == None: #while the game continues 
+        winned = self.board.winner(state)
+        while winned == None: #while the game continues 
             print("a new iteration of simulation")
             print("SIMULATION legal_plays")
             plays = self.board.legal_plays(state)
@@ -143,9 +143,9 @@ class MCTS:
                 print("next state for zombie")
                 state = self.board.next_state(state, playList)
             print("SIMULATION find winner")
-            winner = self.board.winner(state)
-            print("The winner is... -->", winner)
-        return winner
+            winned = self.board.winner(state)
+            print("The winner is... -->", winned)
+        return winned
 
     def back(self, node, winner):
         """
