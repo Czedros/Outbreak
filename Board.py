@@ -93,7 +93,7 @@ class Board:
             print("LEGAL PLAYS get possible moves for zombie")
             for val in coords:
                 #list of [(coord + move), zombie ai]
-                print("Action is:", val[0][2], "to coordinates:", val[0][0], a[0][1])
+                print("Action is:", val[0][2], "to coordinates:", val[0][0], val[0][1])
                 legalPlays.append(Play(val[0][0], val[0][1], player = -1, Z = val[1], Zmove = val[0][2]))  #Zombie Move
         print("End make Legal Moves")
         return legalPlays
@@ -121,7 +121,7 @@ class Board:
             elif play.Zmove == "heal":
                 newBoard.heal((play.row, play.col))
             elif play.Zmove == "refresh":
-                newBoard.map_refresh()
+                newBoard = newBoard.newBoard()
             else: #to wait 
                 pass 
         else:
@@ -162,6 +162,16 @@ class Board:
                         print("Zombie ID:", s.person.ai.ID)
 
     # End of AI
+
+    def newBoard(self):
+        coords = self.findPlayer()
+        rd.seed(coords[0] + coords[1] * COLUMNS)
+        ret = Board((ROWS, COLUMNS), self.player_role, excludeMap = self.map)
+        ret.resources = self.resources
+        ret.timeCounter = self.timeCounter
+        ret.isDay = self.isDay
+        ret.populate()
+        return ret
 
     def num_zombies(self) -> int:
         r = 0
@@ -220,7 +230,7 @@ class Board:
                 poss.append([zomb.performAction(B), zomb])
                 #(name of movement, coordinates, specifics )
         elif role == 'Human':
-            action = ["move", "heal", "refresh", "wait"]
+            action = ["move", "heal", "wait"] #add refresh later
             if not self.containsPerson(False):
                 return poss
             for act in action:
