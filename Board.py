@@ -90,11 +90,9 @@ class Board:
             print("LEGAL PLAYS get possible moves for human")
             role = 'Human'
             acts = state.board.get_possible_moves(role)
-            #a list of strings 
-            playerPos = state.board.findPlayer()
             for a in acts:
-                #move is going to use original position coordinates
-                #heal should too then 
+                #list of [coord, action]
+                #print("Action is:", a[1], "to coordinates:", a[0][0], a[0][1])
                 legalPlays.append(Play(a[0][0], a[0][1], player = 1, Z = None, Zmove = a[1])) #Human Move 
         else: 
             role = 'Zombie'
@@ -103,9 +101,10 @@ class Board:
             for val in coords:
                 #a list 
                  #poss is a list of lists
-                  #["action", zomb]
-                print("Action is:", val[0], "to coordinates:", val[1].position[0], val[1].position[1])
-                legalPlays.append(Play(val[1].position[0], val[1].position[1], player = -1, Z = val[1], Zmove = val[0]))  #Zombie Move
+                  #each list has first element tupe, second element zombie ai
+                    #tuple first element is either move or bite, second element is a tuple or coords, third element is the specific string
+                print("Action is:", val[0][2], "to coordinates:", val[0][1][0], val[0][1][1])
+                legalPlays.append(Play(val[0][1][0], val[0][1][1], player = -1, Z = val[1], Zmove = val[0][2]))  #Zombie Move
         print("End make Legal Moves")
         return legalPlays
 
@@ -130,18 +129,14 @@ class Board:
         if state.isPlayer(1): #next_state for player
             print("NEXT_STATE HUMAN ") 
             print("player move is ", play.Zmove)
-            if play.Zmove == "move" and newBoard.resources[0].currentValue > 0:
+            if play.Zmove == "move":
                 newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
                 newBoard.pickup((play.row, play.col))
-                newBoard.resources[0].alterByValue(-1) #aint the most efficient but i got to finish
-            elif play.Zmove == "heal" and newBoard.resources[0].currentValue >= 2 :
-                newBoard.heal((play.row, play.col)) 
-                newBoard.resources[0].alterByValue(-2)
-            elif play.Zmove == "refresh" and newBoard.resources[0].currentValue >= 8:
+            elif play.Zmove == "heal":
+                newBoard.heal((play.row, play.col))
+            elif play.Zmove == "refresh":
                 newBoard = newBoard.newBoard()
-                newBoard.resources[0].alterByValue(-8)
-
-            else: #to wait or not enough AP
+            else: #to wait 
                 pass
             newBoard.update() 
         else:
@@ -243,7 +238,7 @@ class Board:
                     if s.person is not None and s.person.isZombie == True:
                         zombies.append(s.person.ai)
             for zomb in zombies:
-                poss.append([zomb.performAction(B)[2], zomb])
+                poss.append([zomb.performAction(B), zomb])
                 #poss is a list of lists
                   #each list has first element tupe, second element zombie ai
                     #tuple first element is either move or bite, second element is a tuple or coords, third element is the specific string
@@ -252,10 +247,8 @@ class Board:
             if not self.containsPerson(False):
                 return poss
             for act in action:
+                playerPos = self.findPlayer()
                 if act == "move" and B.resources[0].currentValue > 0:
-                    numMove = B.resources[0].currentValue 
-                    playerPos = B.findPlayer()
-                    #TODO: move to next_State
                     vals = [
                         (playerPos[0], playerPos[1] + 1),
                         (playerPos[0], playerPos[1] - 1),
@@ -266,8 +259,7 @@ class Board:
                         if B.isValidCoordinate(coordinate) and B.States[coordinate[1]][coordinate[0]].person == None:
                             if B.States[coordinate[1]][coordinate[0]].passable() == True:
                                 poss.append([coordinate, "move"])
-                    
-                if act == "heal" and B.resources[0].currentValue > 2:
+                if act == "heal" and B.resources[0].currentValue > 1:
                     vals = [
                         (playerPos[0], playerPos[1] + 1),
                         (playerPos[0], playerPos[1] + 1),
@@ -284,9 +276,8 @@ class Board:
                         if (B.isValidCoordinate(coord) 
                             and B.States[coord[1]][coord[0]].person is not None ):
                             poss.append([coord, "heal"])
-                
                 if act == "refresh" and B.resources[0].currentValue == 8:
-                    poss.append([playerPos,"refresh"])
+                    poss.append([playerPos, "refresh"])
                 if act == "wait":
                     poss.append([playerPos, "wait"])
         return poss
