@@ -113,7 +113,7 @@ class Board:
         advance the given state and return the new state
         """
       
-        print("NEXT_STATE")
+        #print("NEXT_STATE")
         newHistory = copy.copy(state.playHistory)
 
         #if state.isPlayer(-1):
@@ -124,11 +124,11 @@ class Board:
         oldT = state.board.timeCounter
         newBoard = state.board.clone(state.board.States, state.board.player_role) 
         newBoard.timeCounter = oldT
-        print("next_State newBoard check its timeCounter", newBoard.timeCounter)
+        #print("next_State newBoard check its timeCounter", newBoard.timeCounter)
         incrementTime = False
         if state.isPlayer(1): #next_state for player
-            print("NEXT_STATE HUMAN ") 
-            print("player move is ", play.Zmove)
+            #print("NEXT_STATE HUMAN ") 
+            #print("player move is ", play.Zmove)
             newHistory.append(play)
             if play.Zmove == "move":
                 newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
@@ -144,20 +144,20 @@ class Board:
                 incrementTime = True
             else: #to wait 
                 incrementTime = True
-            print("AP: " + str(newBoard.resources[0].currentValue))
+            #print("AP: " + str(newBoard.resources[0].currentValue))
             newBoard.update(incrementTime = incrementTime) 
         else:
             incrementTime = True
-            print("NEXT_STATE ZOMBIES")
+            #print("NEXT_STATE ZOMBIES")
             newBoard.pZombieID(newBoard) #debug purposes
             for p in play: #all the plays for each zombie
                 if p.Zmove != 'bite':
                     newBoard.move(newBoard.findPerson(p.Z.ID), (p.row, p.col))     
                 else:
-                    print("bitting at: ", p.row, p.col)
+                    #print("bitting at: ", p.row, p.col)
                     biteSuccess = newBoard.bite((p.row, p.col))
                     if biteSuccess: #if bite is successful
-                        print("bite success") 
+                        #print("bite success") 
                         return State_MC(newHistory, newBoard, -state.player)
         newPlayer = state.player
         if(incrementTime):
@@ -166,9 +166,9 @@ class Board:
 
     #TODO: change with more mechanics probably
     def winner(self, winstate):
-        print("winner is called")
+        #print("winner is called")
         if winstate is not None:
-            print("timeCounter", winstate.board.timeCounter)
+            #print("timeCounter", winstate.board.timeCounter)
             if winstate.board.timeCounter == 40:
                 print("survived")
                 PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'win', "Survived", ""] + winstate.playHistoryArray())
@@ -182,7 +182,7 @@ class Board:
                 PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Infection", ""] + winstate.playHistoryArray())
                 return -1 #human lost
             if winstate.board.num_zombies() > 0 and winstate.board.populationF() != winstate.board.num_zombies():
-                print("game ongoing")
+                #print("game ongoing")
                 return None #no winner yet
         else:
             print("winstate is None")
@@ -411,22 +411,22 @@ class Board:
 
     def moveUp(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0], coords[1] - 1)
-        print("player moved up if there was enough AP, action completed successfully in Board")
+        #print("player moved up if there was enough AP, action completed successfully in Board")
         return self.move(coords, new_coords)
 
     def moveDown(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0], coords[1] + 1)
-        print("player moved down if there was enough AP, action completed successfully in Board")
+        #print("player moved down if there was enough AP, action completed successfully in Board")
         return self.move(coords, new_coords)
 
     def moveLeft(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0] - 1, coords[1])
-        print("player moved left if there was enough AP, action completed successfully in Board")
+        #print("player moved left if there was enough AP, action completed successfully in Board")
         return self.move(coords, new_coords)
 
     def moveRight(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         new_coords = (coords[0] + 1, coords[1])
-        print("player moved right if there was enough AP, action completed successfully in Board")
+        #print("player moved right if there was enough AP, action completed successfully in Board")
         return self.move(coords, new_coords)
 
     def QGreedyat(self, state_id: int):
@@ -490,7 +490,7 @@ class Board:
     def bite(self, coords: Tuple[int, int]) -> Tuple[bool, int]:
         i = self.toIndex(coords)
         work = self.States[coords[1]][coords[0]].person.calcInfect()
-        print("Infection has either failed or succeeded, action completed successfully in Board")
+        #print("Infection has either failed or succeeded, action completed successfully in Board")
         return [work, i]
 
     def heal(self, coords: Tuple[int, int], infRange = False) -> Tuple[bool, int]:
@@ -520,7 +520,7 @@ class Board:
             
         else:
             p.get_vaccinated()
-            print("Person is now vaccinated, action completed successfully in Board")
+            #print("Person is now vaccinated, action completed successfully in Board")
             p.animation= Animation(Animations.vaccinate.value)
         return [True, i]
 

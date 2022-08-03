@@ -101,7 +101,7 @@ while running:
                 for state in arr:
                     if state.person is not None and state.person.isZombie == True:
                         tup = (state.person, state.person.ai.ID) 
-                        print(tup)
+                        #print(tup)
                         zombies.append(tup)
                         #zombies.append(state.person)
                         #zombies.append(state.person.ai.ID) #class State -> class Person -> class ZombieAi
