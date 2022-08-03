@@ -12,7 +12,7 @@ from Animator import Animations
 from Animator import Animation
 from Obstacle import Obstacles
 import Animator
-import PygameFunctions
+import PygameFunctions as PF
 #Human_Ai imports
 from State_MC import State_MC
 from Play import Play
@@ -51,7 +51,7 @@ class Board:
                 a.append(State(None, Cells.nan.value, (x, y)))
                 self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
             self.States.append(a)
-        PygameFunctions.imageToGrid(r'Assets/TestGrids/TrueGrid.png', r'Assets/TestGrids/TrueGridObstacles.png', self.States, (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1)))
+        PF.imageToGrid(r'Assets/TestGrids/TrueGrid.png', r'Assets/TestGrids/TrueGridObstacles.png', self.States, (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1)))
         self.actionToFunction = {
             "moveUp": self.moveUp,
             "moveDown": self.moveDown,
@@ -154,9 +154,15 @@ class Board:
             print("timeCounter", winstate.board.timeCounter)
             if winstate.board.timeCounter == 40:
                 print("survived")
+                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'win', "Survived"])
                 return 1
-            if winstate.board.populationF() == winstate.board.num_zombies():
-                print("lost")
+            if winstate.board.resources[1].currentValue < 1:
+                print("lost starvation")
+                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Starvation"])
+                return -1 #human lost
+            if (not winstate.board.containsPerson(False)):
+                print("lost infection")
+                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Infection"])
                 return -1 #human lost
             if winstate.board.num_zombies() > 0 and winstate.board.populationF() != winstate.board.num_zombies():
                 print("game ongoing")

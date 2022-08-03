@@ -9,6 +9,7 @@ import renderConstants
 from MCTS import MCTS
 from Animator import Animations
 from Animator import Animation
+import datetime
 SELF_PLAY = False  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
 # Create the game board
@@ -30,14 +31,25 @@ while running:
     if SELF_PLAY:
         P = PF.run(GameBoard)
         if not playerMoved:
-            if (not GameBoard.containsPerson(False)) or GameBoard.resources[1].currentValue < 1:
+            if GameBoard.resources[1].currentValue < 1:
                 print("")
                 print("****************You lost!****************")
                 print("Resources Remaining:", GameBoard.resources[1].currentValue)
                 print("People Saved:", GameBoard.resources[2].currentValue)
                 print("Days Survived:", GameBoard.timeCounter)
                 print("")
+                PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue, GameBoard.timeCounter, 'lose', "Starvation"])
+                PF.displayResultScreen(False)
+                running = False
                 
+            elif (not GameBoard.containsPerson(False)):
+                print("")
+                print("****************You lost!****************")
+                print("Resources Remaining:", GameBoard.resources[1].currentValue)
+                print("People Saved:", GameBoard.resources[2].currentValue)
+                print("Days Survived:", GameBoard.timeCounter)
+                print("")
+                PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue, GameBoard.timeCounter, 'lose', "Infection"])
                 PF.displayResultScreen(False)
                 running = False
 
@@ -78,7 +90,7 @@ while running:
                 GameBoard.update()
                 PF.reset_actions()
 
-        # Computer turn
+        # AI running
         else:
             #Hi I think the issue is that all the zombie ai have the same ID!
             #I print the ID and new are all the same 
@@ -146,4 +158,4 @@ while running:
             pygame.display.update()
             #break #ADDED TO TEST ONE ITERATION
         running = False
-    
+        
