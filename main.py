@@ -134,7 +134,7 @@ while running:
         state = GameBoard.start() #Return State_MC
         winned = GameBoard.winner(state)
         while winned is None:
-            P = PF.run(GameBoard)
+            P = PF.run(state.board)
             print("player position before", state.board.findPlayer())
             print("Running MCTS")
             mcts.runSearch(state) #TODO: make the MCTS know to make a move for player
@@ -156,6 +156,7 @@ while running:
             print("player position after", state.board.findPlayer())
             GameBoard.update()
             pygame.display.update()
+            time.sleep(1)
             #break #ADDED TO TEST ONE ITERATION
         running = False
         

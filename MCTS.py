@@ -3,7 +3,10 @@ from random import choice
 import datetime
 import copy
 from Node import Node
-
+import time
+import PygameFunctions as PF
+import sys
+import pygame
 class MCTS:
 
     """
@@ -39,7 +42,6 @@ class MCTS:
             print("RUNSEARCH SELECTION STARTING")
             node = self.select(state) #SELECTION: existing info repeadetly choose successive child node down to end of search tree
             winned = self.board.winner(node.state)
-
             if node.isLeaf() == False and winned is None :
                 print("RUNSEARCH EXPANSION")
                 node = self.expand(node) #EXPANSION: seach tree is expanded by adding a node
@@ -139,7 +141,14 @@ class MCTS:
             print("SIMULATION legal_plays")
             plays = self.board.legal_plays(state)
             print("after simulation legal plays winCounter", state.board.timeCounter)
-            
+            #AI Visualization, comment out to remove and speed up (meant for debugging)
+            st = time.process_time()
+            while(time.process_time() - st < 2):
+                P = PF.run(state.board)
+                for event in P:
+                    if event.type == pygame.QUIT:
+                        sys.exit()
+            ############
             if state.isPlayer(1):
                 play = choice(plays) 
                 print("SIMULATION next_state for human")
