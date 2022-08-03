@@ -32,7 +32,6 @@ class Board:
         self.rand = Random()
         self.rand.seed(rand)
         self.randSeed = rand
-        self.randCalls = 0
         self.rows = dimensions[0]
         self.columns = dimensions[1]
         self.player_role = player_role
@@ -57,10 +56,8 @@ class Board:
                 self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
             self.States.append(a)
         self.map = (self.rand.randint(0, CHUNKS[0] - 1), self.rand.randint(0, CHUNKS[1] - 1))
-        self.randCalls += 2
         while(self.map == excludeMap):
             self.map = (self.rand.randint(0, CHUNKS[0] - 1), self.rand.randint(0, CHUNKS[1] - 1))
-            self.randCalls += 2
         PF.imageToGrid(r'Assets/TestGrids/TrueGrid.png', r'Assets/TestGrids/TrueGridObstacles.png', self.States, self.map)
         self.actionToFunction = {
             "moveUp": self.moveUp,
@@ -327,10 +324,7 @@ class Board:
             NB.States[y] = [state.clone() for state in L[y]]
             
         NB.player_role = role
-        count = self.randCalls - NB.randCalls
-        for i in range(count):#make randoms the same
-           NB.rand.random()
-        NB.randCalls = self.randCalls
+        NB.rand.setstate(self.rand.getstate())
         return NB
 
     def isAdjacentTo(self, coord: Tuple[int, int], is_zombie: bool) -> bool:
@@ -574,32 +568,25 @@ class Board:
             for state in arr:
                 state.person = None
         humanPos = (self.rand.randint(0, self.columns - 1), self.rand.randint(0, self.rows - 1))
-        self.randCalls += 2
         while(not self.States[humanPos[1]][humanPos[0]].cellType.passable or self.States[humanPos[1]][humanPos[0]].obstacle != None):
             humanPos = (self.rand.randint(0, self.columns - 1), self.rand.randint(0, self.rows - 1))
-            self.randCalls += 2
         self.States[humanPos[1]][humanPos[0]].person = Person(False)
         poss = []
         for i in range(total):
             pos = (self.rand.randint(0, self.columns - 1), self.rand.randint(0, self.rows - 1))
-            self.randCalls += 2
             while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) <= 3):
                 pos = (self.rand.randint(0, self.columns - 1), self.rand.randint(0, self.rows - 1))
-                self.randCalls += 2
             p = Person(True)
             #print("zombie", p.ID, p.ai.ID) #ID and aiID are different
             self.States[pos[1]][pos[0]].person = p
         self.population = total + 1
     def zombieWave(self):
         total = self.rand.randint(1,7)
-        self.randCalls += 1
         humanPos = self.findPlayer()
         for i in range(total):
             pos = (self.rand.randint(0, self.columns - 1), self.rand.randint(0, self.rows - 1))
-            self.randCalls += 2
             while(not self.States[pos[1]][pos[0]].cellType.passable or self.States[pos[1]][pos[0]].obstacle != None or self.States[pos[1]][pos[0]].person != None or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) <= 2 or (abs(pos[0] - humanPos[0]) + abs(pos[1] - humanPos[1])) > 6):
                 pos = (self.rand.randint(0, self.columns - 1), self.rand.randint(0, self.rows - 1))
-                self.randCalls += 2
             p = Person(True)
             self.States[pos[1]][pos[0]].person = p
 
