@@ -355,7 +355,7 @@ def cellCoord(coord):
         cellX = int(renderConstants.GRIDRECT.left + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * coord[0] + renderConstants.CELLOFF)
         cellY = int(renderConstants.GRIDRECT.top + constants.LINE_WIDTH + (constants.LINE_WIDTH + renderConstants.CELLSIZE) * coord[1] + renderConstants.CELLOFF)
         return (cellX, cellY)
-def run(GameBoard):
+def run(GameBoard, ap = None):
     renderConstants.frame_time = time.process_time()
     for i in range(len(audios) - 1, -1, -1):
         aud = audios[i]
@@ -363,7 +363,8 @@ def run(GameBoard):
             aud.audio.toggle_pause()
             audios.pop(i)
     turn = GameBoard.timeCounter
-    ap = GameBoard.resources[0].currentValue
+    if(ap == None):
+        ap = GameBoard.resources[0].currentValue
     resources = min(GameBoard.resources[1].currentValue, GameBoard.resources[1].maxValue)
     display_surface.fill((0, 0, 0))
     #######

@@ -42,10 +42,10 @@ class Person:
         if rd.randint(0,100) < chance:
             self.isZombie = True
             self.animation = Animation(Animations.zombie.value)
-            print("The zombie successfully infected you, action completed successfully in Person")
+            #print("The zombie successfully infected you, action completed successfully in Person")
             return True
         else:
-            print("The zombie failed to infect you, action completed successfully in Person")
+            #print("The zombie failed to infect you, action completed successfully in Person")
             return False
     def calcCureSuccess(self):
         chance = 20
@@ -54,7 +54,7 @@ class Person:
         if rd.randint(0,100) > chance:
             self.isZombie = False
             self.animation = Animation(Animations.human.value)
-            print("Cure/Vaccine was successful, action completed successfully in Person")
+            #print("Cure/Vaccine was successful, action completed successfully in Person")
             Person.classID -= 1
             return True
         self.wasCured = True

@@ -31,9 +31,9 @@ class ZombieAI :
             "Attack" : self.stateAttack(board),
             "Seek" : self.stateSeek(board)
         }
-        print("current Pos" , self.position)
+        #print("current Pos" , self.position)
         action = stateactions[self.currentState] #return the value
-        print(action)
+        #print(action)
         return action
     def setState(self, state):
         self.currentState = self.states[state]
@@ -56,14 +56,14 @@ class ZombieAI :
             if prevDistance > distance:
                 prevDistance = distance 
                 chosenMove = Move
-        print(self.seekPosition)
-        print("Moving to")
-        print(chosenMove)
+        #print(self.seekPosition)
+        #print("Moving to")
+        #print(chosenMove)
         return ("move", chosenMove, "seek") #Added third data value for Animation
 
     def stateAttack(self, board):
         #Bite at the seeked position
-        print(self.seekPosition)
+        #print(self.seekPosition)
         return ("bite", self.seekPosition, "bite")
 
     def stateRoam(self, gameBoard):
