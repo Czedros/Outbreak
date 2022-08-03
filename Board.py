@@ -131,6 +131,7 @@ class Board:
             print("player move is ", play.Zmove)
             if play.Zmove == "move":
                 newBoard.move(newBoard.findPlayer(), (play.row, play.col)) #player occupies this place now
+                newBoard.pickup((play.row, play.col))
             elif play.Zmove == "heal":
                 newBoard.heal((play.row, play.col))
             elif play.Zmove == "refresh":
