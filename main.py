@@ -10,6 +10,7 @@ from MCTS import MCTS
 from Animator import Animations
 from Animator import Animation
 import datetime
+import sys
 SELF_PLAY = False  # whether or not a human will be playing
 player_role = "Government"  # Valid options are "Government" and "Zombie"
 # Create the game board
@@ -133,8 +134,8 @@ while running:
         state = GameBoard.start() #Return State_MC
         winned = GameBoard.winner(state)
         playerMoved = False
+        mcts.visualize(state.board)
         while winned is None:
-            P = PF.run(state.board)
             print("player position before", state.board.findPlayer())
             print("Running MCTS")
             mcts.runSearch(state) #TODO: make the MCTS know to make a move for player
@@ -152,6 +153,7 @@ while running:
             print("player position before", state.board.findPlayer())
             print("Next State")
             state = GameBoard.next_state(state, play)
+            mcts.visualize(state.board)
             winned = GameBoard.winner(state)
             print("player position after", state.board.findPlayer())
             GameBoard.update(playerMoved)

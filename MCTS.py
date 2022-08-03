@@ -7,6 +7,7 @@ import time
 import PygameFunctions as PF
 import sys
 import pygame
+RENDER = False
 class MCTS:
 
     """
@@ -35,7 +36,7 @@ class MCTS:
         """
         #print("RUNSEARCH MAKENODE")
         self.makeNode(state)
-        self.calculation_time = datetime.timedelta(seconds = 60) #time taken to to do entire 4 step process
+        self.calculation_time = datetime.timedelta(seconds = 10) #time taken to to do entire 4 step process
         
         begin = datetime.datetime.utcnow()
         while datetime.datetime.utcnow() - begin < self.calculation_time:
@@ -46,7 +47,8 @@ class MCTS:
                 #print("RUNSEARCH EXPANSION")
                 node = self.expand(node) #EXPANSION: seach tree is expanded by adding a node
                 #print("RUNSEARCH SIMULATION")
-                self.visualize(node.state.board)
+                if(RENDER):
+                    self.visualize(node.state.board)
                 winned = self.simulate(node) #SIMULATION: run the game starting form the added node to determine the winner
             #print("Winner found-->", winned, "or reached a leaf", node.isLeaf(), "RUNSEARCH BACKPROPAGATION")
             self.back(node, winned) #BACKPROPAGATION: All the nodes in the selected path are updated with new info from simulation
@@ -170,34 +172,37 @@ class MCTS:
                         newPos = state.board.findPlayer() # don't comment out
                         places.append(newPos) # don't comment out
 
-                        apCost += 1
-                        PF.actionSlot += 1
-                        PF.actions.append(PF.Action(PF.ActionTypes.move.value, PF.selectedActor, newPos))
-                        PF.selectedActor = newPos
-                    elif(play.Zmove == "heal"):
+                        if(RENDER):
+                            apCost += 1
+                            PF.actionSlot += 1
+                            PF.actions.append(PF.Action(PF.ActionTypes.move.value, PF.selectedActor, newPos))
+                            PF.selectedActor = newPos
+                    elif(play.Zmove == "heal" and RENDER):
                         apCost += 2
                         PF.actionSlot += 1
                         PF.actions.append(PF.Action(PF.ActionTypes.heal.value, (play.row, play.col)))
-                    elif(play.Zmove == "refresh"):
+                    elif(play.Zmove == "refresh" and RENDER):
                         apCost += 8
-                    PF.actionsAPCost = apCost
-                    PF.actionsAPCostShow = apCost
-                    self.visualize(oldBoard, wait = 1, ap = oldBoard.resources[0].currentValue)
+                    if(RENDER):
+                        PF.actionsAPCost = apCost
+                        PF.actionsAPCostShow = apCost
+                        self.visualize(oldBoard, wait = 1, ap = oldBoard.resources[0].currentValue)
                     ####
 
                     if(play.Zmove == "wait" or play.Zmove == "heal"):
                         break
 
-                #Render Stuff
-                PF.reset_actions()
-                PF.apOffset = 0
-                self.visualize(state.board, wait = 1)
+                if(RENDER):
+                    PF.reset_actions()
+                    PF.apOffset = 0
+                    self.visualize(state.board, wait = 1)
                 ####
             else:
                 #print("SIMULATION next_state for zombie")
                 state = self.board.next_state(state, self.board.legal_plays(state))
                 #print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
-                self.visualize(state.board)
+                if(RENDER):
+                    self.visualize(state.board)
             #print("SIMULATION find winner")
             winned = self.board.winner(state)
             #print("The winner is... -->", winned)

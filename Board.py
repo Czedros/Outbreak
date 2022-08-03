@@ -582,7 +582,7 @@ class Board:
         self.population = total + 1
     def zombieWave(self):
         total = self.rand.randint(1,7)
-        print("ZOMBIE WAVE APPEARED! THE AMOUNT ADDED IS", total)
+        #print("ZOMBIE WAVE APPEARED! THE AMOUNT ADDED IS", total)
         humanPos = self.findPlayer()
         for i in range(total):
             pos = (self.rand.randint(0, self.columns - 1), self.rand.randint(0, self.rows - 1))
