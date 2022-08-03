@@ -133,6 +133,7 @@ while running:
         mcts = MCTS(GameBoard)
         state = GameBoard.start() #Return State_MC
         winned = GameBoard.winner(state)
+        playerMoved = False
         while winned is None:
             P = PF.run(GameBoard)
             print("player position before", state.board.findPlayer())
@@ -154,8 +155,9 @@ while running:
             state = GameBoard.next_state(state, play)
             winned = GameBoard.winner(state)
             print("player position after", state.board.findPlayer())
-            GameBoard.update()
+            GameBoard.update(playerMoved)
             pygame.display.update()
+            playerMoved = not playerMoved
             #break #ADDED TO TEST ONE ITERATION
         running = False
         
