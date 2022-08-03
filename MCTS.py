@@ -46,6 +46,7 @@ class MCTS:
                 print("RUNSEARCH EXPANSION")
                 node = self.expand(node) #EXPANSION: seach tree is expanded by adding a node
                 print("RUNSEARCH SIMULATION")
+                self.visualize(node.state)
                 winned = self.simulate(node) #SIMULATION: run the game starting form the added node to determine the winner
             print("Winner found-->", winned, "or reached a leaf", node.isLeaf(), "RUNSEARCH BACKPROPAGATION")
             self.back(node, winned) #BACKPROPAGATION: All the nodes in the selected path are updated with new info from simulation
@@ -127,7 +128,6 @@ class MCTS:
 
         print("EXPANSION NEXT_STATE")
         cState = self.board.next_state(node.state, play_h_or_z ) # play the next state and return it
-        self.visualize(cState)
         print("EXPANSION LEGAL_PLAYS")
         cUnexpandedPlays = tuple(self.board.legal_plays(cState)) #find all the legal_plays for this new child State
         print("EXPANSION Node expand")
@@ -162,9 +162,9 @@ class MCTS:
                 state = self.board.next_state(state, playList)
                 print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
             print("SIMULATION find winner")
-            self.visualize(state)
             winned = self.board.winner(state)
             print("The winner is... -->", winned)
+            self.visualize(state)
         return winned
 
     def back(self, node, winner):
