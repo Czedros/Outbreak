@@ -18,7 +18,7 @@ class MCTS:
         
     def makeNode(self, state):
         """
-        if given state does not exist, create root node
+        if given state does not exist, create dangling node
         """
         print("MAKENODE")
         if self.nodes.get(hash(state)) is None:
@@ -32,7 +32,7 @@ class MCTS:
         """
         print("RUNSEARCH MAKENODE")
         self.makeNode(state)
-        self.calculation_time = datetime.timedelta(seconds = 30) #time taken to to do entire 4 step process
+        self.calculation_time = datetime.timedelta(seconds = 60) #time taken to to do entire 4 step process
         
         begin = datetime.datetime.utcnow()
         while datetime.datetime.utcnow() - begin < self.calculation_time:
@@ -53,6 +53,7 @@ class MCTS:
         Get the best move from available stats
         """
         self.makeNode(state)
+        print("state expanded? ", self.nodes[hash(state)].isFullyExpanded())
         #if not self.nodes[hash(state)].isFullyExpanded(): #TODO: not sure about this
            # raise("Not enough information to make bestPlay")
         
@@ -61,7 +62,7 @@ class MCTS:
         bPlay = None
         max = float('-inf')
         for play in allPlays:
-            cNode = node.children[hash(play)]["node"]
+            cNode = node.childNode(hash(play))
             if cNode is None: continue 
             if ( cNode.wins / cNode.plays )>max:
                 bPlay = play
@@ -157,21 +158,41 @@ class MCTS:
         print("backpropagation")
         while node is not None:
             node.plays += 1
-            if node.state.isPlayer(not winner): #Parent node wins are updaed
+            if node.state.isPlayer(-winner): #Parent node wins are updaed
                 node.wins += 1 
             node = node.parent
     
     def stats(self, state):
+        """
+        for the node for this state check out its stats
+        # plays, # wins, all children
+        """
         node = self.nodes[hash(state)]
-        stats = [ node.plays,
-                  node.wins,
-                  ['children:' ]
+        stats = [ {"plays" : node.plays},
+                  {"wins" : node.wins},
+                  ['children',]
                 ]
         for child in node.children.values():
-            if child["node"] is None:
-                stats[2].append((hash(child["play"]), None, None))
+            if state.isPlayer(1):
+                if child["node"] is None:
+                    stats[2].append((child["play"].Zmove, None, None))
+                    
+                else:
+                    stats[2].append( (child["play"].Zmove, child["node"].plays, child["node"].wins))
             else:
-                stats[2].append((hash(child["play"]), child["node"].plays, child["node"].wins))
+                
+                zombiePlays = []
+                if type(child["play"]) != tuple:
+                    zombiePlays = child["play"].Zmove
+                else:
+                    for p in child["play"]:
+                        zombiePlays.append(p.Zmove)
+                    zombiePlays = tuple(zombiePlays)
+                if child["node"] is None:
+                    stats[2].append((zombiePlays, None, None))
+                else:
+                    stats[2].append((zombiePlays, child["node"].plays, child["node"].wins))
+
         return stats
 
 
