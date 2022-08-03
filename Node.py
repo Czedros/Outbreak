@@ -32,7 +32,7 @@ class Node:
         """
         expand the child node and return the new child node
         """
-        #NOTICE: for the Zombie's play, it is a list of plays, not the Class Play
+        #NOTICE: for the Zombie's play, it is a tuple of plays, not the Class Play
         if hash(play) not in self.children.keys():
             print("NOPE FOR EXPANSION")
         cNode = Node(self, play, cState, unexpandedPlays)
@@ -40,16 +40,20 @@ class Node:
         
         return cNode
     
-    def allPlays(self):
+    def allPlays(self, bestP = False):
         """
         return all legal plays from this node
+        if bestP is True: then appen the tuple of plays instead
         """
         print("allPlays is running")
         acts = []
         for child in self.children.values():
             if type(child["play"]) is tuple:
-                for p in child["play"]:
-                    acts.append(p)
+                if not bestP:
+                    for p in child["play"]:
+                        acts.append(p)
+                else:
+                    acts.append(child["play"])
             else:
                 acts.append(child["play"])
         return acts

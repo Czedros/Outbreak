@@ -27,9 +27,8 @@ running = True
 take_action = []
 playerMoved = False
 while running:
-    P = PF.run(GameBoard)
-
     if SELF_PLAY:
+        P = PF.run(GameBoard)
         if not playerMoved:
             if (not GameBoard.containsPerson(False)) or GameBoard.resources[1].currentValue < 1:
                 print("")
@@ -132,7 +131,11 @@ while running:
             print(stats)
             print("Getting best play")
             play = mcts.bestPlay(state) #get the best play
-            print("Play's row:", play.row, "Play's col", play.col)
+            if state.isPlayer(1):
+                print("Play's row:", play.row, "Play's col", play.col, "and move", play.Zmove)
+            else:
+                for p in play:
+                    print("Play's row:", p.row, "Play's col", p.col, "and move", p.Zmove)
             #Go to next state
             print("player position before", state.board.findPlayer())
             print("Next State")
@@ -141,7 +144,6 @@ while running:
             print("player position after", state.board.findPlayer())
             GameBoard.update()
             pygame.display.update()
-            playerMoved = not playerMoved
             #break #ADDED TO TEST ONE ITERATION
-            running = False
+        running = False
     

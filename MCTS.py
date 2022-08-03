@@ -54,21 +54,26 @@ class MCTS:
         """
         self.makeNode(state)
         print("state expanded? ", self.nodes[hash(state)].isFullyExpanded())
-        #if not self.nodes[hash(state)].isFullyExpanded(): #TODO: not sure about this
-           # raise("Not enough information to make bestPlay")
+        #if not self.nodes[hash(state)].isFullyExpanded():
         
         node = self.nodes[hash(state)]
-        allPlays = node.allPlays()
         bPlay = None
         max = float('-inf')
+
+        if state.isPlayer(1):
+            allPlays = node.allPlays()
+        else:
+            allPlays = node.allPlays(bestP = True)
         for play in allPlays:
             cNode = node.childNode(hash(play))
-            if cNode is None: continue 
+            if cNode is None: 
+                print("this shouldn't run all the time")
+                continue 
             if ( cNode.wins / cNode.plays )>max:
                 bPlay = play
-                max = cNode.wins / cNode.plays #
+                max = cNode.wins / cNode.plays 
         print("max wr: ", max)
-        print("bestPlay player, row, and col", bPlay.player, bPlay.row, bPlay.col)
+        print("bestPlay ran with any errors somehow")
         return bPlay 
 
     def select(self, state):
@@ -179,8 +184,7 @@ class MCTS:
                     
                 else:
                     stats[2].append( (child["play"].Zmove, child["node"].plays, child["node"].wins))
-            else:
-                
+            else:   
                 zombiePlays = []
                 if type(child["play"]) != tuple:
                     zombiePlays = child["play"].Zmove
