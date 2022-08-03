@@ -606,3 +606,89 @@ def dataWrite(path: str, toWrite: Tuple):
     #reads the data from data collection1: 
 def dataRead(path: str):
     return pd.read_csv(path)
+
+'''
+#graphing the data of player
+def plotGraphPlayer1(path: str):
+    df = dataRead(path)
+    plt.bar(df["resources remaining"], df["turns survived"], color="blue", edgecolor="black")
+    plt.xlabel('resources remaining')
+    plt.ylabel('turns survived')
+    plt.savefig('barchart1.png', dpi=300)
+    plt.show()
+    
+def plotGraphPlayer2(path):
+    df = dataRead(path)
+    plt.bar(df["people saved"], df["turns survived"], color="red", edgecolor="black")
+    plt.xlabel('people saved')
+    plt.ylabel('turns survived')
+    plt.savefig('barchart2.png', dpi=300)
+    plt.show()
+
+'''
+
+def winningData(path: str, pathSave: str):
+    df = dataRead(path)
+    plt.plot(df["people saved"], label="people saved", color="green", linestyle="--", marker="^")
+    plt.plot(df["turns survived"], label="turns survived", color="red", marker=".")
+    plt.xlabel('game rounds')
+    plt.ylabel('people saved(green) and turns survived(red)')
+    plt.savefig(pathSave, dpi=300)
+    plt.clf()
+
+def winingDataPeopleSaved(path: str, pathSave: str, startEnd=[0,0], tail=0):
+    df = dataRead(path)
+    p = df["people saved"]
+
+    #this could be useful not what I'm trying to do tho
+    #meanP = df[["win/lose", "people saved"]].groupby("win/lose").mean
+    
+    #winCases = df[df["win/lose"] == "win"]["people saved"]
+    
+    if startEnd != [0,0]:
+        p = df["people saved"][startEnd[0]:startEnd[1]]
+    elif tail != 0:
+        p = df["people saved"].tail(tail)
+
+    plt.plot(p, color="green", linestyle="--", marker="^", markersize=2, markeredgecolor='black')
+    plt.title("people saved")
+    plt.xlabel('game rounds')
+    plt.ylabel('people saved')
+    plt.savefig(pathSave, dpi=300)
+    plt.clf()
+
+def winingDataTurnsSurvived(path: str, pathSave: str, startEnd=[0,0], tail=0):
+    df = dataRead(path)
+
+    p = df["turns survived"]
+    
+    if startEnd != [0,0]:
+        p = df["turns survived"][startEnd[0]:startEnd[1]]
+    elif tail != 0:
+        p = df["turns survived"].tail(tail)
+
+    plt.plot(p, color="red", marker=".", markersize=2, markeredgecolor='black')
+
+    plt.title("Turns Survived")
+    plt.xlabel('game rounds')
+    plt.ylabel('turns survived')
+    plt.savefig(pathSave, dpi=300)
+    plt.clf()
+
+def winingDataResourcesRemaining(path: str, pathSave: str, startEnd=[0,0], tail=0):
+    df = dataRead(path)
+
+    p = df["resources remaining"]
+    
+    if startEnd != [0,0]:
+        p = df["resources remaining"][startEnd[0]:startEnd[1]]
+    elif tail != 0:
+        p = df["resources remaining"].tail(tail)
+
+    plt.plot(p, color="blue", linestyle="dashdot", marker="*", markersize=2, markeredgecolor='black')
+
+    plt.title("resources remaining")
+    plt.xlabel('game rounds')
+    plt.ylabel('resources remaining')
+    plt.savefig(pathSave, dpi=300)
+    plt.clf()

@@ -1,5 +1,5 @@
 from os import system
-from types import NoneType
+#from types import NoneType
 from Cell import Cells
 from State import State
 import random as rd
@@ -162,14 +162,17 @@ class Board:
             if winstate.board.timeCounter == 40:
                 print("survived")
                 PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'win', "Survived", ""] + winstate.playHistoryArray())
+                PF.dataWrite("dataCollectionAI1.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'win', "Survived"])
                 return 1
             if winstate.board.resources[1].currentValue < 1:
                 print("lost starvation")
                 PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Starvation", ""] + winstate.playHistoryArray())
+                PF.dataWrite("dataCollectionAI1.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Starvation"])
                 return -1 #human lost
             if (not winstate.board.containsPerson(False)):
                 print("lost infection")
                 PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Infection", ""] + winstate.playHistoryArray())
+                PF.dataWrite("dataCollectionAI1.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Infection"])
                 return -1 #human lost
             if winstate.board.num_zombies() > 0 and winstate.board.populationF() != winstate.board.num_zombies():
                 print("game ongoing")

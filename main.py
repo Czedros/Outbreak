@@ -38,7 +38,7 @@ while running:
                 print("People Saved:", GameBoard.resources[2].currentValue)
                 print("Days Survived:", GameBoard.timeCounter)
                 print("")
-                PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue, GameBoard.timeCounter, 'lose', "Starvation"])
+                
                 PF.displayResultScreen(False)
                 running = False
                 break
@@ -49,7 +49,7 @@ while running:
                 print("People Saved:", GameBoard.resources[2].currentValue)
                 print("Days Survived:", GameBoard.timeCounter)
                 print("")
-                PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue, GameBoard.timeCounter, 'lose', "Infection"])
+                
                 PF.displayResultScreen(False)
                 running = False
                 break
