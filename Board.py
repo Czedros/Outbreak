@@ -134,7 +134,7 @@ class Board:
             elif play.Zmove == "heal":
                 newBoard.heal((play.row, play.col))
             elif play.Zmove == "refresh":
-                newBoard.newBoard()
+                newBoard = newBoard.newBoard()
             else: #to wait 
                 pass
             newBoard.update() 
@@ -183,17 +183,6 @@ class Board:
                         print("Zombie ID:", s.person.ai.ID)
 
     # End of AI
-
-    def newBoard(self):
-        coords = self.findPlayer()
-        playerCoord = self.findPlayer()
-        ret = Board((ROWS, COLUMNS), self.player_role, excludeMap = self.map, rand = (playerCoord[0] + playerCoord[1] * self.columns))
-        ret.resources = self.resources
-        ret.timeCounter = self.timeCounter
-        ret.isDay = self.isDay
-        ret.populate()
-        return ret
-
     def num_zombies(self) -> int:
         r = 0
         for arr in self.States:
@@ -582,6 +571,7 @@ class Board:
         self.population = total + 1
     def zombieWave(self):
         total = self.rand.randint(1,7)
+        print("ZOMBIE WAVE APPEARED! THE AMOUNT ADDED IS", total)
         humanPos = self.findPlayer()
         for i in range(total):
             pos = (self.rand.randint(0, self.columns - 1), self.rand.randint(0, self.rows - 1))
@@ -654,6 +644,13 @@ class Board:
                 if s.person is not None:
                     counter+=1
         return counter            
-
+    def newBoard(self):
+        coords = self.findPlayer()
+        ret = Board((ROWS, COLUMNS), self.player_role, excludeMap = self.map, rand = coords[0] + coords[1] * COLUMNS)
+        ret.resources = self.resources
+        ret.timeCounter = self.timeCounter
+        ret.isDay = self.isDay
+        ret.populate()
+        return ret
 
 
