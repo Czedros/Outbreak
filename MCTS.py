@@ -146,25 +146,44 @@ class MCTS:
         state = node.state 
         winned = self.board.winner(state)
         while winned == None: #while the game continues 
-            print("a new iteration of simulation")
-            print("SIMULATION legal_plays")
+            #print("a new iteration of simulation")
+            #print("SIMULATION legal_plays")
             plays = self.board.legal_plays(state)
-            print("after simulation legal plays winCounter", state.board.timeCounter)
+            #print("after simulation legal plays winCounter", state.board.timeCounter)
             
             if state.isPlayer(1):
-                play = choice(plays) 
-                print("SIMULATION next_state for human")
-                state = self.board.next_state(state, play)
-                print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
+                PF.firstActor = state.board.findPlayer()
+                PF.selectedActor = PF.firstActor
+                while(state.isPlayer(1)):
+                    print("player: " + str(state.player))
+                    play = choice(self.board.legal_plays(state)) 
+                    print("SIMULATION next_state for human")
+                    state = self.board.next_state(state, play)
+                    print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
+                    ####
+                    if(play.Zmove == "move"):
+                        PF.actionSlot += 1
+                        newPos = state.board.findPlayer()
+                        PF.actions.append(PF.Action(PF.ActionTypes.move.value, PF.selectedActor, newPos))
+                        PF.selectedActor = newPos
+                    elif(play.Zmove == "heal"):
+                        PF.actionSlot += 1
+                        PF.actions.append(PF.Action(PF.ActionTypes.heal.value, PF.selectedActor))
+                    self.visualize(state)
+                    print("/////////////////////////////")
+                    ####
+                    if(play.Zmove == "wait" or play.Zmove == "heal"):
+                        break
+                actions = []
+                PF.reset_actions()
             else:
-                playList = plays
                 print("SIMULATION next_state for zombie")
-                state = self.board.next_state(state, playList)
+                state = self.board.next_state(state, self.board.legal_plays(state))
                 print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
+                self.visualize(state)
             print("SIMULATION find winner")
             winned = self.board.winner(state)
             print("The winner is... -->", winned)
-            self.visualize(state)
         return winned
 
     def back(self, node, winner):
@@ -214,7 +233,7 @@ class MCTS:
     def visualize(self, state):
         #AI Visualization, comment out to remove and speed up (meant for debugging)
         st = time.process_time()
-        while(time.process_time() - st < 0.5):
+        while(time.process_time() - st < 2):
             P = PF.run(state.board)
             for event in P:
                 if event.type == pygame.QUIT:
