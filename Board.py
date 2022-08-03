@@ -322,7 +322,8 @@ class Board:
         #NB.States = [state.clone() for state in L]#No idea what this means :/
         for y in range(len(L)):
             NB.States[y] = [state.clone() for state in L[y]]
-            
+        for i in range(len(NB.resources)):
+            NB.resources[i].currentValue = self.resources[i].currentValue
         NB.player_role = role
         NB.rand.setstate(self.rand.getstate())
         return NB
