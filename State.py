@@ -71,8 +71,8 @@ class State:
         return (self.obstacle == None or self.obstacle.passable) and self.cellType.passable and self.person is None
     def clone(self):
         if self.person is None:
-            return State(self.person, self.cellType, self.location)
-        return State(self.person.clone(), self.cellType, self.location)
+            return State(self.person, self.cellType, self.location, obstacle=self.obstacle)
+        return State(self.person.clone(), self.cellType, self.location, obstacle=self.obstacle)
 
     def __eq__(self, __o: object) -> bool:
         if type(__o) == State:
