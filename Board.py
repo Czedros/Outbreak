@@ -27,7 +27,7 @@ class Board:
         ]
     def __init__(self,  dimensions: Tuple[int, int],
         player_role: str,
-    ):
+    excludeMap = None):
         self.rows = dimensions[0]
         self.columns = dimensions[1]
         self.player_role = player_role
@@ -51,7 +51,10 @@ class Board:
                 a.append(State(None, Cells.nan.value, (x, y)))
                 self.QTable.append([0] * 6)#Don't know what this does and it's not my problem lol
             self.States.append(a)
-        PF.imageToGrid(r'Assets/TestGrids/TrueGrid.png', r'Assets/TestGrids/TrueGridObstacles.png', self.States, (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1)))
+        self.map = (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1))
+        while(self.map == excludeMap):
+            self.map = (rd.randint(0, CHUNKS[0] - 1), rd.randint(0, CHUNKS[1] - 1))
+        PF.imageToGrid(r'Assets/TestGrids/TrueGrid.png', r'Assets/TestGrids/TrueGridObstacles.png', self.States, self.map)
         self.actionToFunction = {
             "moveUp": self.moveUp,
             "moveDown": self.moveDown,
@@ -127,7 +130,7 @@ class Board:
             elif play.Zmove == "heal":
                 newBoard.heal((play.row, play.col))
             elif play.Zmove == "refresh":
-                newBoard = newBoard.newBoard()
+                newBoard.newBoard()
             else: #to wait 
                 pass
             newBoard.update() 
@@ -247,7 +250,7 @@ class Board:
                   #each list has first element tupe, second element zombie ai
                     #tuple first element is either move or bite, second element is a tuple or coords, third element is the specific string
         elif role == 'Human':
-            action = ["move", "heal", "wait"] #add refresh later
+            action = ["move", "heal", "wait", "refresh"] #add refresh later
             if not self.containsPerson(False):
                 return poss
             for act in action:
