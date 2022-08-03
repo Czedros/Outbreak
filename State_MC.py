@@ -20,5 +20,13 @@ class State_MC:
         #So if two State_MC have the same playhistory that gets it to this State, then they are the same
         return hash(str(self.playHistory))
     
+    def playHistoryArray(self):
+        ret = []
+        for i in self.playHistory:
+            string = str(i.row) + "," + str(i.col) + "," + str(i.player)
+            if(i.Z != None):
+                string += "," + str(i.Z.ID) + "," + str(i.Zmove)
+            ret.append(string) 
+        return ret
 
 #TODO: I want to put two classes in one file because i think it's too spaced out lol

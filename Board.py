@@ -152,7 +152,6 @@ class Board:
                         return State_MC(newHistory, newBoard, -state.player)
         newPlayer = -state.player #next player's turn
         return State_MC(newHistory, newBoard, newPlayer)
-             
 
     #TODO: change with more mechanics probably
     def winner(self, winstate):
@@ -161,15 +160,15 @@ class Board:
             print("timeCounter", winstate.board.timeCounter)
             if winstate.board.timeCounter == 40:
                 print("survived")
-                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'win', "Survived"])
+                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'win', "Survived", ""] + winstate.playHistoryArray())
                 return 1
             if winstate.board.resources[1].currentValue < 1:
                 print("lost starvation")
-                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Starvation"])
+                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Starvation", ""] + winstate.playHistoryArray())
                 return -1 #human lost
             if (not winstate.board.containsPerson(False)):
                 print("lost infection")
-                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Infection"])
+                PF.dataWrite("dataCollectionPlayer.csv", [winstate.board.resources[1].currentValue, winstate.board.resources[2].currentValue, winstate.board.timeCounter, 'lose', "Infection", ""] + winstate.playHistoryArray())
                 return -1 #human lost
             if winstate.board.num_zombies() > 0 and winstate.board.populationF() != winstate.board.num_zombies():
                 print("game ongoing")

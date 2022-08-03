@@ -41,7 +41,7 @@ while running:
                 PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue, GameBoard.timeCounter, 'lose', "Starvation"])
                 PF.displayResultScreen(False)
                 running = False
-                
+                break
             elif (not GameBoard.containsPerson(False)):
                 print("")
                 print("****************You lost!****************")
@@ -52,8 +52,7 @@ while running:
                 PF.dataWrite("dataCollectionPlayer.csv", [GameBoard.resources[1].currentValue, GameBoard.resources[2].currentValue, GameBoard.timeCounter, 'lose', "Infection"])
                 PF.displayResultScreen(False)
                 running = False
-
-                continue
+                break
             # Event Handling
             finished = False
             for event in P:

@@ -143,7 +143,7 @@ class MCTS:
             print("after simulation legal plays winCounter", state.board.timeCounter)
             #AI Visualization, comment out to remove and speed up (meant for debugging)
             st = time.process_time()
-            while(time.process_time() - st < 2):
+            while(time.process_time() - st < 0.5):
                 P = PF.run(state.board)
                 for event in P:
                     if event.type == pygame.QUIT:
