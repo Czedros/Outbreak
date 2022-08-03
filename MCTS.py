@@ -26,10 +26,10 @@ class MCTS:
         print("MAKENODE")
         if self.nodes.get(hash(state)) is None:
             print("MAKENODE: LEGALPLAYS") 
-            unexpandedPlays = copy.copy(self.board.legal_plays(state))
+            unexpandedPlays = tuple(copy.copy(self.board.legal_plays(state))) #return a tuple
             node = Node(None, None, state, unexpandedPlays)
             self.nodes[hash(state)] = node
-    def runSearch(self,state):
+    def runSearch(self, state):
         """
         runs the entire 4-step process in a set amount of time
         """
@@ -64,16 +64,21 @@ class MCTS:
 
         if state.isPlayer(1):
             allPlays = node.allPlays()
+            for play in allPlays:
+                cNode = node.childNode(hash(play))
+                if cNode is None: 
+                    print("this shouldn't run all the time")
+                    continue 
+                if ( cNode.wins / cNode.plays )>max:
+                    bPlay = play
+                    max = cNode.wins / cNode.plays 
         else:
             allPlays = node.allPlays(bestP = True)
-        for play in allPlays:
-            cNode = node.childNode(hash(play))
-            if cNode is None: 
-                print("this shouldn't run all the time")
-                continue 
-            if ( cNode.wins / cNode.plays )>max:
-                bPlay = play
-                max = cNode.wins / cNode.plays 
+            cNode = node.childNode(hash(allPlays))
+            if cNode is None:
+                print("this should be running at all for the zombie ruhoh")
+            bPlay = allPlays
+            max = cNode.wins / cNode.plays
         print("max wr: ", max)
         print("bestPlay ran with any errors somehow")
         return bPlay 
@@ -88,16 +93,19 @@ class MCTS:
         node = self.nodes[hash(state)]
         while node.isFullyExpanded() and not node.isLeaf():
             print("IF EXPANDED AND NOT TERMINAL")
-            plays = node.allPlays()
-            bPlay = None
-            bUCB1 = float('-inf') #negative infinity
-            for play in plays:
-                dic = node.children[hash(play)]
-                cUCB1 = dic["node"].getUCB1(self.c) 
-                if cUCB1 > bUCB1: #process of pickng the best child 
-                    bPlay = hash(play)
-                    bUCB1 = cUCB1
-            node = node.childNode(bPlay)
+            if node.state.isPlayer(1):
+                plays = node.allPlays() #If true: return tuple of plays for zombie
+                bPlay = None
+                bUCB1 = float('-inf') #negative infinity
+                for play in plays:
+                    cUCB1 = node.children[hash(play)]["node"].getUCB1(self.c) 
+                    if cUCB1 > bUCB1: #process of pickng the best child 
+                        bPlay = hash(play)
+                        bUCB1 = cUCB1
+                node = node.childNode(bPlay)
+            else:
+                plays = node.allPlays(True)
+                node = node.childNode(hash(plays))
         return node #return the best child slay
 
     def expand(self, node : Node):
@@ -119,12 +127,13 @@ class MCTS:
 
         print("EXPANSION NEXT_STATE")
         cState = self.board.next_state(node.state, play_h_or_z ) # play the next state and return it
+        self.visualize(cState)
         print("EXPANSION LEGAL_PLAYS")
-        cUnexpandedPlays = self.board.legal_plays(cState) #find all the legal_plays for this new child State
+        cUnexpandedPlays = tuple(self.board.legal_plays(cState)) #find all the legal_plays for this new child State
         print("EXPANSION Node expand")
         cNode = node.expand(play_h_or_z, cState, cUnexpandedPlays) #expand the child node and return it
         self.nodes[hash(cState)] = cNode #add it to our dict of nodes hahahahah
-
+        
         return cNode
 
     def simulate(self, node : Node):
@@ -141,14 +150,7 @@ class MCTS:
             print("SIMULATION legal_plays")
             plays = self.board.legal_plays(state)
             print("after simulation legal plays winCounter", state.board.timeCounter)
-            #AI Visualization, comment out to remove and speed up (meant for debugging)
-            st = time.process_time()
-            while(time.process_time() - st < 0.5):
-                P = PF.run(state.board)
-                for event in P:
-                    if event.type == pygame.QUIT:
-                        sys.exit()
-            ############
+            
             if state.isPlayer(1):
                 play = choice(plays) 
                 print("SIMULATION next_state for human")
@@ -160,6 +162,7 @@ class MCTS:
                 state = self.board.next_state(state, playList)
                 print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
             print("SIMULATION find winner")
+            self.visualize(state)
             winned = self.board.winner(state)
             print("The winner is... -->", winned)
         return winned
@@ -207,6 +210,16 @@ class MCTS:
                     stats[2].append((zombiePlays, child["node"].plays, child["node"].wins))
 
         return stats
+
+    def visualize(self, state):
+        #AI Visualization, comment out to remove and speed up (meant for debugging)
+        st = time.process_time()
+        while(time.process_time() - st < 0.5):
+            P = PF.run(state.board)
+            for event in P:
+                if event.type == pygame.QUIT:
+                    sys.exit()
+        ############
 
 
     #Errors: 

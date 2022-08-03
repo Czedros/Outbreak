@@ -636,8 +636,8 @@ class Board:
             self.isDay = self.timeCounter % renderConstants.CYCLELEN < renderConstants.CYCLELEN/2
             self.resources[1].alterByPercent(-1*(1+self.resources[2].currentValue), True)
             #TODO: add zombie wave later
-            #if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
-                #self.zombieWave()
+            if(self.timeCounter % renderConstants.CYCLELEN == renderConstants.CYCLELEN/2):
+                self.zombieWave()
                 #elif(self.timeCounter % renderConstants.CYCLELEN == 0 and self.timeCounter != 0):
                 #    self.populate()
             #print(self.resources[1].currentValue)

@@ -14,8 +14,11 @@ class Node:
         self.children = {}
         #Key: hash value of play
         #Value: the node
-        for play in unexpandedPlays: #array of legal Plays that can be made form this node
-            self.children[hash(play)] = {"play": play, "node": None}
+        if self.state.isPlayer(1):
+            for play in unexpandedPlays: #array of legal Plays that can be made form this node
+                self.children[hash(play)] = {"play": play, "node": None}
+        else:
+            self.children[hash(unexpandedPlays)] = {"play" : unexpandedPlays, "node" : None}
 
     
     def childNode(self, play):
@@ -53,7 +56,7 @@ class Node:
                     for p in child["play"]:
                         acts.append(p)
                 else:
-                    acts.append(child["play"])
+                    return child["play"]
             else:
                 acts.append(child["play"])
         return acts
