@@ -78,7 +78,7 @@ class Board:
         copied = State_MC([], boardC, 1)
         return copied
         
-    def legal_plays(self, state : State_MC):
+    def legal_plays(self, state : State_MC, ignores = []):
         """
          return the current player's legal moves from given state
          Difference for Zombie
@@ -89,7 +89,7 @@ class Board:
         if state.isPlayer(1):         
             #print("LEGAL PLAYS get possible moves for human")
             role = 'Human'
-            acts = state.board.get_possible_moves(role)
+            acts = state.board.get_possible_moves(role, ignores = ignores)
             for a in acts:
                 #list of [coord, action]
                 #print("Action is:", a[1], "to coordinates:", a[0][0], a[0][1])
@@ -228,7 +228,7 @@ class Board:
                 if state.person is not None and state.person.isZombie == False:
                     return state.location
 
-    def get_possible_moves(self, role: str):
+    def get_possible_moves(self, role: str, ignores = []):
         """
         Get the coordinates of people (or zombies) that are able
         to make the specified move.
@@ -266,7 +266,7 @@ class Board:
                         (playerPos[0] - 1, playerPos[1]),
                     ]
                     for coordinate in vals:
-                        if B.isValidCoordinate(coordinate) and B.States[coordinate[1]][coordinate[0]].person == None:
+                        if B.isValidCoordinate(coordinate) and B.States[coordinate[1]][coordinate[0]].person == None and not (coordinate in ignores):
                             if B.States[coordinate[1]][coordinate[0]].passable() == True:
                                 poss.append([coordinate, "move"])
                 if act == "heal" and B.resources[0].currentValue > 1:

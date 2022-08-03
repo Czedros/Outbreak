@@ -157,18 +157,21 @@ class MCTS:
                 PF.selectedActor = PF.firstActor
                 oldBoard = state.board
                 apCost = 0
+                places = [state.board.findPlayer()]
                 while(state.isPlayer(1)):
                     #print("player: " + str(state.player))
-                    play = choice(self.board.legal_plays(state)) 
+                    play = choice(self.board.legal_plays(state, ignores = places)) 
                     #print("SIMULATION next_state for human")
                     state = self.board.next_state(state, play)
                     #print("IN SIMULATION FOR PLAYER AFTER NEXT_STATE the timecounter is", state.board.timeCounter)
-
+                    
                     #Render Stuff
                     if(play.Zmove == "move"):
+                        newPos = state.board.findPlayer() # don't comment out
+                        places.append(newPos) # don't comment out
+
                         apCost += 1
                         PF.actionSlot += 1
-                        newPos = state.board.findPlayer()
                         PF.actions.append(PF.Action(PF.ActionTypes.move.value, PF.selectedActor, newPos))
                         PF.selectedActor = newPos
                     elif(play.Zmove == "heal"):
@@ -184,7 +187,7 @@ class MCTS:
 
                     if(play.Zmove == "wait" or play.Zmove == "heal"):
                         break
-                    
+
                 #Render Stuff
                 PF.reset_actions()
                 PF.apOffset = 0
