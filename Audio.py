@@ -3,7 +3,7 @@ from ffpyplayer.player import MediaPlayer
 from os.path import exists, basename, splitext
 import time
 class Audio:
-    def __init__(self, filePath, volume = 1):
+    def __init__(self, filePath, volume = 0):
         self.filePath = filePath
         aud = MediaPlayer(filePath)
         aud.set_volume(volume)
