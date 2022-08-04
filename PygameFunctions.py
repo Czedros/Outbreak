@@ -621,84 +621,109 @@ def plotGraphTurnsSurvivedandSaving(path):
     my_crosstab = pd.crosstab(index = df["People Saved"], columns = df["Turns Survived"], margins = True)
     print(my_crosstab)
 
-def plotGraphPlayer1(path: str):
+def winningData(path: str, pathSave: str, startEnd = [0,0], tail = 0):
     df = dataRead(path)
-    plt.bar(df["resources remaining"], df["turns survived"], color="blue", edgecolor="black")
-    plt.xlabel('resources remaining')
-    plt.ylabel('turns survived')
-    plt.savefig('barchart1.png', dpi=300)
-    plt.show()
-
-def plotPlayerGraph2(path):
-    df = dataRead(path)
-    plt.bar(df["People Saved"], df["Turns Survived"], color="red", edgecolor="black")
-    plt.xlabel('people saved')
-    plt.ylabel('turns survived')
-    plt.savefig('barchart2.png', dpi=300)
-    plt.show()
-
-def winningData(path: str, pathSave: str):
-    df = dataRead(path)
-    plt.plot(df["people saved"], label="people saved", color="green", linestyle="--", marker="^")
-    plt.plot(df["turns survived"], label="turns survived", color="red", marker=".")
+    p = df[["People Saved", "Turns Survived"]]
+    print(p)
+   
+    if startEnd != [0,0]:
+        p = df[["People Saved", "Turns Survived"]][startEnd[0]:startEnd[1]]
+    elif tail != 0:
+        p = df[["People Saved", "Turns Survived"]].tail(tail)
+   
+    plt.plot(p['People Saved'], label="people saved", color="green", linestyle="none", marker="^")
+    plt.plot(p["Turns Survived"], label="turns survived", color="red", marker=".")
     plt.xlabel('game rounds')
     plt.ylabel('people saved(green) and turns survived(red)')
     plt.savefig(pathSave, dpi=300)
-    plt.clf()
-
-def winingDataPeopleSaved(path: str, pathSave: str, startEnd=[0,0], tail=0):
+    plt.clf()    
+ 
+def winingDataPeopleSaved(path: str, pathSave: str, startEnd=[0,0], tail=0, win=True):
     df = dataRead(path)
-    p = df["people saved"]
-
-    #this could be useful not what I'm trying to do tho
-    #meanP = df[["win/lose", "people saved"]].groupby("win/lose").mean
-    
-    #winCases = df[df["win/lose"] == "win"]["people saved"]
-    
+    p = df["People Saved"]
+   
     if startEnd != [0,0]:
-        p = df["people saved"][startEnd[0]:startEnd[1]]
+        p = df["People Saved"][startEnd[0]:startEnd[1]]
     elif tail != 0:
-        p = df["people saved"].tail(tail)
-
-    plt.plot(p, color="green", linestyle="--", marker="^", markersize=2, markeredgecolor='black')
+        p = df["People Saved"].tail(tail)
+ 
+    plt.plot(p, color="green", linestyle="none", marker="^", markersize=2, markeredgecolor='black')
     plt.title("people saved")
     plt.xlabel('game rounds')
     plt.ylabel('people saved')
+       
     plt.savefig(pathSave, dpi=300)
     plt.clf()
-
+ 
 def winingDataTurnsSurvived(path: str, pathSave: str, startEnd=[0,0], tail=0):
     df = dataRead(path)
-
-    p = df["turns survived"]
-    
+ 
+    p = df["Turns Survived"]
+   
     if startEnd != [0,0]:
-        p = df["turns survived"][startEnd[0]:startEnd[1]]
+        p = df["Turns Survived"][startEnd[0]:startEnd[1]]
     elif tail != 0:
-        p = df["turns survived"].tail(tail)
-
-    plt.plot(p, color="red", marker=".", markersize=2, markeredgecolor='black')
-
+        p = df["Turns Survived"].tail(tail)
+ 
+    plt.plot(p, color="red", linestyle = "none", marker=".", markersize=2, markeredgecolor='black')
+ 
     plt.title("Turns Survived")
     plt.xlabel('game rounds')
     plt.ylabel('turns survived')
     plt.savefig(pathSave, dpi=300)
     plt.clf()
-
+ 
 def winingDataResourcesRemaining(path: str, pathSave: str, startEnd=[0,0], tail=0):
     df = dataRead(path)
-
-    p = df["resources remaining"]
-    
+ 
+    p = df["Resources Remaining"]
+   
     if startEnd != [0,0]:
-        p = df["resources remaining"][startEnd[0]:startEnd[1]]
+        p = df["Resources Remaining"][startEnd[0]:startEnd[1]]
     elif tail != 0:
-        p = df["resources remaining"].tail(tail)
-
-    plt.plot(p, color="blue", linestyle="dashdot", marker="*", markersize=2, markeredgecolor='black')
-
+        p = df["Resources Remaining"].tail(tail)
+ 
+    plt.plot(p, color="blue", linestyle="none", marker="*", markersize=2, markeredgecolor='black')
+ 
     plt.title("resources remaining")
     plt.xlabel('game rounds')
     plt.ylabel('resources remaining')
     plt.savefig(pathSave, dpi=300)
     plt.clf()
+
+def WinLossOverTime(path: str, pathSave: str, startEnd=[0,0], tail=0):
+    df = dataRead(path)
+ 
+    p = df["WinLose"]
+   
+    if startEnd != [0,0]:
+        p = df["WinLose"][startEnd[0]:startEnd[1]]
+    elif tail != 0:
+        p = df["WinLose"].tail(tail)
+ 
+    plt.plot(p, color="blue", linestyle="none", marker="*", markersize=2, markeredgecolor='black')
+ 
+    plt.title("Wins and Losses over time")
+    plt.xlabel('game rounds')
+    plt.ylabel('Wins and Losses')
+    plt.savefig(pathSave, dpi=300)
+    plt.clf()
+ 
+ 
+def getWinCases(path:str, pathSave: str, heading: str, startEnd=[0,0], tail=0):
+    df = dataRead(path)
+    p = df["WinLose"]
+   
+    if startEnd != [0,0]:
+        p = df["WinLose"][startEnd[0]:startEnd[1]]
+    elif tail != 0:
+        p = df["WinLose"].tail(tail)
+ 
+    df.groupby(p)[heading].plot(legend=True, linestyle = "none", marker=".", markersize=3)
+ 
+    plt.title("win/lose " + heading)
+    plt.xlabel('game rounds')
+    plt.ylabel(heading)
+    plt.savefig(pathSave, dpi=300)
+    plt.clf()
+
