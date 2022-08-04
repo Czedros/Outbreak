@@ -20,6 +20,7 @@ from Obstacle import Obstacles
 from pymediainfo import MediaInfo
 from ffpyplayer.player import MediaPlayer
 from Audio import Audio
+import numpy as np
 
     #Rumeysa 
     #might not use all these libraries
@@ -610,17 +611,19 @@ def dataRead(path: str):
 
 
 #graphing the data of player
-def plotGraphPlayer1(path: str):
-    df = pd.read_csv(path, lineterminator='\n')
-    plt.bar(df["resources remaining"], df["turns survived"], color="blue", edgecolor="black")
-    plt.xlabel('resources remaining')
-    plt.ylabel('turns survived')
-    plt.savefig('barchart1.png', dpi=300)
-    plt.show()
+def plotGraphVictoryandSaving(path: str):
+    df = pd.DataFrame(pd.read_csv(path), columns = ["Resources Remaining", "People Saved", "Turns Survived", "WinLose", "Reason"])
+    my_crosstab = pd.crosstab(index = df["People Saved"], columns = df["WinLose"], margins = True)
+    print(my_crosstab)
     
-def plotGraphPlayer2(path):
+def plotGraphTurnsSurvivedandSaving(path):
+    df = pd.DataFrame(pd.read_csv(path), columns = ["Resources Remaining", "People Saved", "Turns Survived", "WinLose", "Reason"])
+    my_crosstab = pd.crosstab(index = df["People Saved"], columns = df["Turns Survived"], margins = True)
+    print(my_crosstab)
+
+def plotPlayerGraph2(path):
     df = dataRead(path)
-    plt.bar(df["people saved"], df["turns survived"], color="red", edgecolor="black")
+    plt.bar(df["People Saved"], df["Turns Survived"], color="red", edgecolor="black")
     plt.xlabel('people saved')
     plt.ylabel('turns survived')
     plt.savefig('barchart2.png', dpi=300)

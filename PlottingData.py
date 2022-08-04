@@ -1,4 +1,11 @@
 import PygameFunctions as PF
 import matplotlib as plt
+import numpy as np
 
-PF.plotGraphPlayer1("Gather_Less_When_Resources_Low (1).csv")
+PF.plotGraphVictoryandSaving("Gather_Less_When_Resources_LowWithouMoves.csv")
+PF.plotGraphVictoryandSaving("Spend_More_Gathering_ConstantWithoutMoves.csv")
+PF.plotGraphVictoryandSaving("Spend_More_When_Resources_HighWithoutMoves.csv")
+
+PF.plotGraphTurnsSurvivedandSaving("Gather_Less_When_Resources_LowWithouMoves.csv")
+PF.plotGraphTurnsSurvivedandSaving("Spend_More_Gathering_ConstantWithoutMoves.csv")
+PF.plotGraphTurnsSurvivedandSaving("Spend_More_When_Resources_HighWithoutMoves.csv")
