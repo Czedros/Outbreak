@@ -621,6 +621,14 @@ def plotGraphTurnsSurvivedandSaving(path):
     my_crosstab = pd.crosstab(index = df["People Saved"], columns = df["Turns Survived"], margins = True)
     print(my_crosstab)
 
+def plotGraphPlayer1(path: str):
+    df = dataRead(path)
+    plt.bar(df["resources remaining"], df["turns survived"], color="blue", edgecolor="black")
+    plt.xlabel('resources remaining')
+    plt.ylabel('turns survived')
+    plt.savefig('barchart1.png', dpi=300)
+    plt.show()
+
 def plotPlayerGraph2(path):
     df = dataRead(path)
     plt.bar(df["People Saved"], df["Turns Survived"], color="red", edgecolor="black")
