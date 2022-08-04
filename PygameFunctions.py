@@ -611,7 +611,7 @@ def dataRead(path: str):
 
 #graphing the data of player
 def plotGraphPlayer1(path: str):
-    df = dataRead(path)
+    df = pd.read_csv(path, lineterminator='\n')
     plt.bar(df["resources remaining"], df["turns survived"], color="blue", edgecolor="black")
     plt.xlabel('resources remaining')
     plt.ylabel('turns survived')
